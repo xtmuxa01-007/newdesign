@@ -1,0 +1,74 @@
+MAHSULOT, RASM, OMBOR VA YANGI KIRIM
+===================================
+
+FAYLLAR
+routes_stock.py, schemas.py, models.py: Product, Supplier, Stock, Receipt.
+Frontend Inventory va ProductImage komponentlari.
+
+MAHSULOT KATALOGI
+Product: id, name, sku, supplier_id, image.
+SKU uppercase va unique; qidiruv nom yoki SKU orqali katta/kichik harfsiz.
+SQL qidiruvdagi foydalanuvchi %/_ belgilari literal qilib escape qilinadi.
+Bir xil mahsulot boshqa ta’minotchidan kelsa, unga boshqa SKU yarating:
+bitta product har doim bitta ta’minotchiga tegishli.
+QR, EAN, barcode maydonlari mavjud emas.
+
+FILIAL QOLDIG‘I
+Stock: branch_id + product_id unique, kg, price, discount.
+kg — Numeric(14,3), price — Numeric(16,2), discount — Numeric(5,2).
+active alohida o‘zgaruvchi emas: kg>0 bo‘lsa faol. UI tugagan mahsulotni
+ko‘rsatadi, lekin POSda qo‘shishga ruxsat bermaydi. Backend ham tekshiradi.
+GET /products stock hali yo‘q mahsulotni ham 0 kg bilan qaytaradi.
+
+BIR MARTALIK RASM
+Avval Product JSON orqali yaratiladi, so‘ng /products/{id}/image multipart.
+JPEG, PNG, WEBP qabul qilinadi. Maksimal 5 MB va 20 mln piksel.
+Pillow rasmni ochib haqiqiy formatini tekshiradi, RGBga o‘tkazadi,
+1200x1200 ichiga sig‘diradi, metadata saqlamasdan JPEG sifatida qayta yozadi.
+Tasodifiy 32 hex nom beriladi, foydalanuvchi filename yo‘l sifatida olinmaydi.
+product.image allaqachon bo‘lsa 409: kirimga qayta rasm yuklanmaydi.
+Rasm bosqichida xato bo‘lsa yaratilgan product ID frontendda qoladi;
+qayta yuborishda mahsulotni takror yaratmay, rasmini yuklaydi.
+Rasmsiz qolgan mahsulot uchun ombordagi rasm ikonkasidan qo‘shish mumkin.
+Rasmlarni ko‘rish ham autentifikatsiya talab qiladi.
+
+KIRIM
+POST /receipts: request_id, branch_id, product_id, kg, price, note.
+Bir yangi kirim ko‘pi bilan 200 kg; 200 kg qabul qilinadi, 200.001 kg rad
+etiladi. Masalan, 450 kg yuk 200 + 200 + 50 kg qilib uch kirimda yoziladi.
+Web/EXE va yangi legacy importlar shu limitni tekshiradi. Jami ombor qoldig‘i
+200 kg bilan cheklanmaydi; oldin saqlangan katta kirimning retry javobi saqlanadi.
+Filial qulfi olinadi. Takror request_id avvalgi kirimni qaytaradi, kg takror
+qo‘shilmaydi. Qoldiq yaratiladi yoki oshiriladi. Receipt tarixga yoziladi.
+user_id va vaqt serverdan olinadi, kassir ularni belgilay olmaydi.
+Audit oldingi/keyingi kg, price va discountni ham saqlaydi.
+
+NARX TALQINI — MUHIM
+Pul maydonida 10000 yozilganda 10 000 ko‘rinadi; serverga bo‘shliqsiz son
+yuboriladi. Yangi/nol narx oldindan qiymat sifatida yozilmaydi: 0 placeholder.
+Mahsulotning filial bo‘yicha bitta joriy narxi bor. Masalan, 10 kg 13 800 dan
+qolganida 5 kg 15 000 dan kirim qilinsa, yangi jami 15 kgning sotuv narxi
+15 000 bo‘ladi. Kirim oynasi buni oldindan yozib ko‘rsatadi.
+Receipt ichidagi kirim narxi va oldingi SaleItem narxi o‘zgarmaydi.
+Kirim qo‘shmasdan joriy sotuv narxini o‘zgartirish uchun «Ombor → Tahlil →
+Narxni o‘zgartirish»dan foydalaning. Admin o‘z filialida, boshliq tanlangan
+faol filialda yangi narx va sababni saqlaydi; kg, chegirma va eski yozuvlar
+saqlanadi. Yangi kirim keyinroq narxni yana belgilashi mumkin. Kirim bekor
+qilinganda tegishli keyingi qo‘lda narx o‘zgarishi tarixdan saqlab qolinadi.
+Davr bo‘yicha mahsulot savdosi, kirimi va narx tarixi haqida batafsil:
+35_MAHSULOT_TAHLILI_VA_NARX_TAHRIRI.txt.
+FIFO/partiya bo‘yicha narx talab etilsa Stock modelini bevosita tahrirlash
+yetarli emas: Receipt lot qoldig‘i va sotuvning lot taqsimotini qo‘shish kerak.
+
+CHEGIRMA
+PATCH /stocks/{id}/discount: 0–100%, ikki kasr xonasigacha.
+Admin faqat o‘z stockini, boshliq barcha stocklarni o‘zgartiradi.
+Chegirma muddatli emas, qo‘lda 0 qilib bekor qilinadi.
+kg=0 holatdagi yangi kirim oldingi chegirmani avtomatik 0 qiladi.
+Hali qoldiq bor mahsulotga yangi yuk kelsa, amaldagi chegirma saqlanadi.
+
+KIRIM TARIXI
+GET /receipts branch_id va offset bilan 100 tadan sahifalanadi.
+Interfeysda eng so‘nggi 100 kirim bor. To‘liq kirim amallari «Barcha amallar»
+audit sahifalari orqali ham ko‘riladi. Kelgusida alohida kirim pagination UI
+qo‘shish uchun API tayyor.

@@ -1,0 +1,118 @@
+REACT INTERFEYSI VA O‘ZGARTIRISH TARTIBI
+======================================
+
+DIZAYN
+Oq va och kulrang fon, yashil asosiy tugmalar, katta aniq sonlar.
+Chap menyu, yuqorida filial, kontentda bir asosiy vazifa.
+Ichki bo‘limlarda katta kirish sarlavhasi, uning ustidagi yozuv va izoh yo‘q.
+Bo‘lim nomi yuqori panel va menyuda; amallar PageActions qatorida qoladi.
+POSda mahsulot kartalari va alohida savat; naqd/karta uchun ikkita maydon.
+Rasmi yo‘q mahsulotda neytral kiyim/mahsulot placeholderi.
+Kichik ekranlarda menyu ochiladi, POS savati mahsulotlar tagiga tushadi.
+Tashqi shrift/CDN yo‘q. SVG favicon lokal, ikonkalar bundle ichida.
+
+FAYLLAR
+main.jsx — App, Login, Logo, rolga mos menyu, filial tanlash, toast va seans.
+pages.jsx — ekranlarni eksport qiluvchi kichik kirish fayli.
+pages/Dashboard.jsx — filiallar, kun/oy/yil metrikalari va hisoblar.
+pages/Inventory.jsx — mahsulot, rasm, kirim va chegirma.
+pages/Suppliers.jsx — ta’minotchi qarzi va pul berish tarixi.
+pages/Donations.jsx — ehson qoldig‘i va berilgan pullar.
+pages/Reports.jsx — filial savdosi, audit va JSON/Excel yuklash.
+pages/SalesAnalytics.jsx — oy/davr, filial kesimi, grafiklar va Excel analiz.
+pages/Team.jsx — boshliqning xodim va filial boshqaruvi.
+pages/shared.jsx — umumiy useData, PageActions, Metric, Table, PaymentModal.
+pos.jsx — eng murakkab mustaqil POS holati va saqlangan savatlar.
+components.jsx — Modal, Field, Badge, Empty, Pager,
+                  ProductImage, MoneyInput va sana formatlash.
+MoneyInput.jsx / money-input.js — pul kiritishda minglik bo‘shliq, aniq
+                  decimal qiymat, kursor va form tekshiruvlari.
+api.js — cookie bilan fetch, xatolarni o‘zbekcha ko‘rsatish, query/post;
+         apiBlob haqiqiy Excel javobini oladi, autentifikatsiya/xato yo‘li umumiy.
+money.js — BigInt hisoblash, decimal va formatlash.
+id.js — request UUID; HTTP LANda ham getRandomValues bilan ishlaydi.
+dates.js — brauzer o‘zbek oylarini bilmasa ham aniq o‘zbekcha Toshkent sanasi.
+recovery.js — kirim/to‘lovni yuborishdan oldin saqlash, ayni so‘rovni tiklash.
+RecoveryModal.jsx — sahifa yangilanganda ham noma’lum to‘lov natijasini tekshirish.
+style.css — ekran bo‘limlari, o‘lchamlar va responsive qoidalar.
+
+HOLAT BOSHQARUVI
+Oddiy React useState/useEffect/useCallback. Redux kerak emas.
+Odatdagi bo‘lim page+branch kaliti bilan alohida qayta ochiladi. Analizda
+filial o‘zgarganda tanlangan sana/grain saqlanadi; faqat scope bilan bog‘liq
+API natijasi ko‘rsatiladi, yangi filtrda oldingi filial hisoblari ochilmaydi.
+Boss dashboardda barcha filiallarni tanlashi mumkin. POS/Inventory/Reports
+uchun aniq filial kerak, standart birinchi faol filial tanlanadi.
+Reportsda boss filial nomli tablar orqali savdo tarixini almashtiradi;
+arxiv filiallar ham ko‘rinadi. Adminning tarixi faqat o‘z filialiniki.
+Auditning umumiy amallar tanlovi savdo va JSON/Excel doirasini o‘zgartirmaydi.
+useData loader yangilanganda eski so‘rov natijasi yangi filtrni almashtirib
+yubormasligi uchun generation raqamini tekshiradi.
+Mutatsiyadan keyin tegishli ro‘yxatlar qayta yuklanadi.
+Dashboard/POS 30 soniyada yangilanadi. Haqiqiy websocket yo‘q.
+
+FORMLAR
+HTML required/min/max/step foydalanuvchiga yordam beradi. Server sxemalari
+asosiy tekshiruv bo‘lib qoladi. Barcha maydon qiymatlarini serverga ishonchli
+deb qabul qilmang. FormData multipart faqat rasm uchun.
+Modal native dialog.showModal orqali ochiladi; Escape va yopish tugmasi bor.
+Busy holatda formani yopish va qayta submit to‘xtatiladi.
+Moliyaviy request_id bir ochilgan formada o‘zgarmaydi.
+
+PUL KO‘RSATISH VA HISOBLASH
+fmt Intl.NumberFormat orqali ko‘rinishni beradi, bu hisoblash formulasi emas.
+Savdo summasi lineCents orqali BigIntda hisoblanadi. Number()dan foydalanib
+checkout total yig‘mang. Backend Decimal bilan yana tekshiradi.
+UI to‘lov «Naqd»/«Karta» tugmasi qolgan summani to‘ldiradi, aralash rejimi yo‘q.
+Pul kiritishning barcha maydonlari MoneyInput: narx, naqd/karta, savdo tahriri,
+qarz, xarajat, ta’minotchi va ehson to‘lovlari. Yozish paytida 10 000.50
+ko‘rinadi, state/API/FormData uchun 10000.50 satri saqlanadi. Vergul kasr
+ajratuvchisi va ko‘chirilgan minglik bo‘shliqlar ham qabul qilinadi.
+Ko‘rinadigan input text/inputMode decimal; name faqat canonical hidden
+inputda. Required/min/max/step custom validity orqali tekshiriladi.
+Pulga Number orqali aylantirish yo‘q; hisob/validatsiya aniq decimal/BigInt.
+Nol boshlang‘ich kirim narxi bo‘sh maydon va 0 placeholder; mavjud musbat
+narx qayta ko‘rsatiladi. POS va tahrirning nol to‘lovlari ham placeholder.
+Mahsulot kirimi max 200 kg: HTML va submit tekshiruvi bor, server ham rad
+etadi. Bu chegarani jami ombor qoldig‘i yoki savdo kilogrammiga qo‘llamang.
+
+LOGIN TAHRIRI
+Sozlamalar → Login va parol barcha rollarning o‘z hisobi uchun; joriy parol
+talab qilinadi, yangi parol ixtiyoriy. Jamoa va filiallarda boshliq xodim
+qatoridagi «Login va parol»ni ochadi: login oldindan to‘ldirilgan, 3–60
+belgi, yangi parol bo‘sh qolsa payloadga kirmaydi va avvalgi parol saqlanadi.
+Login/parol yangilanganda xodimning barcha seanslari bekor qilinadi; o‘z
+hisobi yangilansa UI qayta kirishni ochadi. Boshqa boshliq Programmistni
+tahrirlay olmaydi. Ruxsat va tarix username matniga emas, hisobga bog‘liq.
+Tafsilot: 02_ROLLAR_VA_KIRISH.txt.
+
+ANALIZ VA FAYL YUKLASH
+Savdolar analizi menyusi boss/admin uchun; endpoint ham manager tekshiradi.
+Oy sanalari Toshkent bo‘yicha, kun/oy SVG grafigi va filial CSS ustunlari
+tashqi chart kutubxonasisiz. Grafikning pul nisbatlari BigIntdan olinadi,
+tooltip va jadvallar serverning aniq decimal satrlarini formatlaydi.
+62 kundan uzun davr avtomatik oylik ko‘rinadi; API tarixga biznes limit
+qo‘ymaydi. Grafik qiymati mahsulot savdosi, kassadagi qoldiq yoki foyda emas.
+Analiz Excelda davr/filial va barcha mahsulotlar; tarix Excelda aniq filial/
+sana va barcha savdo qatorlari olinadi. apiBlob binary javobni qaytaradi;
+JSON uchun api() saqlanadi. generation/currentScope noaniq eski filial/davr
+faylining yangi tanlovga yuklanishini va sahifa yopilgach downloadni to‘xtatadi.
+Qarz to‘lovi davrining ma’nosi 06_HISOBOT_TARIX_JSON.txtda tushuntirilgan.
+
+YIG‘ISH VA FORMATLASH
+Dockerfile build stage pnpm 10.11.0 va pnpm-lock.yaml bilan frozen install.
+pnpm-workspace.yaml faqat esbuild build scriptiga ruxsat beradi.
+React prod fayllari nginxga ko‘chiriladi, dev server ishlab chiqarishda yo‘q.
+Kod Prettier orqali odatiy ko‘p qatorli, o‘qiladigan shaklga keltirilgan.
+Node mavjud dasturchi muhitida pnpm run format; ishchi ilova Dockerda.
+Frontendning server API bilan ishlashi bir xil origin /api orqali.
+Pul kiritish testlari: frontend papkasida npm test yoki loyiha ildizidan
+node --test frontend/tests/money-input.test.mjs. CI ham shu testlarni bajaradi.
+
+YANGI BO‘LIM
+1. Yangi React komponent yaratish.
+2. main.jsx nav va Current xaritasiga qo‘shish.
+3. Backend endpoint va Depends orqali rol ruxsatini yozish.
+4. Kerakli audit yozuvini shu tranzaksiyada qo‘shish.
+5. Bo‘lim hujjatini docsda yaratish/yangilash va muhim biznes testini yozish.
+

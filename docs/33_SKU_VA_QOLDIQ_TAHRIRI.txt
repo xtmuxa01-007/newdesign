@@ -1,0 +1,83 @@
+SKU VA OMBOR QOLDIG‘INI TAHRIRLASH — 2026-11-04
+
+2026-11-05: EXE va eski lokal sync vaqtincha to‘xtatilgan. Shu rejimda
+eski qurilma belgisi webdagi kg/SKU tahririni bloklamaydi; eski pushlar
+serverga qo‘llanmaydi. Qurilma va biznes yozuvlari o‘zgartirilmaydi.
+
+Vakolat
+SKU tahriri faqat SystemOwner hisobiga bog‘langan faol Programmistga ochiq.
+Kilogramm qoldig‘ini admin o‘z filialida, boshliq tanlangan faol filialda
+tuzatadi. Kassirga ruxsat yo‘q. Tuzatishni bekor qilish Programmistda qoladi.
+
+Foydalanish
+Ombor → filialni tanlang → mahsulot yonidagi qalam: SKU tahriri.
+SKU barcha filiallar uchun umumiy, katta harflarda saqlanadi va takrorlanmaydi.
+Oldingi savdo hujjatlarida sotuv paytidagi SKU saqlanadi, hatto shu savdoning
+narxi yoki mijozi keyin tahrirlansa ham. Boshqa mahsulotga almashtirish bundan mustasno.
+
+Ombor → Tahlil → Hozirgi ombor holati → Kilogramni tuzatish.
+Programmistning jadvaldagi tarozi orqali kirishi ham saqlanadi.
+Ombordagi haqiqiy JAMI kilogrammni (qo‘shiladigan farqni emas) kiriting.
+0 mumkin, manfiy yoki 3 kasr xonadan ortiq miqdor mumkin emas. Sabab majburiy.
+Hali kirimi bo‘lmagan mahsulot uchun avval Yangi kirim bilan narx va miqdor kiriting.
+Qoldiq tuzatishlari bo‘limida so‘nggi 100 yozuv: oldingi/yangi miqdor, farq,
+sabab, xodim va vaqt ko‘rinadi. Barcha yozuvlar bazada va auditda saqlanadi.
+«Savdolar va tarix → O‘zgarishlar → Ombor qoldig‘i»da ham oldingi/yangi kg,
+farq va sabab ko‘rinadi. Barcha boshliqlarga ilova ichida bildirishnoma
+boradi; o‘qilganlik har bir boshliq hisobiga alohida saqlanadi.
+
+Hisob-kitob va parallel ish
+Tuzatish mavjud savdo, kirim, narx, chegirma va pul/qarz hisoblarini o‘zgartirmaydi.
+Omborning joriy kilogrammi va qiymati tabiiy ravishda yangi qoldiqni aks ettiradi.
+Filial → mahsulot → stock qulflari savdo va kirim bilan bir tartibda olinadi.
+Oyna ochilgandan keyin qoldiq o‘zgarsa 409 qaytadi: oynani yoping, ro‘yxatni
+yangilang va miqdorni qayta tekshiring. Yuborilgan tuzatishning javobi yo‘qolsa,
+bir xil request_id bilan tekshirish ikkinchi tuzatishni yaratmaydi.
+Arxivlangan mahsulot/filialga yozish taqiqlangan. Eski offline rejim qo‘llanmaydi.
+Filialda faol eski offline qurilma bo‘lsa, avval saqlangan amallarni tekshirib,
+umumiy rejimga o‘ting. Bekor qilingan eski qurilmaning tarixiy yozuvi tahrirni
+bloklamaydi. Qurilma holati bu yangilanish bilan avtomatik almashtirilmaydi.
+
+Baza va tarixni saqlash
+Mavjud stock_adjustments jadvali ishlatiladi. Bu yangilanish uchun migratsiya,
+reset yoki eski ma’lumotlarni qayta yozish kerak emas. Deployning o‘zi tovar
+kilogrammini o‘zgartirmaydi; faqat admin/boshliq yangi qoldiqni tasdiqlaganda
+shu mahsulot/filialning joriy kg qiymati o‘zgaradi va yangi tuzatish yoziladi.
+Oldingi kunlarning kun yakuni qoldig‘i saqlanadi. Tuzatish bajarilgan kunning
+keyingi hisobotida yangi qoldiq hisobga olinadi; tuzatish savdo hisoblanmaydi.
+
+EXE ulanishi
+Bu PC yorlig‘i 0.4.8 EXEni ochayotgan edi: eski bitta qurilma/filial sozlashi.
+SHA256 bilan tekshirilgan amaldagi 0.5.0 installer shu o‘rnatish ustidan o‘rnatildi.
+O‘rnatilgan yordamchi --prepare-online natijasi: ok=true, mode=online,
+server=https://tincrm.uz. HTTPS /api/health: status=ok.
+0.5.0+ markaziy veb ilovani ochadi; SKU/qoldiq tahriri server deployidan keyin
+EXEni qayta ochganda olinadi.
+Oyna tekshiruvi foydalanuvchi Esc bosgani sabab to‘xtatildi; login/savdo UI sinovi
+haqiqiy hisobda yakunlanmadi. Ishlayotgan oynalarni majburan yopmang.
+
+0.5.1 — BOSHQA PCDA ESKI QURILMA 401 XATOSI
+Foydalanuvchi boshqa PCdagi 0.5.0 ulanish rasmini yubordi: eski device tasdiqlanmayapti.
+0.5.1 shu aniq holat uchun "Eski bazani saqlab markazga kirish" tugmasini beradi.
+1. Eski EXEda Yangilanishni tekshirish → yuklanishini kutish →
+   Qayta ishga tushirib o‘rnatish. Yoki 0.5.1 installerni eski versiya ustidan o‘rnating.
+2. Xato saqlansa, Eski bazani saqlab markazga kirish tugmasini bosing.
+3. Zaxira va tekshiruv tugagach, markaziy login oynasida o‘z hisobingiz bilan kiring.
+Eski baza, rasmlar, sozlamalar va pending amallar o‘chmaydi. Ular
+%APPDATA%\Marva CRM\branch\centers\retired-tincrm-uz-v1-<vaqt>-<id> ichida qoladi.
+MARVA_DATA_DIR o‘rnatilgan bo‘lsa shu katalogning centers papkasi ishlatiladi.
+Har lokal baza SQLite backup API bilan nusxalanib, SHA256 manifesti tekshiriladi.
+Butun eski profil shu ota papkaga atomar ko‘chiriladi. Yangi markaz profiliga
+eski ID, qurilma tokeni va navbat ko‘chirilmaydi. Serverdagi foydalanuvchi paroli
+o‘zgarmaydi, eski amallar yangi bazaga avtomatik yuborilmaydi.
+Tiklash faqat server eski qurilmani 401 bilan rad etsa mumkin. Faol eski filial
+hali sinxronlanmagan, internet yo‘q yoki zaxira xato bo‘lsa profil ko‘chirilmaydi.
+Tugma faqat EXEning mahalliy ulanish oynasidan ishlaydi, veb sahifadan chaqirib bo‘lmaydi.
+
+API
+PATCH /api/products/{product_id}/sku: expected_sku, sku.
+POST /api/stocks/{stock_id}/adjustments: request_id, expected_kg, kg, reason.
+GET /api/stock-adjustments?branch_id=...&offset=...: filial tarixi (100 ta/sahifa).
+API vakolatlari, SKU takrorlanishi, tarix, replay, filial chegarasi, arxiv,
+legacy cheklovi, noto‘g‘ri miqdor va parallel savdo unittest bilan tekshiriladi.
+Xuddi shu sinovlar CI dagi alohida PostgreSQL sxemasida ham bajariladi.

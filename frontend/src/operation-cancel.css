@@ -1,0 +1,43 @@
+.operation-cancel-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 18px 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.operation-cancel-confirm input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  flex-shrink: 0;
+  accent-color: var(--green);
+}
+
+.app-shell .sale-delete {
+  color: var(--danger, #b15849);
+}
+
+.sale-delete-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.sale-delete-panel p {
+  flex: 1 1 260px;
+}
+
+.app-shell .primary.sale-delete-confirm {
+  background: var(--danger, #b15849);
+}
+
+.app-shell .primary.sale-delete-confirm:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger, #b15849) 85%, #000);
+}

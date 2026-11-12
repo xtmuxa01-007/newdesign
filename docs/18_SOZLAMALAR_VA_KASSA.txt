@@ -1,0 +1,64 @@
+JORIY HOLAT: 2026-09-16 da test/demo fayllari va bazalari olib tashlandi.
+Quyida bo'limning ishlab chiqish tarixi va biznes qoidalari saqlangan.
+Amaldagi o'rnatish va bo'sh baza: 21_TOZA_VERSIYA.txt. Eski demo loginlari ishlamaydi.
+
+SOZLAMALAR VA KASSA JAMISI — 2026-09-15
+
+FOYDALANISH
+Umumiy ko'rinishdagi Shu yildagi savdo kartasi o'rniga Kassalardagi jami pul
+chiqadi: naqd + karta. Pastida ikkalasi alohida yoziladi. Filiallar holatida
+har filialning jami, naqd va karta qoldiqlari ko'rinadi. Boshliq barcha yoki
+tanlangan filialni; admin faqat o'z filialini ko'radi. Yillik savdo API qiymati
+saqlangan, faqat ushbu dashboard kartasi almashtirildi.
+
+SOZLAMALAR / RANGLAR
+Barcha rollarga Sozlamalar menyusi qo'shildi. 18 rang: sahifa, kartochkalar,
+yon menyu, yuqori panel, maydonlar, asosiy matn, yordamchi matn, sarlavha,
+tugma, hover, tugma matni, tanlangan element, chegaralar, ajratilgan karta,
+uning matni, jadval sarlavhasi, hisoblar paneli va xatolik matni.
+Tanlov darhol amal qiladi. Dastlabki ranglarni tiklash tugmasi bor.
+Ranglar localStorage crm-theme-{user.id} kalitida shu brauzerda saqlanadi.
+Boshqa kompyuterga avtomatik o'tmaydi. Hisobdan chiqishda standart ranglar
+qo'llanadi, kirganda o'z ranglari tiklanadi. Ranglar faqat #RRGGBB shaklida
+CSS o'zgaruvchilariga o'tadi; noto'g'ri qiymat standart bilan almashtiriladi.
+
+SOZLAMALAR / LOGIN VA PAROL
+O'z loginini/parolini almashtirish uchun joriy parol majburiy. Login 3–60
+belgi (lotin, raqam, nuqta, tire, pastki chiziq); yangi parol 10–200 belgi.
+Yangi parol bo'sh bo'lsa faqat login yangilanadi. UI takror parolni solishtiradi.
+POST /api/auth/settings: current_password, username, optional new_password.
+Login kichik harfga o'tkaziladi, boshqa hisobning logini rad qilinadi.
+Amal faqat autentifikatsiyadagi o'z useriga tegishli; user_id qabul qilinmaydi.
+Parol mavjud PBKDF2 bilan xeshlanadi. Muvaffaqiyatda barcha AuthSession
+seanslari o'chiriladi, cookie bekor qilinadi va qayta kirish kerak bo'ladi.
+Joriy parol 10 marta noto'g'ri kiritilsa 15 daqiqa cheklov; LoginAttempt DBda.
+Auditda login va password_changed belgisi bor, parol/xesh yo'q.
+CRM_BRANCH_ID desktop rejimida bu yangi endpoint yopiq. EXEga tegilmadi.
+
+O'ZGARGAN FAYLLAR
+frontend/src/pages/Dashboard.jsx: kassa jami kartasi va filial jami.
+frontend/src/pages/Settings.jsx: rang va o'z login/parolini almashtirish formasi.
+frontend/src/theme.js: standart ranglar, o'qish, tekshirish, CSSga qo'llash.
+frontend/src/main.jsx: menyu, sahifa, foydalanuvchi bo'yicha ranglar, seansdan chiqish.
+frontend/src/style.css: matn/fon o'zgaruvchilari, qismlarning ranglari, sozlama grid.
+backend/app/schemas.py: AccountSettings qat'iy modeli.
+backend/app/routes_auth.py: POST auth/settings, parol tekshirish, limit, audit.
+backend/tests/test_settings.py: uch rol, noto'g'ri parol, band login, validatsiya,
+login-only, eski seanslar yopilishi, eski parol rad etilishi, limit va EXE guard.
+DB ustun/jadval migratsiyasi talab qilinmaydi; mavjud User/AuthSession/LoginAttempt.
+
+TEKSHIRUV
+5 yangi backend testi o'tdi; frontend production build muvaffaqiyatli.
+Brauzerda boshliq jami 2801640.36; naqd 865165.15, karta 1936475.21 ko'rindi
+(sinov paytidagi ma'lumot, keyingi savdoda tabiiy o'zgaradi).
+Rang #e8edf5 ga o'zgardi: computed body rgb(232,237,245). Reload keyin
+#e8edf5 saqlandi; Dastlabki ranglarni tiklash bilan #f6f7f9 qaytdi.
+Real/demo foydalanuvchilar parollari qo'lda almashtirilmadi; auth testlari
+alohida memory bazada o'tkazildi. Web demo 8782 portda qayta ishga tushdi.
+
+TILLA PALETTA YANGILANISHI — 2026-09-15
+Standart fon #efe6ce, kartalar #fffdf7, to'q matn #20382e va izoh #526058.
+Eski standart ranglar readTheme ichida bir marta gold-v1 belgisi bilan yangi
+palitraga o'tadi; shaxsiy tanlov o'chirilmaydi. Karta izohlari 11px; yashil
+kartada oq matn. Uchinchi karta Kassadagi pullar: cash+card, yillik savdo emas.
+

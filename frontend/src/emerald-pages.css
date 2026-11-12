@@ -1,0 +1,536 @@
+/* Shared Emerald Gold surfaces for every workspace page and its dialogs. */
+.app-shell.emerald-workspace :is(section.panel, .change-history) {
+  scroll-margin-top: 16px;
+}
+.app-shell.emerald-workspace {
+  --emerald-ink: var(--heading, #073e2f);
+  --emerald-panel: linear-gradient(145deg, #fffdf4f2, #f1f6e7ed 70%, #fff8e4ed);
+  --emerald-edge: linear-gradient(130deg, #8dbc8e, #efda95 47%, #c7b46b 80%, #7ab785);
+  --emerald-shadow: inset 0 1px 0 #fff, 0 15px 32px -25px #3f743f66;
+  --emerald-dark: linear-gradient(135deg, #056044, #004b3c 55%, #003e35);
+}
+
+.app-shell.emerald-workspace :is(.panel, .cart-panel, .role-cards > div, .donation-explainer) {
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  color: var(--emerald-ink);
+  background:
+    var(--emerald-panel) padding-box,
+    var(--emerald-edge) border-box;
+  box-shadow: var(--emerald-shadow);
+}
+.app-shell.emerald-workspace :is(.panel-head, .cart-head) {
+  padding: 14px 20px;
+  border-color: #bfcba16b;
+}
+.app-shell.emerald-workspace :is(.panel-head h2, .cart-head h2, .settings-panel > h2) {
+  font-size: 20px;
+  font-weight: 710;
+  letter-spacing: -0.035em;
+  color: var(--emerald-ink);
+}
+.app-shell.emerald-workspace :is(.panel-head p, .panel-head > span) {
+  color: #5f7655;
+  font-size: 12px;
+}
+.app-shell.emerald-workspace .primary {
+  border: 1px solid #c4c58c;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--green), #004b3c);
+  color: var(--button-text, #fff);
+  box-shadow:
+    inset 0 1px 0 #fff3,
+    0 7px 16px -10px #064b3977;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.app-shell.emerald-workspace .primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--green-hover), #003c31);
+  box-shadow:
+    inset 0 1px 0 #fff3,
+    0 9px 20px -10px #064b3999;
+}
+.app-shell.emerald-workspace .secondary {
+  border: 1px solid #b9c48b99;
+  border-radius: 12px;
+  color: var(--green);
+  background: linear-gradient(135deg, #fffdf3e6, #eaf1d8c9);
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace .secondary:hover:not(:disabled) {
+  border-color: #769d68;
+  background: #e5efd6;
+}
+.app-shell.emerald-workspace :is(.icon-btn, .product-compact-add, .product-add) {
+  border-radius: 9px;
+}
+.app-shell.emerald-workspace :is(input, select, textarea, .search, .kg-input) {
+  border-color: #b6c4939c;
+  border-radius: 11px;
+  color: var(--text);
+  background-color: #fffef6;
+}
+.app-shell.emerald-workspace :is(input, select, textarea):focus,
+.app-shell.emerald-workspace .search:focus-within {
+  border-color: #779c68;
+  box-shadow: 0 0 0 3px #92ba7824;
+}
+.app-shell.emerald-workspace .search input {
+  background: transparent;
+}
+.app-shell.emerald-workspace :is(.filter-row, .table-toolbar) {
+  border-color: #c3cca16b;
+  background: #f4f6e7a6;
+}
+.app-shell.emerald-workspace :is(table) {
+  border-collapse: collapse;
+}
+.app-shell.emerald-workspace :is(th) {
+  color: #54704d;
+  background: linear-gradient(105deg, #e8eed8, #f3eccf 65%, #eaf0d9);
+  border-block: 1px solid #c1c99c80;
+  font-size: 11px;
+  font-weight: 650;
+  padding-block: 12px;
+}
+.app-shell.emerald-workspace :is(td) {
+  border-color: #bdc89b5c;
+  padding-block: 12px;
+}
+.app-shell.emerald-workspace :is(tbody tr:hover) {
+  background: #e3efd37d;
+}
+.app-shell.emerald-workspace :is(td small, .muted, .pager > span) {
+  color: #67815c;
+}
+.app-shell.emerald-workspace :is(.table-note-row > td) {
+  background: #eaf1d85e;
+}
+.app-shell.emerald-workspace :is(.pager) {
+  padding: 12px 20px;
+  border-color: #c3cca16b;
+}
+.app-shell.emerald-workspace :is(.badge, .count) {
+  border: 1px solid #c6d8ac88;
+  border-radius: 8px;
+  background: #e8f0de;
+  color: #356b47;
+}
+.app-shell.emerald-workspace :is(.badge.red, .badge.danger) {
+  border-color: #d8ad9566;
+  color: #a34435;
+  background: #f7e5d7;
+}
+.app-shell.emerald-workspace :is(.badge.gray) {
+  color: #69705d;
+  background: #e9e9dc;
+}
+.app-shell.emerald-workspace :is(.tabs) {
+  gap: 8px;
+  padding: 12px 18px;
+  flex-wrap: wrap;
+  border-color: #c3cca16b;
+}
+.app-shell.emerald-workspace :is(.tabs button) {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #5f7655;
+}
+.app-shell.emerald-workspace :is(.tabs button.selected) {
+  border-color: #a8bf8799;
+  background: linear-gradient(135deg, #e1edcf, #f4edce);
+  color: #14543d;
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace :is(.metrics > .metric) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 160px;
+  padding: 18px;
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background:
+    url('/emerald/satin-pearl.svg') center / 100% 100% no-repeat,
+    linear-gradient(132deg, #f4f7e9, #e7f4e4 53%, #fff9e7) padding-box,
+    linear-gradient(130deg, #00ae65, #f6dc7a 46%, #d8a932 76%, #008e56) border-box;
+  box-shadow:
+    0 20px 30px -24px #14934e77,
+    inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace :is(.metrics .metric-top) {
+  min-height: 44px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 650;
+  color: inherit;
+}
+.app-shell.emerald-workspace :is(.metrics .metric-top > svg) {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 1px solid #bed2a4aa;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffffe0, #c7e4b680);
+  color: #1b5b41;
+}
+.app-shell.emerald-workspace :is(.metrics .metric > strong) {
+  font-size: clamp(26px, 2.1vw, 36px);
+  font-weight: 720;
+  color: inherit;
+}
+.app-shell.emerald-workspace :is(.metrics .metric-note) {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.app-shell.emerald-workspace
+  :is(.summary-strip, .filtered-total, .debts-overview, .analytics-finance > div) {
+  border: 1px solid #c7c48d80;
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 100% 0, #f6df9666, transparent 65%),
+    linear-gradient(135deg, #faf6df, #e9eed5);
+  color: var(--emerald-ink);
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace :is(.summary-strip) {
+  padding: 14px 20px;
+  gap: 18px;
+}
+.app-shell.emerald-workspace .report-filters .filtered-total {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 1 330px;
+  min-width: 280px;
+  min-height: 88px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  text-align: left;
+  border: 1px solid #c6bd7b;
+  border-radius: 18px;
+  background: url('/emerald/satin-dark.svg') center / cover, linear-gradient(135deg, #076149, #004536);
+  color: #f5fff4;
+  box-shadow: inset 0 1px 0 #fff4, 0 10px 20px -18px #004e3caa;
+}
+.app-shell.emerald-workspace .filtered-total .report-total-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 46px;
+  height: 46px;
+  margin: 0;
+  border: 1px solid #e3edc755;
+  border-radius: 13px;
+  background: #ffffff18;
+  color: #ecf7df;
+}
+.report-total-copy { min-width: 0; }
+.app-shell.emerald-workspace .report-total-copy > span {
+  margin: 0 0 5px;
+  font-size: 12px;
+  color: #deedca;
+}
+.app-shell.emerald-workspace .report-total-copy strong {
+  display: block;
+  font-size: clamp(23px, 1.7vw, 30px);
+  line-height: 1.2;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.app-shell.emerald-workspace .report-total-copy .unit {
+  display: inline;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #deedca;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .app-shell.emerald-workspace .report-filters .filtered-total {
+    flex: 1 1 100%;
+    min-width: 0;
+    width: 100%;
+    margin: 4px 0 0;
+  }
+}
+.app-shell.emerald-workspace :is(.product-card) {
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background:
+    linear-gradient(140deg, #fffdf4, #f1f7e7) padding-box,
+    var(--emerald-edge) border-box;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 12px 22px -24px #24684080;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.app-shell.emerald-workspace :is(.product-card:hover:not(:disabled)) {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 28px -22px #24684080;
+}
+.app-shell.emerald-workspace :is(.product-visual, .product-img.placeholder) {
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f1f4df, #e1edcf);
+  color: #5d8355;
+}
+.app-shell.emerald-workspace :is(.product-compact-add, .product-add) {
+  color: #f4fff5;
+  background: linear-gradient(135deg, #287957, #07513e);
+}
+.app-shell.emerald-workspace :is(.cart-panel) {
+  overflow: hidden;
+}
+.app-shell.emerald-workspace :is(.cart-payment) {
+  background: linear-gradient(145deg, #f8f5df, #ebefda);
+  border-color: #c1c99c80;
+}
+.app-shell.emerald-workspace :is(.payment-fields > label) {
+  background: #fffdf1;
+  border-color: #b6c4939c;
+  border-radius: 12px;
+}
+.app-shell.emerald-workspace :is(.cart-total strong, .product-price) {
+  color: #0d563d;
+}
+.app-shell.emerald-workspace :is(.cart-line, .saved-cart, .detail-list > div) {
+  border-color: #c3cca180;
+}
+.app-shell.emerald-workspace :is(.saved-cart) {
+  border-radius: 14px;
+  background: #f5f7e9;
+}
+.app-shell.emerald-workspace :is(.analytics-summary > div) {
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background:
+    url('/emerald/satin-pearl.svg') center / cover no-repeat,
+    var(--emerald-panel) padding-box,
+    var(--emerald-edge) border-box;
+  box-shadow: var(--emerald-shadow);
+  padding: 18px;
+}
+.app-shell.emerald-workspace :is(.analytics-chart-grid) {
+  stroke: #c5d1ab;
+}
+.app-shell.emerald-workspace :is(.analytics-chart-bar) {
+  fill: #32805a;
+}
+.app-shell.emerald-workspace :is(.analytics-branch-track > span) {
+  background: linear-gradient(90deg, #1a7850, #c6b85e);
+}
+.app-shell.emerald-workspace :is(.analytics-chart-tooltip, .notice, .donation-info) {
+  background: #e9f0dccc;
+  border: 1px solid #bfcca080;
+  border-radius: 12px;
+  color: #3b6547;
+}
+.app-shell.emerald-workspace :is(.debts-overview) {
+  border-radius: 24px;
+  border-width: 1px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff5ef, #f9e5df);
+  border-color: #dfaaa0;
+}
+.app-shell.emerald-workspace .debts-heading h2,
+.app-shell.emerald-workspace .debts-total > strong,
+.app-shell.emerald-workspace .debts-total .unit {
+  color: #a8322c;
+}
+.app-shell.emerald-workspace .debts-overview .debt-heading-icon {
+  color: #a8322c;
+  background: #efd2ca;
+}
+.app-shell.emerald-workspace .debts-toolbar {
+  border-top: 0;
+  border-radius: 23px 23px 0 0;
+}
+.app-shell.emerald-workspace :is(.debts-total, .debt-heading-icon) {
+  color: #155b40;
+}
+.app-shell.emerald-workspace
+  :is(.debt-tabs button.active, .debt-tabs button[aria-selected='true']) {
+  background: #e1edcf;
+  color: #14543d;
+}
+.app-shell.emerald-workspace :is(.theme-preset, .role-card, .branch-tile) {
+  border-color: #bbc99699;
+  border-radius: 16px;
+  background: linear-gradient(140deg, #fffdf4, #edf4df);
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace :is(.theme-preview) {
+  border-radius: 10px;
+}
+.app-shell.emerald-workspace :is(.color-grid input[type='color']) {
+  padding: 5px;
+  border-radius: 11px;
+}
+.app-shell.emerald-workspace dialog {
+  color: var(--emerald-ink);
+  border: 1px solid transparent;
+  border-radius: 25px;
+  background:
+    linear-gradient(140deg, #fffaf0, #ebf4de) padding-box,
+    var(--emerald-edge) border-box;
+  box-shadow:
+    0 25px 100px #003e3540,
+    inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace dialog::backdrop {
+  background: #002c2599;
+  backdrop-filter: blur(5px);
+}
+.app-shell.emerald-workspace :is(.modal-head, .form-footer, .modal-subtabs) {
+  border-color: #c3cca180;
+}
+.app-shell.emerald-workspace :is(.modal-head h2) {
+  font-size: 22px;
+  letter-spacing: -0.035em;
+}
+.app-shell.emerald-workspace :is(.empty) {
+  color: #54704d;
+}
+.app-shell.emerald-workspace :is(.empty > svg) {
+  color: #8aa36b;
+}
+.app-shell.emerald-workspace :is(.error, .red) {
+  color: #a34435;
+}
+@media (max-width: 760px) {
+  .app-shell.emerald-workspace :is(.panel-head, .cart-head) {
+    padding: 12px 16px;
+  }
+  .app-shell.emerald-workspace :is(.panel, .cart-panel) {
+    border-radius: 20px;
+  }
+  .app-shell.emerald-workspace :is(.page-actions, .debts-page-actions) {
+    gap: 8px;
+  }
+  .app-shell.emerald-workspace :is(.metrics > .metric) {
+    padding: 16px;
+    min-height: 155px;
+  }
+  .app-shell.emerald-workspace :is(.tabs) {
+    padding: 12px;
+    gap: 4px;
+  }
+  .app-shell.emerald-workspace :is(.tabs button) {
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+  .app-shell.emerald-workspace :is(.summary-strip) {
+    padding: 18px;
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell.emerald-workspace :is(.primary, .product-card) {
+    transition: none;
+    transform: none;
+  }
+}
+
+.app-shell.emerald-workspace :is(.page-actions, .debts-page-actions) {
+  margin-bottom: 12px;
+}
+.app-shell.emerald-workspace :is(.metrics) {
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.app-shell.emerald-workspace .section-gap {
+  margin-top: 16px;
+}
+.app-shell.emerald-workspace .panel-head h2 {
+  margin-bottom: 0;
+}
+.app-shell.emerald-workspace :is(.role-cards > div) {
+  padding: 18px;
+}
+
+/* Exactly one summary card is highlighted in each group. */
+.app-shell.emerald-workspace .metrics > .metric * {
+  color: inherit;
+}
+.app-shell.emerald-workspace :is(.metrics > .metric, .analytics-summary > div) {
+  --summary-active: 0;
+  --summary-fade: 700ms;
+  --summary-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --summary-text: #20382e;
+  --summary-muted: #526058;
+  --summary-icon: #1b5b41;
+  --summary-icon-edge: #bed2a4aa;
+  --summary-icon-fill: linear-gradient(145deg, #ffffffe0, #c7e4b680);
+  position: relative;
+  isolation: isolate;
+  color: var(--summary-text);
+  background:
+    url('/emerald/satin-pearl.svg') center / 100% 100% no-repeat,
+    linear-gradient(132deg, #f4f7e9, #e7f4e4 53%, #fff9e7) padding-box,
+    var(--emerald-edge) border-box;
+  transition:
+    color var(--summary-fade) var(--summary-ease),
+    box-shadow var(--summary-fade) var(--summary-ease),
+    transform 180ms;
+}
+.app-shell.emerald-workspace :is(.metrics > .metric, .analytics-summary > div)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    url('/emerald/satin-dark.svg') center / 100% 100% no-repeat,
+    var(--emerald-dark) padding-box,
+    var(--emerald-edge) border-box;
+  opacity: var(--summary-active);
+  transition: opacity var(--summary-fade) var(--summary-ease);
+}
+.app-shell.emerald-workspace :is(.metrics, .analytics-summary):not(:has(> :hover)) > :first-child,
+.app-shell.emerald-workspace :is(.metrics, .analytics-summary) > :hover {
+  --summary-active: 1;
+  --summary-text: #f5fff9;
+  --summary-muted: #e0f1df;
+  --summary-icon: #ffffff;
+  --summary-icon-edge: #bce7c86b;
+  --summary-icon-fill: #ffffff1f;
+}
+.app-shell.emerald-workspace
+  :is(.metrics > .metric, .analytics-summary > div)
+  :is(.metric-top, strong, dd) {
+  color: var(--summary-text);
+  transition: color var(--summary-fade) var(--summary-ease);
+}
+.app-shell.emerald-workspace
+  :is(.metrics > .metric, .analytics-summary > div)
+  :is(.metric-note, dt, small) {
+  color: var(--summary-muted);
+  transition: color var(--summary-fade) var(--summary-ease);
+}
+.app-shell.emerald-workspace .metrics > .metric .metric-top > svg {
+  color: var(--summary-icon);
+  border-color: var(--summary-icon-edge);
+  background: var(--summary-icon-fill);
+  transition:
+    color var(--summary-fade) var(--summary-ease),
+    border-color var(--summary-fade) var(--summary-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell.emerald-workspace :is(.metrics > .metric, .analytics-summary > div),
+  .app-shell.emerald-workspace :is(.metrics > .metric, .analytics-summary > div)::after,
+  .app-shell.emerald-workspace :is(.metrics > .metric, .analytics-summary > div) * {
+    transition: none !important;
+  }
+}

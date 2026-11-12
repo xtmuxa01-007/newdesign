@@ -1,0 +1,52 @@
+BOSHQA PULLAR — 2026-11-03
+
+Ta’minotchilar → Boshqa pullar. Admin/boshliq filial, naqd/karta, musbat
+summa, qabul qiluvchi va majburiy izohni kiritadi. Eski qarzdan yig‘ilgan
+yoki dasturga kirimi yozilmagan haqiqiy pulni ham topshirish mumkin.
+Ta’minotchi haqi, dasturdagi kassa qoldig‘i va ehsonning 15 000 so‘mlik
+limiti bu amalni cheklamaydi. Pul ikki kasr xonagacha; izoh 3–500 belgi.
+«Barchasini qo‘yish» musbat dastur qoldig‘ini to‘ldiradi, istalgan boshqa
+musbat summani qo‘lda kiritish mumkin.
+
+OtherPayment mustaqil chiqim: to‘liq summa filialning tanlangan naqd/karta
+balansidan ayiriladi va jami berilgan boshqa pullarga qo‘shiladi.
+Ta’minotchining sotilgan summasi/haqqi/berilgan puli, savdo, mijoz qarzi
+va ehson hisoblari o‘zgarmaydi. Sun’iy kirim yoki savdo yaratilmaydi.
+Misol: dasturda 10 000, amalda 20 000 bor. Ta’minotchiga 10 000 berilgach
+dastur qoldig‘i 0. Yana 10 000ni Boshqa pullardan berish mumkin; dasturdagi
+kassa -10 000 bo‘ladi. Oyna bu natijani ko‘rsatib saqlashga ruxsat beradi.
+Izohda qo‘shimcha mablag‘ qayerdan kelgani tushuntiriladi.
+
+Har bir topshiriq boshliqlarning ilova ichidagi O‘zgarishlar bildirishnomasiga
+tushadi: filial/xodim, kimga, summa, hisob, izoh, oldingi/keyingi qoldiq va
+hisobda bo‘lmagan qism ko‘rinadi. O‘qilganlik har boshliq uchun alohida.
+Ochiq ilova 15 soniyada/fokusda yangilanadi; yopiq bo‘lsa keyingi kirishda
+o‘qilmagan xabar chiqadi. Telegramdagi kunlik 08:00 hisoboti o‘zgarmaydi.
+
+Panelda jami summa/son va mustaqil sahifalangan tarix bor. Savdolar va tarix
+→ O‘zgarishlarda ham yangi tur filtri/tafsiloti mavjud. Xato topshiriq
+sabab va tasdiq bilan bekor qilinsa, to‘liq summa kassaga qaytadi; asl
+nusxa/izoh saqlanadi va boshliqqa yangi xabar chiqadi. Qayta so‘rov ikkinchi
+chiqim yaratmaydi, bekor qilingan so‘rov qayta tirilmaydi. Sarflangan qarz
+to‘lovini bekor qilishda manfiy qoldiqni yomonlashtirmaslik himoyasi qoladi.
+
+Web, Mini App va markaziy saytni ochuvchi EXE bitta API/hisobdan foydalanadi.
+Admin o‘z filialida, boshliq tanlangan faol filialda ishlaydi; kassirga yangi
+huquq ochilmaydi. CRM_BRANCH_ID offline rejimi va umumiy bazaga o‘tmagan
+eski qurilmali filial yangi chiqimni yoza olmaydi: sync protokoliga noma’lum
+yozuv kiritilmaydi. Eski backup/sync modullari saqlangan.
+
+POST /api/other-payments: request_id, branch_id, amount, method, recipient,
+note. Javobda operation va joriy fingerprint bor. GET /api/payments yangi
+others, other_paid, others_count va mustaqil others_offset qaytaradi.
+POST /api/operations/other_payment/{id}/cancel sabab/fingerprint bilan.
+other_payments alohida jadval, balances hisobida ayiriladi. Markaziy startup
+schema_updates.ensure_other_payment_kind orqali PostgreSQL kind checkini
+kengaytiradi: faqat ma’lum cheklov, bitta tranzaksiya, yozuvlar/hisoblar va
+boshqa cheklovlar saqlanadi. Takroriy startup qayta o‘zgartirmaydi;
+eski offline SQLite qayta qurilmaydi.
+
+Sinovlar faqat vaqtinchalik SQLite/CI marva_ci sxemalari va soxta brauzer
+API bilan. Cheklanmagan chiqim/manfiy kassa, izoh, eski qarz, huquqlar,
+takror/parallel yozuv, refund, bosslarning mustaqil xabari va PG sxema
+yangilanishi tekshiriladi. Ishchi pul yozuvi test uchun yaratilmaydi.

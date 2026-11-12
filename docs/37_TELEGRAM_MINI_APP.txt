@@ -1,0 +1,87 @@
+MARWA TELEGRAM MINI APP — 2026-11-01
+
+Bot: https://t.me/marwacrmbot
+Ilova: https://tincrm.uz/?telegram=1
+Botda /start yuboring va «CRMni ochish»ni bosing. Pastki menyuda ham shu
+tugma bor. Telegram ichida webdagi login/parol bilan kiriladi; Telegram
+ismi yoki IDsi CRM huquqi bermaydi. Boshliq, admin va kassir huquqlari
+serverdagi mavjud hisob orqali belgilanadi, yangi hisob yaratilmaydi.
+
+Telegramga moslangan dizayn faqat /?telegram=1 Mini App kirishida qo‘llanadi.
+Oddiy web va EXE o‘z workspace ko‘rinishidan foydalanadi: maxsus filial tushumlari
+kartasi, pastki ikonli navigatsiya, ixcham header, fullscreen va eksportni
+ulashish oynasi ularga qo‘shilmaydi. viewport-fit=cover ham faqat Mini App
+boshlanganda o‘rnatiladi; oddiy web viewporti eski holatida qoladi.
+Oddiy web/EXE bosh sahifasida «Yangilash» va «Yangi savdo» tugmalari yo‘q;
+ular faqat Mini App bosh sahifasida saqlangan. Web ma’lumotlari avvalgidek
+30 soniyada va sahifaga qayta fokus kelganda yangilanadi, POS yon menyuda.
+Web/EXE «Filiallar holati» karuseli Mini Appga qo‘llanmaydi; Mini Appda
+shu qismning oldingi gridi saqlanadi. Excel fayllarning yaxshilangan bezagi
+esa barcha mijozlarda bir xil: batafsil 06_HISOBOT_TARIX_JSON.txt.
+
+Boshliqning birinchi ekrani filiallarning bugungi va oy boshidan tushumini
+ko‘rsatadi. Tushum — savdoda olingan naqd/karta va davrda yig‘ilgan qarz
+to‘lovlari. Bu sof foyda yoki kassadagi joriy qoldiq emas. Vaqt Toshkent
+bo‘yicha olinadi. Admin faqat o‘z filiali bilan, kassir POS/qarzlar/sozlamalar
+bilan ishlaydi. Barcha odatiy web sahifalari tegishli rollar uchun qolgan.
+
+Mini App rasmiy Telegram SDK orqali oynaga moslashadi: safe area, balandlik,
+asosiy menyu va Orqaga tugmasi qo‘llanadi. Oddiy web/EXE SDKni yuklamaydi.
+Yuqori CRM paneli bitta 65 px qator, boshqaruvlar 50 px balandlikda;
+Telegramning o‘z sarlavha satri CRM yuqori panelining yashil rangida ochiladi.
+Pastki navigatsiyada faqat ikonlar ko‘rinadi: boshliq/admin uchun Asosiy,
+POS, Ta’minotchilar va Sozlamalar; kassir uchun POS, Qarzlar va Sozlamalar.
+Tugmalarning nomi screen reader va tooltip uchun saqlanadi, panel 56 px.
+Qolgan bo‘limlarga yon menyudan o‘tiladi. Pastki panel safe area bilan
+joylashadi va oxirgi kontentni berkitmaydi.
+Mini App Bot API 8.0+ mijozida bir marta to‘liq ekran so‘raydi. Telegram
+Desktopda bu native @marwacrmbot pastki satrini ham joyi bilan yashiradi.
+Native yopish/menyu tugmalari uchun safe area saqlanadi. Qo‘llamaydigan yoki
+eski Telegramda oddiy oyna ishlaydi; native satrni CSS bilan yashirib bo‘lmaydi.
+Excel/JSON tayyor bo‘lgach Telegramda fayl oynasi chiqadi: qo‘llab-quvvatlovchi
+telefonda «Ulashish / Fayllarga saqlash», qolganida odatiy yuklab olish bor.
+Fayllar avvalgidek CRM seansi bilan olinadi, ochiq eksport havolasi yaratilmaydi.
+
+SERVERGA SOZLASH
+Bot tokeni kod, frontend, URL parametri yoki releasega yozilmaydi. GitHubdagi
+xtmuxa01-007/marva Secrets ichida TELEGRAM_BOT_TOKEN saqlanadi. Main deployi
+scripts/configure_telegram.py orqali qisqa muddatli GitHub OIDC bilan
+/api/telegram/configure ga tokenni HTTPSda yetkazadi. Faqat ushbu repo IDsi,
+main refi va ci-cd.yml workflow imzosi qabul qilinadi. Doimiy GitHub tokeni
+serverga yuborilmaydi. Tokenni log yoki xatoga chiqarmang.
+
+API token va tasodifiy webhook sirini alohida integrations_data Docker
+volume ichida /app/integrations/telegram.json ga saqlaydi (0600). Bu papka
+public uploads, foydalanuvchi AppData yoki biznes bazasi emas. Volume va
+tokenni oddiy kod tozalash yoki deployda o‘chirmang. Backend Docker konteksti
+va Git ignore lokal integrations papkasini chiqarib tashlaydi.
+
+Webhook /api/telegram/webhook da mustaqil X-Telegram-Bot-Api-Secret-Token
+tekshiriladi. Faqat shaxsiy chatdagi /start va /helpga CRM havolasi qaytariladi;
+bot orqali savdo, qarz yoki hisob mutatsiyasi bajarilmaydi. /start va /help
+oldindan tasdiqlangan qabul qiluvchilar ro‘yxatidagi username egasining
+doimiy numeric Telegram IDsini kunlik hisobotga bir marta bog‘laydi.
+Har bir odamga ismiga mos salomlashuv, kechagi savdo puli/kg va kecha kun
+yakunidagi ombor puli/kg yuboriladi: 38_TELEGRAM_KUNLIK_HISOBOT.txt.
+Chatga qayta yozmasdan ulanish uchun Mini App ochilganda initData bir marta
+shu origin serveriga yuboriladi. Bot-token HMAC imzosi va 24 soatlik sana
+tekshirilgach, allowlistdagi odamning faqat signed user.id qiymati bog‘lanadi.
+Bu CRMga login yoki biznes ma’lumotlarini o‘qish huquqini bermaydi; javob
+faqat ulanish belgisi. Oddiy web/EXE bu so‘rovni yubormaydi. Xato/timeout
+ilova ishlashiga ta’sir qilmaydi; token va initDataUnsafe ishlatilmaydi.
+
+Native Telegramda va oddiy web/EXEda seans cookie Strict qoladi. Telegram
+Web iframe loginida faqat secure server, mos Origin va telegram-web client
+belgisi bilan SameSite=None; HttpOnly, parol tekshiruvi va CSRF saqlanadi.
+Brauzerning uchinchi tomon cookie cheklovi Telegram Webga ta’sir qilishi mumkin;
+native Telegram Mini App odatiy yuqori darajadagi WebViewdan foydalanadi.
+Mini App HTML faqat web.telegram.org iframeiga ruxsat beradi; oddiy sahifa
+frame-ancestors 'none' bilan qoladi. Telegram SDKdan boshqa yangi script
+manbalariga ruxsat berilmaydi.
+
+NASHRDAN KEYIN
+Marva CI/CD ci va deploy natijasi, bot getChatMenuButton/getWebhookInfo va
+/?telegram=1 javobidagi CSP/X-Frame-Optionsni tekshiring. Telegram/iPhone
+qurilmasida /start, login, rollar, qaytarish va Excel/JSONni ham sinang.
+BotFatherdagi alohida Main Mini App profil sozlamasi majburiy emas: ushbu
+integratsiya chat menyusi va /start ichidagi Web App tugmasi bilan ishlaydi.

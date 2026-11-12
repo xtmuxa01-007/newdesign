@@ -1,0 +1,36 @@
+TOZALASH TARTIBI — 2026-09-26
+
+Foydalanuvchi talabi: har ishda amaldagi kod va joriy tayyor paketlar qolsin.
+Qoidalar AGENTS.md da. Eski manba nusxalarini alohida papkada yig‘mang; tarix Gitda.
+
+0.5.2 da olib tashlangan: eski offline Electron main/setup oynasi va uning
+testlari, lokal savdo backendini ishga tushiruvchi runtime/upgrade, LAN/WSL
+launcherlar, ko‘rinmaydigan offline frontend panellari va ularning so‘rovlari,
+eski Caddy deployment modeli, 0.5.0 installer bindlari va eskirgan yo‘riqnomalar.
+Amaldagi desktop ulanishi/updater, SKU/qoldiq, arxiv va o‘tish testlari saqlangan.
+Backup tekshiruv yordamchilari scripts/backup_support.py ga ajratilgan.
+
+LOCAL
+Avval joriy installer, manifest va server ZIPini yig‘ing, test va tarqatishni
+tekshiring. So‘ng PowerShellda:
+powershell -ExecutionPolicy Bypass -File scripts/clean-builds.ps1
+powershell -ExecutionPolicy Bypass -File scripts/clean-builds.ps1 -Apply
+
+Parametrsiz reja; -Apply amalda tozalaydi. Joriy installer SHA512 mos bo‘lmasa
+hech narsa o‘chmaydi. Faqat eski raqamlangan paketlar va aniq build kataloglari
+tozalanadi; yangi versiya va noma’lum fayllarga tegilmaydi. Yo‘llar loyiha ichida
+tekshiriladi, symlink/junction bo‘lsa amal to‘xtaydi.
+Node/Pythonning ishlatilayotgan kutubxonalari saqlanadi. Vaqtinchalik sinov
+fayllarini faqat ular sinovga tegishli ekanligi tekshirilgach olib tashlang.
+
+SERVER
+main push eski tracked fayllarni server checkoutidan ham olib tashlaydi.
+Sog‘lom deploydan so‘ng clean_server_releases.py eski installerlarni tozalaydi
+(20-hujjat). Docker builder prune -f faqat ishlatilmaydigan build cache uchun;
+ishlayotgan image/konteyner/volume o‘chirilmaydi.
+
+SAQLANADI
+.env, SSH kalitlari, .runtime/server-access, foydalanuvchi AppData, PostgreSQL
+va rasmlar volume'lari, biznes backup, Git tarixi va GitHub release arxivi.
+Eski PCni o‘tkazishda kerak bo‘ladigan center_profile, online_transition,
+retire_center, local_backup, desktop_profiles va sync modullari amaldagi kod.

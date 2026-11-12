@@ -1,0 +1,198 @@
+/* Every current theme uses its palette across magical surfaces and shared controls.
+   The geometry, moving wave edges and star animations stay intact. */
+:root[data-magic-theme='custom'] {
+  .app-shell.emerald-workspace {
+    --emerald-ink: var(--heading);
+    --emerald-panel: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--surface) 65%, var(--soft)));
+    --emerald-edge: linear-gradient(130deg, var(--green), var(--border) 47%, var(--nav-active) 80%, var(--green));
+    --emerald-dark: linear-gradient(135deg, var(--accent), var(--green-hover));
+    --magic-light: linear-gradient(135deg, var(--surface), var(--soft));
+    --magic-gold: linear-gradient(135deg, var(--surface), var(--summary));
+    background:
+      radial-gradient(ellipse at 97% 4%, color-mix(in srgb, var(--green) 20%, transparent), transparent 40%),
+      radial-gradient(ellipse at 78% 84%, color-mix(in srgb, var(--nav-active) 35%, transparent), transparent 40%),
+      linear-gradient(112deg, var(--page), color-mix(in srgb, var(--page) 60%, var(--surface)), var(--soft));
+    color: var(--text);
+
+    .sidebar { background: radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--green) 45%, transparent), transparent 65%), linear-gradient(155deg, var(--sidebar), color-mix(in srgb, var(--sidebar) 87%, black)); color: var(--sidebar-text); border-color: var(--border); }
+    .sidebar :is(.workspace-brand, .workspace-company, .workspace-user, .workspace-environment, nav button, nav button > svg) { color: var(--sidebar-text); }
+    .sidebar nav button.active { color: var(--nav-active-text); background: linear-gradient(120deg, var(--nav-active), color-mix(in srgb, var(--nav-active) 75%, var(--surface))); border-color: var(--border); }
+    .sidebar nav button.active > svg { color: inherit; background: #ffffff18; border-color: currentColor; }
+    .sidebar :is(.nav-mark, .workspace-company > span) { background: var(--nav-active); }
+    .avatar { background: var(--magic-gold); color: var(--heading); border-color: var(--border); }
+    .topbar { background: color-mix(in srgb, var(--topbar) 94%, transparent); color: var(--topbar-text); border-color: var(--border); }
+    .topbar .breadcrumb :is(span, strong) { color: var(--topbar-text); }
+    .topbar .today-label { color: var(--topbar-text); }
+    .topbar :is(.branch-picker, .mobile-toggle), .topbar-right > button:not(.has-notifications) { background: var(--magic-light); color: var(--text); border-color: var(--border); }
+    .topbar .branch-picker :is(svg, span, strong, select) { color: var(--text); }
+
+    :is(.panel, .cart-panel, .donation-explainer, .role-cards > div) { background: var(--emerald-panel) padding-box, var(--emerald-edge) border-box; color: var(--text); }
+    :is(.panel-head, .cart-head, .list-toolbar, .tabs, .filter-row, .table-toolbar, .form-footer, .modal-head, .pager) { border-color: var(--border); }
+    :is(.filter-row, .table-toolbar) { background: color-mix(in srgb, var(--surface) 55%, var(--soft)); }
+    :is(h1, h2, h3, .panel-head h2, .cart-head h2, .settings-panel > h2) { color: var(--heading); }
+    :is(.panel-head p, .panel-head > span, td small, .muted, .pager > span, .tabs button) { color: var(--muted); }
+    :is(input, select, textarea, .search, .kg-input) { background-color: var(--field); border-color: var(--border); color: var(--text); }
+    .search input { background: transparent; }
+    :is(input, select, textarea):focus, .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 15%, transparent); }
+    .primary { background: linear-gradient(135deg, var(--green), var(--green-hover)); color: var(--button-text); border-color: var(--border); }
+    .primary:hover { background: var(--green-hover); }
+    .secondary { background: var(--magic-light); color: var(--green); border-color: var(--border); }
+    .secondary:hover { background: var(--soft); }
+    :is(.tabs button.selected, .theme-preset.selected, .debt-tabs button.active) { background: var(--magic-gold); color: var(--heading); border-color: var(--green); }
+    th { background: linear-gradient(105deg, var(--table), var(--summary)); color: var(--muted); border-color: var(--border); }
+    td { color: var(--text); border-color: color-mix(in srgb, var(--border) 65%, transparent); }
+    tbody tr:hover, .table-note-row > td { background: color-mix(in srgb, var(--soft) 65%, transparent); }
+    :is(.badge, .count) { background: var(--soft); color: var(--green); border-color: var(--border); }
+    .badge.gray { background: var(--summary); color: var(--muted); }
+    :is(.notice, .analytics-chart-tooltip, .donation-info, .analytics-finance-note) { background: var(--soft); color: var(--text); border-color: var(--border); }
+    :is(.summary-strip, .debts-overview, .theme-preset, .role-card, .branch-tile) { background: var(--magic-gold); border-color: var(--border); color: var(--text); }
+    /* Shared product and empty-state artwork follows the palette in POS, stock and dialogs. */
+    :is(.product-visual, .product-img.placeholder, .product-img.placeholder.small) {
+      background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 35%, var(--soft)), var(--soft));
+      color: var(--green);
+    }
+    :is(.product-img.placeholder > svg, .empty > svg) { color: var(--green); }
+    .empty { color: var(--muted); }
+    .empty h3 { color: var(--heading); }
+    .empty p { color: var(--muted); }
+    .product-card {
+      background: var(--emerald-panel) padding-box, var(--emerald-edge) border-box;
+      color: var(--text);
+      box-shadow: inset 0 1px 0 #fff, 0 12px 22px -24px color-mix(in srgb, var(--green) 50%, transparent);
+    }
+    .product-card:hover:not(:disabled) {
+      border-color: var(--green);
+      box-shadow: 0 16px 28px -22px color-mix(in srgb, var(--green) 50%, transparent);
+    }
+    :is(.product-add, .product-compact-add) { background: linear-gradient(135deg, var(--green), var(--green-hover)); color: var(--button-text); }
+    :is(.product-card > strong, .cart-line-title strong) { color: var(--heading); }
+    :is(.product-price, .cart-total strong) { color: var(--green); }
+    :is(.product-sku, .product-price small, .stock-caption, .cart-total > span, .cart-total small, .cart-hint) { color: var(--muted); }
+    .stock-caption { border-color: var(--border); }
+    .stock-caption .status-dot { background: var(--green); }
+    .sold-out .status-dot { background: var(--muted); }
+    :is(.discount-label, .product-discount) { background: var(--summary); color: var(--green); }
+    .cart-head { background: var(--surface); }
+    .cart-head svg { color: var(--green); }
+    .cart-payment { background: var(--magic-gold); border-color: var(--border); }
+    .payment-fields > label { background: var(--surface); border-color: var(--border); }
+    .payment-fields button { color: var(--muted); }
+    .payment-fields button svg { color: var(--green); }
+    :is(.cart-line, .saved-cart, .detail-list > div) { border-color: var(--border); }
+    .saved-cart { background: var(--magic-light); }
+    .cart-line.invalid .kg-input { border-color: var(--danger); }
+    :is(.error, .red) { color: var(--danger); }
+    :is(.debts-total, .debt-heading-icon) { color: var(--green); }
+    .debt-heading-icon { background: var(--soft); }
+    .debts-heading h2, .debts-total > strong, .debts-total .unit { color: var(--danger); }
+    .debt-row-overdue td:first-child::before { background: linear-gradient(180deg, var(--danger), color-mix(in srgb, var(--danger) 45%, white), var(--danger)); background-size: 100% 250%; box-shadow: 3px 0 12px color-mix(in srgb, var(--danger) 40%, transparent); }
+
+    .metrics > .metric { background: url('/emerald/satin-pearl.svg') center / cover, var(--magic-light) padding-box, var(--emerald-edge) border-box; background-blend-mode: luminosity, normal, normal; color: var(--heading); }
+    .metrics .metric-top > svg { background: var(--magic-light); color: var(--green); border-color: var(--border); }
+    .metric::after, .analytics-summary > div::after { background: url('/emerald/satin-dark.svg') center / cover, var(--emerald-dark); background-blend-mode: luminosity, normal; }
+    .metrics .metric-note { color: inherit; }
+
+    .dashboard-overview {
+      --muted: inherit;
+      color: var(--heading);
+      :is(.stat-card, .branch-card, .account-summary, .panel) { color: var(--heading); background: var(--magic-light); --shadow: color-mix(in srgb, var(--green) 35%, transparent); }
+      .card-surface, .branch-card .card-surface { background: radial-gradient(ellipse at 97% 2%, color-mix(in srgb, var(--green) 18%, transparent), transparent 60%), var(--magic-light); }
+      .card-surface::before { background: radial-gradient(ellipse at 95% 0, color-mix(in srgb, var(--nav-active) 25%, transparent), transparent 60%), var(--emerald-dark); }
+      .satin { filter: hue-rotate(var(--magic-art-hue)) saturate(var(--magic-art-saturation)); }
+      .border-shimmer { background: conic-gradient(from var(--rim-angle), transparent 0%, var(--green) 15%, var(--nav-active) 35%, #fff4 50%, var(--border) 70%, var(--green) 90%, transparent); }
+      :is(.stat-card, .branch-card)::before,
+      :is(.stat-card, .branch-card)::after { background: var(--emerald-edge); }
+      :is(.card-icon, .branch-icon, .tile-icon, .branch-status, .workspace-chip, .account-summary-symbol, .account-summary > div:not(.card-surface) > span > svg) { background: var(--magic-light); color: var(--green); border-color: var(--border); }
+      :is(.card-title, .card-value, .branch-title, .branch-name, .account-summary h2) { color: inherit; }
+      :is(.card-meta, .card-unit, .branch-card small, .branch-card dt, .branch-card .unit, .account-summary p, .account-summary > div > span) { color: var(--muted); }
+      :is(.emerald-card:hover, .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child) { color: var(--accent-text); background: var(--emerald-dark); --shadow: color-mix(in srgb, var(--green) 50%, transparent); }
+      :is(.emerald-card:hover, .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child) :is(.card-meta, .card-unit, .card-icon, small, dt, .unit, .branch-icon, .branch-status, p, h2) { color: var(--accent-text); }
+      :is(.emerald-card:hover, .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child) :is(.card-icon, .tile-icon, .branch-icon, .branch-status) { background: color-mix(in srgb, var(--accent-text) 14%, transparent); border-color: color-mix(in srgb, var(--accent-text) 40%, transparent); }
+      .account-summary > .card-surface { background: var(--magic-gold); }
+      .account-summary:hover > .card-surface::before { background: var(--emerald-dark); }
+      .account-summary:hover :is(span, strong, .text-btn, svg) { color: var(--accent-text); }
+      .account-summary:hover :is(.account-summary-symbol, .account-summary > div:not(.card-surface) > span > svg) { background: color-mix(in srgb, var(--accent-text) 14%, transparent); border-color: color-mix(in srgb, var(--accent-text) 40%, transparent); color: var(--accent-text); }
+      .branch-card:hover .tile-icon { color: var(--accent-text); background: #ffffff1f; }
+      .dashboard-revenue-card { background: var(--magic-light); color: var(--heading); border-color: var(--border); }
+      :is(.text-btn, .branch-carousel-button) { color: var(--green); }
+    }
+
+    dialog { background: var(--emerald-panel) padding-box, var(--emerald-edge) border-box; color: var(--text); }
+    :is(.debt-payment-hero, .report-filters .filtered-total, .analytics-branch-total) { background: url('/emerald/satin-dark.svg') center / cover, var(--emerald-dark); background-blend-mode: luminosity, normal; color: var(--accent-text); border-color: var(--border); }
+    :is(.payment-person-icon, .report-total-icon) { background: #ffffff18; color: var(--accent-text); border-color: #ffffff40; }
+    :is(.debt-payment-hero, .filtered-total, .analytics-branch-total) :is(span, .unit, strong, b) { color: inherit; }
+    .debt-payment-totals > div { background: var(--magic-gold); border-color: var(--border); }
+    .debt-payment-totals > div:first-child { background: var(--soft); }
+    .debt-payment-modal .form-footer { background: var(--surface); }
+    :is(.notification-summary, .notifications-toolbar, .debt-notification-card, .change-notification-item, .other-payments-total) { background: var(--magic-light); color: var(--text); border-color: var(--border); }
+    dialog::backdrop { background: color-mix(in srgb, var(--sidebar) 63%, transparent); }
+    .toast { background: var(--accent); color: var(--accent-text); }
+    .topbar-right > .notification-trigger { background: var(--magic-light); border-color: var(--border); color: var(--green); }
+    .topbar-right > .notification-trigger.has-notifications {
+      background: linear-gradient(135deg, var(--green), var(--accent));
+      color: var(--accent-text);
+      border-color: color-mix(in srgb, var(--green) 55%, var(--nav-active));
+      box-shadow: inset 0 1px 0 #ffffff50, 0 0 0 3px color-mix(in srgb, var(--green) 13%, transparent), 0 5px 18px -12px var(--green);
+    }
+    .topbar-right > .notification-trigger.has-notifications > svg { fill: color-mix(in srgb, var(--accent-text) 20%, transparent); }
+    .topbar-right > .notification-trigger .count { background: var(--soft); color: var(--green); border-color: var(--border); }
+    .topbar-right > .notification-trigger.has-notifications .count { background: var(--accent-text); color: var(--green); border-color: #ffffff66; box-shadow: 0 2px 7px #00000015; }
+    .topbar-right > .notification-trigger.notification-error { background: color-mix(in srgb, var(--danger) 12%, var(--surface)); color: var(--danger); border-color: var(--danger); }
+    .topbar-right > .notification-trigger.notification-error .count { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .notifications-modal {
+      background: var(--emerald-panel) padding-box, var(--emerald-edge) border-box;
+      box-shadow: 0 25px 100px color-mix(in srgb, var(--sidebar) 35%, transparent), inset 0 1px 0 #fff;
+      color: var(--text);
+    }
+    .notifications-modal .modal-head { border-color: var(--border); }
+    .notifications-toolbar { background: transparent; }
+    .notifications-overview { background: var(--magic-gold); border-color: var(--border); }
+    .notifications-overview strong { color: var(--heading); }
+    .notifications-overview p { color: var(--muted); }
+    .notifications-summary-icon { background: var(--surface); color: var(--green); border-color: var(--border); }
+    .notifications-filters > button { background: var(--surface); color: var(--text); border-color: var(--border); }
+    .notifications-filters > button:hover { background: var(--soft); border-color: var(--green); }
+    .notifications-filters > button > span { background: var(--soft); color: var(--green); }
+    .notifications-filters > button[aria-pressed='true'] { background: var(--emerald-dark); color: var(--accent-text); border-color: var(--green); }
+    .notifications-filters > button[aria-pressed='true'] > span { background: #ffffff26; color: var(--accent-text); }
+    .notifications-navigation .text-btn { color: var(--green); }
+    .notifications-limit { color: var(--muted); }
+    .notifications-body { scrollbar-color: var(--border) transparent; }
+    .notifications-modal .notification-card { background: var(--magic-light); color: var(--text); border-color: var(--border); box-shadow: inset 0 1px 0 #fff; }
+    .notifications-modal .notification-card:hover { background: linear-gradient(135deg, var(--soft), var(--surface)); border-color: var(--green); box-shadow: 0 5px 14px -10px var(--green); }
+    .notifications-modal .notification-card:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+    :is(.notification-card-icon, .notifications-modal .change-notification-icon) { background: var(--magic-gold); color: var(--green); border-color: var(--border); }
+    .notifications-modal .change-notification-icon.cancelled { color: var(--danger); }
+    :is(.notification-card-heading > strong, .change-notification-copy strong, .notification-card-amount > strong) { color: var(--heading); }
+    :is(.notification-card-meta, .notification-card-amount small, .notification-card-amount .unit, .change-notification-copy > span, .change-notification-copy > small) { color: var(--muted); }
+    .notification-kind { background: var(--soft); color: var(--green); border-color: var(--border); }
+    .notification-due-label { background: var(--summary); color: var(--green); }
+    .notification-card-arrow { color: var(--green); }
+
+    .sales-analytics {
+      :is(.analytics-finance-card, .analytics-summary > div) { background: url('/emerald/satin-pearl.svg') center / cover, var(--magic-light); background-blend-mode: luminosity, normal; color: var(--heading); border-color: var(--border); }
+      :is(.analytics-finance-card.donation, .analytics-branch-bar) { background: var(--magic-gold); border-color: var(--border); }
+      .analytics-finance-card.debt { background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--danger) 10%, var(--surface))); border-color: color-mix(in srgb, var(--danger) 30%, var(--border)); }
+      .analytics-finance-card.inflow { background: url('/emerald/satin-dark.svg') center / cover, var(--emerald-dark); background-blend-mode: luminosity, normal; color: var(--accent-text); border-color: var(--border); }
+      .analytics-finance-card dt, .analytics-chart-scale, .analytics-chart-head > span { color: var(--muted); }
+      .analytics-finance-card.inflow :is(dt, .unit) { color: var(--accent-text); }
+      :is(.analytics-finance-icon, .analytics-section-icon, .analytics-branch-rank) { background: var(--soft); color: var(--green); border-color: var(--border); }
+      .analytics-finance-card.debt .analytics-finance-icon { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+      .analytics-visuals-title { color: var(--heading); }
+      .analytics-chart-head { border-color: var(--border); }
+      .analytics-chart-head > span { background: var(--soft); border-color: var(--border); }
+      .analytics-chart-grid { stroke: var(--border); }
+      .analytics-chart-label { fill: var(--muted); }
+      .analytics-sales-chart stop:first-child { stop-color: color-mix(in srgb, var(--green) 75%, white); }
+      .analytics-sales-chart stop:last-child { stop-color: var(--green-hover); }
+      .analytics-sales-chart linearGradient[id$='gold'] stop:first-child { stop-color: var(--nav-active); }
+      .analytics-sales-chart linearGradient[id$='gold'] stop:last-child { stop-color: var(--border); }
+      .analytics-branch-track { background: var(--soft); }
+      .analytics-branch-track > span { background: linear-gradient(90deg, var(--green), var(--nav-active)); }
+    }
+  }
+  .inventory-status-menu { background: linear-gradient(145deg, var(--surface), var(--soft)); color: var(--text); border-color: var(--border); }
+  .inventory-status-menu > button:is(:hover, :focus-visible) { background: var(--soft); border-color: var(--green); }
+  .inventory-status-menu > button[aria-selected='true'] { background: linear-gradient(135deg, var(--accent), var(--green-hover)); color: var(--accent-text); border-color: var(--border); }
+  .inventory-status-icon { background: color-mix(in srgb, var(--green) 12%, transparent); }
+}

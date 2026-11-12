@@ -1,0 +1,76 @@
+API MA’LUMOTNOMASI
+==================
+
+Swagger: /api/docs. OpenAPI JSON: /api/openapi.json.
+Barcha biznes endpointlar /api prefiksida, cookie autentifikatsiya bilan.
+422 — noto‘g‘ri maydon, 401 — kirish kerak, 403 — ruxsat yo‘q,
+404 — mavjud emas, 409 — konflikt yoki narx/qoldiq/savat o‘zgargan,
+413 — rasm katta, 429 — login urinish cheklovi.
+
+KIRISH
+POST /auth/login {"username":"boshliq","password":"o‘zingizning parol"}
+GET /auth/me
+POST /auth/logout {}
+
+JAMOA
+GET/POST /branches
+POST /branches {"name":"3-filial"}
+GET/POST /users
+POST /users {"username":"kassir1","name":"Malika","role":"cashier",
+             "branch_id":1,"password":"kamida-10-belgi"}
+PATCH /users/2 {"active":false}
+PATCH /users/2 {"password":"yangi-kuchli-parol"}
+
+KATALOG
+GET /suppliers?branch_id=1
+POST /suppliers {"name":"Oqtepa tekstil","phone":"+998...","note":"..."}
+GET /products?branch_id=1&q=SCH
+POST /products {"name":"Paxtali sochiq","sku":"SCH-001","supplier_id":1}
+POST /products/1/image multipart form-data, file maydoni.
+GET /images/32_HEX_BELGI.jpg — faqat tizimga kirgan foydalanuvchi.
+
+KIRIM
+POST /receipts
+{"request_id":"UUID-YOKI-16-64-BELGILI-ID","branch_id":1,"product_id":1,
+ "kg":"12.500","price":"13800.00","note":"Birinchi yuk"}
+GET /receipts?branch_id=1&offset=0
+PATCH /stocks/1/discount {"discount":"10.00"}
+
+XOTIRA
+GET /carts?branch_id=1
+POST /carts {"branch_id":1,"label":"Mijoz 1",
+             "items":[{"product_id":1,"kg":"1.500"}]}
+PUT /carts/1 {"branch_id":1,"label":"Mijoz 1","version":1,
+              "items":[{"product_id":1,"kg":"2.000"}]}
+DELETE /carts/1?version=2
+
+SAVDO
+POST /sales
+{"request_id":"UUID-YOKI-16-64-BELGILI-ID","branch_id":1,"customer":"Mijoz 1",
+ "items":[{"product_id":1,"kg":"1.000"}],"cash":"14000.00","card":"0.00",
+ "expected_total":"13800.00","saved_cart_id":null,"saved_cart_version":null}
+Xotiradagi savdo bo‘lsa oxirgi ikkala maydon ID/version bilan to‘ldiriladi.
+IDni qayta so‘rovda o‘zgartirmang. Yangi savdoga yangi ID yarating.
+
+PUL BERISH
+POST /suppliers/1/payments yoki /donations/payments
+{"request_id":"UUID-YOKI-16-64-BELGILI-ID","branch_id":1,"amount":"5000.00",
+ "method":"cash","recipient":"Ali Valiyev","note":"Naqd berildi"}
+GET /payments?branch_id=1&offset=0
+Javob: suppliers va donations alohida ro‘yxatlari, har biri 100 tadan.
+
+HISOBOT
+GET /dashboard?branch_id=1
+GET /sales?branch_id=1&start=2026-01-01&end=2026-12-31&offset=0
+GET /sales/export?branch_id=1&start=2026-01-01&end=2026-12-31
+GET /audit?branch_id=1&q=Savdo&offset=0
+Boshliq branch_idni qoldirsa barcha filiallar, adminniki majburan o‘z filiali.
+
+HEALTH
+GET /health → {"status":"ok"}. Bazaga SELECT 1 bajaradi. Ochiq endpoint.
+
+MUHIM
+JSONda pul/kg satr yuborish tavsiya etiladi. Pydantic Decimal tekshiradi.
+API begona maydonlarni extra=forbid bilan rad etadi.
+Rasm formati uchun Content-Type yetarli emas; Pillow ichki formatni tekshiradi.
+Frontend data.* bo‘limlarida APIga mos type conversionni saqlang.

@@ -1,0 +1,74 @@
+EHSON LIMITI VA XATO AMALNI BEKOR QILISH
+======================================
+
+Bitta savdodagi ehson ko‘pi bilan 15 000.00 so‘m. Hisob naqd + karta - savdo
+jami bo‘yicha qilinadi: naqd va kartaga ajratish limitni oshirishga yo‘l bermaydi.
+15 000.00 qabul qilinadi, 15 000.01 rad etiladi. Savdo summasining o‘zi bu
+limit bilan cheklanmaydi. Savdoni tahrirlash va eski PCdan markazga yuborish
+ham shu tekshiruvdan o‘tadi. Bitta ehson chiqimi ham 15 000 so‘mdan oshmaydi.
+Oldin yozilgan katta summa avtomatik o‘zgarmaydi: haqiqiy to‘lovga tuzatish
+yoki tekshirib bekor qilish kerak. Ta’minotchi to‘lovlari bu limitga kirmaydi.
+
+WEB VA EXE
+Hozirgi online EXE tincrm.uzdagi umumiy sahifani ochadi. Server yangilangach
+shu imkoniyatlar web va EXEda ishlaydi; EXE oynasini qayta ochish kifoya.
+
+BEKOR QILISH TARTIBI
+«Savdolar va tarix» → «Savdolar» jadvalidagi kerakli savdo qatorida
+«O‘chirish»ni bosing. Savdo raqamini ochib, «Savdoni o‘chirish» tugmasidan
+ham foydalanish mumkin. Admin faqat o‘z filialida, boshliq barcha faol
+filiallarda ishlaydi; kassirda o‘chirish tugmasi yo‘q. Oyna joriy savdo
+ma’lumotlarini qayta oladi. Sabab yozish va tasdiq belgisini qo‘yish shart;
+tugmani shunchaki ochish savdoni o‘zgartirmaydi. O‘chirish 72 soatlik
+tahrirlash muddatiga bog‘liq emas. Faol qisman qarz to‘lovlari bo‘lsa, avval
+ularni «Qarzlar»da tekshirib bekor qilish kerak. O‘chirilgan savdo oddiy
+savdolar ro‘yxati va joriy hisoblardan chiqadi, asl nusxa va sabab tarixda qoladi.
+
+Boshqa moliyaviy amallar uchun:
+«Savdolar va tarix» → «Barcha amallar» → kerakli yozuvni oching.
+Admin o‘z filialida, boshliq barcha faol filiallarda «Amalni bekor qilish»
+tugmasidan foydalanadi. Joriy ma’lumotni tekshiring, sabab yozing va tasdiqlang.
+Savdo auditi, mini chegirma yoki savdo tuzatishi orqali bekor qilinganda
+butun savdo bekor qilinadi: barcha mahsulotlar, chegirma, qarz va shu qarz
+uchun olingan to‘lovlar ham qaytariladi. Faqat bitta maydon xato bo‘lsa,
+72 soatlik «Savdoni tuzatish» imkoniyatidan foydalaning.
+
+QAMROV
+Savdo, ombor kirimi, ta’minotchi to‘lovi, ehson chiqimi, filial xarajati va
+qarz to‘lovi bekor qilinadi. Qoldiq tuzatishini faqat Programmist bekor qiladi.
+Qarz to‘lovi alohida bekor qilinsa qarz yana ochiladi; keyin yangi so‘rov
+bilan haqiqiy to‘lov qayd etiladi. Kirim bekor bo‘lsa uning kilogrammi
+ayriladi, eng oxirgi kirim narxi va chegirmasi tegishli tarixdan tiklanadi.
+
+HISOB VA TARIX
+Pul/ta’minotchi/qarz hisobi va kilogramm bitta tranzaksiyada yangilanadi.
+Asl moliyaviy yozuv, savdo qatorlari, tuzatishlar va bog‘liq to‘lovlarning
+to‘liq nusxasi operation_cancellations jadvalida saqlanadi. Asl auditlar
+o‘chirilmaydi; «Amal bekor qilindi» yozuvi sabab, xodim va vaqtni saqlaydi.
+Tarixdagi asl yozuvda «Bekor qilingan» holati ko‘rinadi. Bekor qilingan
+amallar joriy balanslar, savdo hisobotlari va odatiy savdo eksportiga kirmaydi.
+Bu amal eski auditlarni tahrirlash yoki butunlay yo‘q qilish emas.
+
+Tekshiruv oynasi ochilgach amal o‘zgarsa, server 409 qaytaradi: tarixni qayta
+ochish kerak. Natija noma’lum bo‘lsa «Natijani tekshirish» ayni so‘rovni
+qaytaradi. Bekor qilingan asl savdo/kirim/to‘lovning eski so‘rovi uni qayta
+yaratmaydi. Asl arxiv nusxasini avtomatik qayta tiklash tugmasi yo‘q.
+
+BOG‘LIQ AMALLAR
+Kirim mahsuloti sarflangan yoki bekor qilish pul/ehson/ta’minotchi hisobini
+manfiy qiladigan bo‘lsa server rad etadi: avval bog‘liq keyingi amallarni
+tekshiring. Keyinroq kilogramm qoldig‘i qo‘lda tuzatilgan bo‘lsa, undan
+oldingi savdo/kirimni bevosita qaytarish ham to‘xtatiladi. Qoldiq tuzatishidan
+keyin ombor amali bo‘lsa uni ham darhol qaytarib bo‘lmaydi. Arxivlangan
+filialda yozuvlarni tuzatish uchun Programmist avval filialni tiklaydi.
+
+API
+GET /api/sales/{sale_id}/cancellation — joriy savdo, huquq va fingerprint;
+faqat o‘qiydi, savdoni yoki hisoblarni o‘zgartirmaydi.
+POST /api/operations/{kind}/{operation_id}/cancel
+kind: sale, receipt, supplier_payment, donation_payment, expense,
+debt_payment, stock_adjustment.
+Body: request_id, reason (3–500 belgi), expected_fingerprint.
+GET /api/audit har yozuv uchun operation, joriy summary va fingerprint beradi.
+Bir xil so‘rovning takrori qayta kilogramm/pul yozmaydi; boshqa payload 409.
+Qo‘shimcha jadval oddiy deployda yaratiladi; mavjud baza reset qilinmaydi.

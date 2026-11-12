@@ -1,0 +1,66 @@
+.app-shell.emerald-workspace {
+  --ocean-label-ink: color-mix(in srgb, var(--text) 75%, var(--muted));
+}
+.app-shell.emerald-workspace [data-ocean-state='resting'] {
+  --muted: var(--ocean-label-ink);
+}
+:root[data-magic-theme='custom']
+  .app-shell.emerald-workspace
+  [data-ocean-wave][data-ocean-state='resting']
+  :is(.card-meta, .card-unit, .metric-note, .unit, dt, small, .eyebrow) {
+  color: var(--ocean-label-ink);
+}
+:root[data-magic-theme='custom']
+  .app-shell.emerald-workspace
+  [data-ocean-wave][data-ocean-state='resting']
+  .text-btn {
+  color: var(--heading);
+}
+.app-shell.emerald-workspace [data-ocean-wave] {
+  position: relative;
+  isolation: isolate;
+}
+.app-shell.emerald-workspace canvas.ocean-card-waves {
+  position: absolute;
+  inset: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+/* The new live surface replaces the static satin, retaining the magical rim and stars. */
+.app-shell.emerald-workspace [data-ocean-wave] > .card-surface,
+:root[data-magic-theme='custom']
+  .app-shell.emerald-workspace
+  .dashboard-overview
+  [data-ocean-wave]
+  > .card-surface {
+  background: transparent;
+}
+.app-shell.emerald-workspace [data-ocean-wave] > .card-surface::before,
+:root[data-magic-theme='custom']
+  .app-shell.emerald-workspace
+  .dashboard-overview
+  [data-ocean-wave]
+  > .card-surface::before {
+  background: transparent;
+}
+.app-shell.emerald-workspace [data-ocean-wave] > .card-surface .satin {
+  opacity: 0;
+}
+.app-shell.emerald-workspace .dashboard-overview [data-ocean-wave] > .border-shimmer {
+  animation-delay: var(--ocean-rim-phase, 0s);
+}
+.app-shell.emerald-workspace
+  :is(.metrics > .metric, .analytics-summary > div)[data-ocean-wave]::after,
+:root[data-magic-theme='custom']
+  .app-shell.emerald-workspace
+  :is(.metrics > .metric, .analytics-summary > div)[data-ocean-wave]::after {
+  background: transparent;
+}
+@media print {
+  .ocean-card-waves {
+    display: none;
+  }
+}

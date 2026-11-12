@@ -1,0 +1,56 @@
+.desktop-controls {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border, #d7c8a5);
+  display: grid;
+  gap: 12px;
+}
+.desktop-controls .desktop-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 36px;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  color: var(--primary, #155d50);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.desktop-controls .desktop-link:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.desktop-controls .desktop-link:focus-visible {
+  outline: 2px solid var(--primary, #155d50);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+.desktop-controls .desktop-link:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.desktop-update-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.desktop-controls small {
+  color: var(--muted, #526058);
+  line-height: 1.6;
+  font-size: 12px;
+}
+.desktop-controls .desktop-error {
+  color: #9e3024;
+}
+.desktop-controls progress {
+  width: 100%;
+  height: 7px;
+  accent-color: var(--primary, #155d50);
+}

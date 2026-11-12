@@ -1,0 +1,157 @@
+.change-history-intro {
+  margin: 2px 0 20px;
+  padding: 0 20px;
+  color: var(--muted);
+  max-width: 800px;
+}
+.change-history-filters {
+  max-width: 320px;
+  padding: 0 20px;
+  margin-bottom: 18px;
+}
+.app-shell .change-history th,
+.app-shell .change-history td {
+  padding: 18px 22px;
+  white-space: normal;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.change-history > .table-wrap > table {
+  table-layout: fixed;
+  min-width: 780px;
+}
+.change-history > .table-wrap th:first-child {
+  width: 25%;
+}
+.change-history > .table-wrap th:nth-child(2) {
+  width: 25%;
+}
+.change-history > .table-wrap th:nth-child(3) {
+  width: 20%;
+}
+.change-history > .table-wrap th:nth-child(4) {
+  width: 15%;
+}
+.change-history > .table-wrap th:last-child {
+  width: 110px;
+}
+.app-shell .change-history td small {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+.change-history .change-product-name {
+  display: block;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.change-history .change-amount {
+  white-space: nowrap;
+}
+.change-price-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+}
+.app-shell .change-price-summary .change-amount {
+  font-size: 20px;
+  line-height: 1.4;
+}
+.change-price-summary strong {
+  color: var(--green);
+}
+.change-price-summary svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.app-shell .change-history .table-note-row > td {
+  padding: 11px 22px;
+  max-width: none;
+}
+.change-history .change-entry-row > td {
+  border-bottom-color: color-mix(in srgb, var(--border) 50%, transparent);
+}
+.change-history .badge {
+  margin-top: 8px;
+}
+.change-price-summary > div > span {
+  color: var(--muted);
+}
+.change-history-modal {
+  max-width: 960px;
+}
+.change-history-modal .change-history-reason {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.change-event-details {
+  margin-bottom: 24px;
+}
+.change-price-detail {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+}
+.change-price-detail h3 {
+  margin-bottom: 6px;
+}
+.change-price-comparison {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 22px 0;
+}
+.change-price-comparison > div {
+  min-width: 0;
+  flex: 1;
+}
+.change-price-comparison span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.change-price-comparison strong {
+  font-size: 25px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.change-cancelled-sale-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.change-cancelled-sale-heading h3 {
+  margin: 0;
+}
+.change-sale-totals {
+  margin-top: 24px;
+}
+.change-history-error,
+.change-history-snapshot-empty {
+  padding: 24px 0;
+}
+.change-history-error p {
+  margin-bottom: 16px;
+}
+@media (max-width: 620px) {
+  .change-price-comparison {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .change-price-comparison > svg {
+    transform: rotate(90deg);
+  }
+  .change-price-comparison strong {
+    font-size: 22px;
+  }
+  .change-history .pager {
+    flex-wrap: wrap;
+  }
+}

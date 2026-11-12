@@ -1,0 +1,13 @@
+.sale-row-open {
+  cursor: pointer;
+}
+
+.sale-row-open:hover > td,
+.sale-row-open:focus-visible > td {
+  background: color-mix(in srgb, var(--soft, #eff5f1) 70%, var(--surface, #fff));
+}
+
+.sale-row-open:focus-visible {
+  outline: 2px solid var(--green, #155d50);
+  outline-offset: -2px;
+}

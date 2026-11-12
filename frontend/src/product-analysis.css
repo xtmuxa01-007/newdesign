@@ -1,0 +1,364 @@
+.product-analysis-modal {
+  max-width: 1080px;
+}
+.app-shell .product-analysis-open {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.product-analysis-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: var(--soft);
+}
+.product-analysis-tabs button {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.product-analysis-tabs button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--green);
+  box-shadow: 0 1px 4px #193f3610;
+}
+.product-analysis-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.product-analysis-filters .field {
+  flex: 0 1 200px;
+  margin: 0;
+}
+.product-analysis-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.product-analysis-identity > div {
+  min-width: 0;
+}
+.product-analysis-identity strong,
+.product-analysis-identity span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.product-analysis-identity span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.product-analysis-identity .badge {
+  margin-left: auto;
+}
+.product-current-stock {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+  margin-bottom: 20px;
+}
+.product-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.product-section-heading h3 {
+  margin: 0;
+}
+.product-section-heading > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.product-current-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.product-quantity-editor {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.product-quantity-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.product-quantity-heading h3 {
+  margin: 0 0 4px;
+}
+.product-quantity-heading p {
+  font-size: 13px;
+  margin: 0;
+}
+.product-quantity-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--green);
+}
+.product-quantity-fields {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  align-items: start;
+  gap: 20px;
+}
+.product-quantity-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+  padding: 13px 16px;
+  border-radius: 10px;
+  background: var(--soft);
+}
+.product-quantity-preview > div {
+  min-width: 0;
+}
+.product-quantity-preview span,
+.product-quantity-preview small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.product-quantity-preview strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.product-quantity-preview > svg {
+  flex: 0 0 auto;
+  color: var(--muted);
+}
+.product-quantity-preview .decrease {
+  color: #a44735;
+}
+.product-quantity-preview .increase {
+  color: var(--green);
+}
+.product-quantity-editor > .notice {
+  margin: 6px 0 0;
+}
+.product-quantity-editor .form-footer {
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.product-current-values {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1fr;
+  gap: 20px;
+}
+.product-current-values > div,
+.product-period-stats > div {
+  min-width: 0;
+}
+.product-current-values span,
+.product-period-stats span,
+.product-current-values small,
+.product-period-stats small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.product-current-values strong,
+.product-period-stats strong {
+  display: block;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 7px 0 3px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.product-current-stock > p {
+  margin-top: 16px;
+}
+.product-period-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.product-period-stats > div {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+}
+.product-period-stats strong {
+  font-size: 20px;
+}
+.app-shell .product-analysis-explanation {
+  margin: 12px 0 20px;
+  font-size: 12px;
+}
+.product-analysis-chart {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.product-chart-bars {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  height: 150px;
+  border-bottom: 1px solid var(--border);
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 49px,
+    var(--soft) 49px,
+    var(--soft) 50px
+  );
+}
+.product-chart-bars button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+}
+.product-chart-bars button span {
+  display: block;
+  width: 100%;
+  background: var(--green);
+  border-radius: 4px 4px 0 0;
+  opacity: 0.75;
+}
+.product-chart-bars button:hover span,
+.product-chart-bars button.selected span,
+.product-chart-bars button:focus-visible span {
+  opacity: 1;
+}
+.product-chart-dates {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.app-shell .product-chart-caption {
+  font-size: 12px;
+  min-height: 20px;
+  margin-top: 8px;
+}
+.product-history-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 20px;
+}
+.product-analysis-section {
+  min-width: 0;
+  margin-top: 24px;
+}
+.product-analysis-section > p {
+  margin-bottom: 14px;
+}
+.product-analysis-section th,
+.product-analysis-section td {
+  padding: 12px;
+}
+.product-analysis-empty {
+  padding: 20px 0;
+  color: var(--muted);
+}
+.product-price-editor {
+  padding: 20px;
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.product-price-before {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.product-price-fields {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 18px;
+}
+.product-price-editor .form-footer {
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+@media (max-width: 760px) {
+  .product-current-values,
+  .product-history-grid,
+  .product-price-fields,
+  .product-quantity-fields {
+    grid-template-columns: 1fr;
+  }
+  .product-period-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .product-current-values {
+    gap: 14px;
+  }
+  .product-current-values > div + div {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .product-current-stock,
+  .product-analysis-chart,
+  .product-price-editor,
+  .product-quantity-editor {
+    padding: 16px;
+  }
+  .product-analysis-filters .field {
+    flex: 1 1 130px;
+  }
+  .product-period-stats strong {
+    font-size: 18px;
+  }
+  .product-analysis-tabs button {
+    flex: 1;
+    padding: 8px;
+  }
+  .product-chart-bars {
+    gap: 3px;
+  }
+  .product-current-actions {
+    width: 100%;
+  }
+  .product-current-actions button {
+    flex: 1 1 180px;
+  }
+  .product-quantity-fields {
+    gap: 0;
+  }
+  .product-quantity-preview {
+    margin-bottom: 18px;
+  }
+  .product-quantity-heading {
+    align-items: flex-start;
+  }
+}

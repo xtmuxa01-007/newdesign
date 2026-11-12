@@ -1,0 +1,406 @@
+/* The authenticated workspace uses the supplied Emerald Gold design.
+   Theme variables remain available for personal color choices. */
+.app-shell.emerald-workspace {
+  --sidebar-width: 264px;
+  background:
+    url('/emerald/ambient.svg') right top / 110% 540px no-repeat,
+    radial-gradient(ellipse at 97% 4%, #94dcae70, transparent 38%),
+    radial-gradient(ellipse at 77% 84%, #c9eac360, transparent 39%),
+    linear-gradient(112deg, color-mix(in srgb, var(--page) 30%, #fff7e9), #f7f5e8 49%, #ecf4df);
+  -webkit-font-smoothing: antialiased;
+}
+.app-shell.emerald-workspace .sidebar {
+  background:
+    radial-gradient(ellipse at 0 0, #11825a55, transparent 55%),
+    linear-gradient(155deg, color-mix(in srgb, var(--sidebar) 45%, #074f3c), #003c31 65%, #063f32);
+  border-right-color: #d9c36e66;
+  box-shadow: 8px 0 40px -24px #003e3555;
+}
+.app-shell.emerald-workspace .sidebar-header {
+  padding: 30px 27px 20px;
+}
+.app-shell.emerald-workspace .workspace-brand {
+  width: 100%;
+  padding: 0;
+  gap: 12px;
+  justify-content: flex-start;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--sidebar-text);
+  text-align: left;
+}
+.app-shell.emerald-workspace .workspace-brand:focus-visible {
+  outline: 2px solid var(--nav-active);
+  outline-offset: 7px;
+}
+.app-shell.emerald-workspace .workspace-logo-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 64px;
+  width: 64px;
+  height: 68px;
+  padding: 3px;
+  border: 1px solid #efd183;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fffdf5, #f4e6bb);
+  box-shadow:
+    0 7px 18px #0004,
+    0 0 16px #efd1831a;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.app-shell.emerald-workspace .workspace-brand:hover .workspace-logo-mark {
+  transform: translateY(-1px);
+  box-shadow:
+    0 9px 22px #0004,
+    0 0 18px #efd18340;
+}
+.app-shell.emerald-workspace .workspace-brand img {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 13px;
+  background: #fffdf7;
+}
+.app-shell.emerald-workspace .workspace-brand > .workspace-brand-copy {
+  font-size: 32px;
+  letter-spacing: 0.09em;
+}
+.app-shell.emerald-workspace .workspace-brand small {
+  font-size: 10px;
+  letter-spacing: normal;
+}
+.app-shell.emerald-workspace .workspace-company {
+  margin-top: 28px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+.app-shell.emerald-workspace .workspace-company > span {
+  background: #e9ce83;
+}
+.app-shell.emerald-workspace .sidebar-scroll {
+  padding-inline: 17px;
+}
+.app-shell.emerald-workspace .workspace-label {
+  margin: 0 14px 12px;
+  color: #b0cbb7;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+.app-shell.emerald-workspace .sidebar nav {
+  gap: 6px;
+}
+.app-shell.emerald-workspace .sidebar nav button {
+  position: relative;
+  min-height: 45px;
+  padding: 6px 10px;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #d4e3d5;
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    transform 0.25s;
+}
+.app-shell.emerald-workspace .sidebar nav button > svg {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border: 1px solid #c3d5b326;
+  border-radius: 9px;
+  background: #ffffff04;
+  color: #c0d5bd;
+}
+.app-shell.emerald-workspace .sidebar nav button.active {
+  color: #f2dfaa;
+  border-color: #d3bc7b55;
+  background: linear-gradient(110deg, #e8ce8b16, #e8ce8b08);
+  box-shadow:
+    inset 0 1px 0 #e8d5a21a,
+    0 7px 18px -12px #001d22b3;
+}
+.app-shell.emerald-workspace .sidebar nav button.active > svg {
+  color: #f0dda5;
+  border-color: #d4bd7c66;
+  background: #c4a8621c;
+}
+.app-shell.emerald-workspace .nav-mark {
+  width: 4px;
+  height: 4px;
+  background: #d8bf7f;
+}
+.app-shell.emerald-workspace .avatar {
+  border: 1px solid #f0d685;
+  background: linear-gradient(135deg, #f9e6b1, #d7b85d);
+  color: #124735;
+}
+.app-shell.emerald-workspace .topbar {
+  min-height: 64px;
+  background: #fbfaedc9;
+  border-bottom: 1px solid #b8b56948;
+  color: #073e2f;
+  backdrop-filter: blur(22px);
+}
+.app-shell.emerald-workspace .breadcrumb strong {
+  color: #073e2f;
+  font-size: 13px;
+}
+.app-shell.emerald-workspace .breadcrumb > span {
+  color: #335b48;
+  font-size: 12px;
+}
+.app-shell.emerald-workspace .topbar .branch-picker,
+.app-shell.emerald-workspace .topbar-right > button,
+.app-shell.emerald-workspace .topbar .mobile-toggle {
+  min-height: 43px;
+  border: 1px solid #a7bc8c7a;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #ffffffa8, #e6eed270);
+  color: #073e2f;
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell.emerald-workspace .topbar .branch-picker {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: clamp(200px, 17vw, 245px);
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-color: #829f62;
+  background: linear-gradient(135deg, #fffdf1, #e5efce);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 4px 12px -9px #315d3777;
+}
+.app-shell.emerald-workspace .topbar .branch-picker > svg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.app-shell.emerald-workspace .topbar .branch-picker > svg:first-of-type {
+  left: 12px;
+  width: 18px;
+  height: 18px;
+}
+.app-shell.emerald-workspace .topbar .branch-picker > svg:last-child {
+  right: 14px;
+  width: 18px;
+  height: 18px;
+}
+.app-shell.emerald-workspace .topbar .branch-picker select {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  padding: 0 38px;
+  border: 0;
+  border-radius: inherit;
+  appearance: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.app-shell.emerald-workspace .topbar .branch-picker:focus-within {
+  outline: 2px solid #548a55;
+  outline-offset: 2px;
+}
+.app-shell.emerald-workspace .topbar .branch-picker select:focus-visible {
+  outline: none;
+}
+.app-shell.emerald-workspace .topbar .branch-picker select:disabled {
+  cursor: default;
+}
+.app-shell.emerald-workspace .topbar .count {
+  color: #335b48;
+  background: #e8dfb2;
+}
+.app-shell.emerald-workspace .today-label {
+  color: #335b48;
+  font-size: 12px;
+}
+.app-shell.emerald-workspace .main {
+  padding: 16px 24px 24px;
+}
+.app-shell.emerald-workspace .app-footer {
+  background: transparent;
+  border-color: #b8b56948;
+}
+@media (hover: hover) and (pointer: fine) {
+  .app-shell.emerald-workspace .sidebar nav button:hover {
+    transform: translateX(2px);
+    border-color: #b9d4bd40;
+    background-color: #ffffff07;
+  }
+}
+@media (max-width: 1150px) {
+  .app-shell.emerald-workspace .main {
+    padding: 16px 20px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell.emerald-workspace .main {
+    padding: 12px 14px 20px;
+  }
+  .app-shell.emerald-workspace .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 8px;
+    min-height: 64px;
+  }
+  .app-shell.emerald-workspace .topbar-right {
+    display: contents;
+  }
+  .app-shell.emerald-workspace .breadcrumb {
+    min-width: 0;
+  }
+  .app-shell.emerald-workspace .breadcrumb strong {
+    font-size: 12px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .app-shell.emerald-workspace .topbar .branch-picker {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    height: 48px;
+    min-height: 48px;
+  }
+}
+@media (max-height: 780px) {
+  .app-shell.emerald-workspace .sidebar-header {
+    padding-top: 22px;
+  }
+  .app-shell.emerald-workspace .sidebar nav button {
+    min-height: 40px;
+    padding-block: 4px;
+  }
+}
+@media (max-width: 420px) {
+  .app-shell.emerald-workspace .topbar-right {
+    gap: 6px;
+    min-width: 0;
+  }
+  .app-shell.emerald-workspace .topbar-right > button {
+    flex: 0 0 auto;
+    gap: 4px;
+    padding-inline: 8px;
+  }
+}
+.telegram-mini-app .app-shell.emerald-workspace .topbar .branch-picker {
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+}
+.telegram-mini-app .app-shell.emerald-workspace .topbar .branch-picker > svg:first-of-type {
+  display: none;
+}
+.telegram-mini-app .app-shell.emerald-workspace .topbar .branch-picker select {
+  height: 100%;
+  padding: 0 34px 0 14px;
+  font-size: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell.emerald-workspace .workspace-logo-mark {
+    transition: none;
+  }
+  .app-shell.emerald-workspace .workspace-brand:hover .workspace-logo-mark {
+    transform: none;
+  }
+  .app-shell.emerald-workspace .sidebar nav button {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Unread notifications remain prominent after the arrival animation ends. */
+.app-shell.emerald-workspace .topbar-right > .notification-trigger {
+  position: relative;
+  min-height: 46px;
+  gap: 8px;
+}
+.app-shell.emerald-workspace .topbar-right > .notification-trigger .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #bccc9b;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 750;
+}
+.app-shell.emerald-workspace .topbar-right > .notification-trigger.has-notifications,
+.app-shell.emerald-workspace .topbar-right > .notification-trigger.notification-error {
+  border-color: #d8947d;
+  color: #9d3324;
+  background: linear-gradient(135deg, #fff6e9, #ffe3d6);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 0 0 2px #d8764920;
+}
+.app-shell.emerald-workspace .topbar-right > .notification-trigger.has-notifications .count,
+.app-shell.emerald-workspace .topbar-right > .notification-trigger.notification-error .count {
+  color: #fff;
+  border-color: #a92c20;
+  background: #bd3726;
+  box-shadow: 0 2px 5px #96342126;
+}
+.app-shell.emerald-workspace .topbar-right > .notification-trigger.has-notifications > svg {
+  fill: #efb08f66;
+  transform-origin: 50% 10%;
+  animation: notification-arrival 1.8s ease-in-out 3;
+}
+@keyframes notification-arrival {
+  0%,
+  35%,
+  100% {
+    transform: rotate(0);
+  }
+  8%,
+  22% {
+    transform: rotate(-14deg);
+  }
+  15%,
+  29% {
+    transform: rotate(14deg);
+  }
+}
+@media (max-width: 1150px) {
+  .app-shell.emerald-workspace .notification-label {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell.emerald-workspace .topbar-right > .notification-trigger {
+    gap: 4px;
+    padding-inline: 6px;
+  }
+  .app-shell.emerald-workspace .topbar-right > .notification-trigger .count {
+    min-width: 24px;
+    height: 24px;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell.emerald-workspace .topbar-right > .notification-trigger.has-notifications > svg {
+    animation: none;
+  }
+}

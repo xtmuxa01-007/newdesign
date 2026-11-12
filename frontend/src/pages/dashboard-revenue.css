@@ -1,0 +1,111 @@
+.telegram-mini-app .app-shell .dashboard-revenue {
+  padding: 22px;
+  margin-bottom: 22px;
+}
+.telegram-mini-app .dashboard-revenue-heading,
+.telegram-mini-app .dashboard-revenue-card-heading,
+.telegram-mini-app .dashboard-revenue-month,
+.telegram-mini-app .dashboard-revenue-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.telegram-mini-app .dashboard-revenue-heading {
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.telegram-mini-app .dashboard-revenue-heading .eyebrow {
+  color: var(--green);
+}
+.telegram-mini-app .dashboard-revenue-heading h2 {
+  margin: 7px 0;
+}
+.telegram-mini-app .dashboard-revenue-date {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: right;
+}
+.telegram-mini-app .dashboard-revenue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.telegram-mini-app .dashboard-revenue-card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--soft) 55%, var(--surface));
+}
+.telegram-mini-app .dashboard-revenue-card-heading {
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.telegram-mini-app .dashboard-revenue-card-heading h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.telegram-mini-app .dashboard-revenue-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.telegram-mini-app .dashboard-revenue-amount {
+  display: block;
+  color: var(--green);
+  font-size: clamp(23px, 2.3vw, 32px);
+  line-height: 1.4;
+  margin: 5px 0 18px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.telegram-mini-app .dashboard-revenue-amount .unit {
+  font-size: 12px;
+  font-weight: 400;
+}
+.telegram-mini-app .dashboard-revenue-month {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.telegram-mini-app .dashboard-revenue-month > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.telegram-mini-app .dashboard-revenue-month strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.telegram-mini-app .dashboard-revenue-footer {
+  margin-top: 17px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.telegram-mini-app .dashboard-revenue-footer small {
+  color: var(--muted);
+  max-width: 600px;
+}
+@media (max-width: 620px) {
+  .telegram-mini-app .app-shell .dashboard-revenue {
+    padding: 16px;
+  }
+  .telegram-mini-app .dashboard-revenue-heading {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .telegram-mini-app .dashboard-revenue-date {
+    text-align: left;
+  }
+  .telegram-mini-app .dashboard-revenue-grid {
+    grid-template-columns: 1fr;
+  }
+  .telegram-mini-app .dashboard-revenue-card {
+    padding: 16px;
+  }
+  .telegram-mini-app .dashboard-revenue-card-heading {
+    margin-bottom: 12px;
+  }
+}

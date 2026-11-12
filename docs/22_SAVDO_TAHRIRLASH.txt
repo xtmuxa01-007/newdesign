@@ -1,0 +1,30 @@
+SAVDONI TAHRIRLASH — JORIY UMUMIY REJIM
+
+Savdolar va tarix -> savdo qatoridagi «Tahrirlash».
+Yoki savdoni ochish -> «Savdoni tahrirlash».
+Boshliq barcha filiallar, admin faqat o'z filiali uchun, original savdo vaqtidan
+72 soatgacha tuzatadi. Kassirga ruxsat yo'q. Sabab majburiy va tarixga yoziladi.
+Mavjud qatorlarda mahsulot, kg, narx, chegirma, mijoz, naqd/karta tuzatiladi.
+Qaytgan mahsulotni «Qaytarish» bilan savdodan olib tashlash mumkin. Saqlashdan
+oldin «Tiklash» uni qaytaradi. Qisman qaytsa, kilogrammini kamaytiring.
+Kamida bitta mahsulot qolishi kerak. Barcha mahsulot qaytsa, savdoni to‘liq
+bekor qilish amalidan foydalaning. Yangi mahsulot qatori qo‘shilmaydi.
+Saqlangach, qaytarilgan mahsulot miqdori omborga qaytadi. Mini chegirma miqdori
+saqlanadi, qolgan mahsulotlar va ta'minotchilar ulushi qayta hisoblanadi.
+Qolgan mahsulotlar summasi mini chegirmadan katta bo‘lishi kerak.
+Avvalgi va yangi jami oynada yonma-yon ko‘rsatiladi. Naqd/karta summalarini
+amalda xaridorga qaytarilgan pulga moslab kamaytiring. Bitta to‘lov usulida
+«Naqdni/Kartani yangi jamiga moslash» tugmasi bor. Ortiqcha pul ehson
+hisoblanadi; oynada bu alohida ko‘rsatiladi. Mavjud ehson limiti saqlanadi.
+Qaytarilgan qatorlar ham tuzatishdan oldingi nusxada va auditda saqlanadi.
+Yopilgan qarz ham tuzatiladi: tuzatilgan qarz to'lovining naqd/karta summalari
+qolgan qarzga teng bo'lishi kerak. Oldingi to'lov vaqti/xodimi saqlanadi.
+Ochiq qarz to'lovini kiritish uchun odatiy qarzni to'lash bo'limi ishlatiladi.
+Faol qisman qarz to‘lovlari bo‘lsa, savdoni tuzatishdan avval ularni «Qarzlar»
+bo‘limida sabab bilan bekor qilish talab etiladi.
+Kassa yoki ta'minotchi qoldig'ini manfiy qiluvchi o'zgarish qabul qilinmaydi.
+
+Joriy web va EXE umumiy serverga yozadi; yuqoridagi huquqlar ikkala joyda
+bir xil. Filialga bitta asosiy PC talabi yo‘q. Server hisoblarni mustaqil
+qayta bajaradi, takror so‘rov takror hisoblanmaydi; parallel tahrirda eski
+versiya rad etiladi. Joriy EXE tartibi: docs/30_UMUMIY_WEB_VA_EXE.txt.

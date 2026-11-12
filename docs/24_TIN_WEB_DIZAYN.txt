@@ -1,0 +1,78 @@
+2026-09-18 — TIN web dizayni (EXE o'zgartirilmadi)
+
+Maqsad
+TIN — dastur ishlab chiqaruvchi; Marva Company — undan foydalanuvchi kompaniya.
+Ish maydonida TIN brendi, Marva Company nomi va pastki izoh ko'rsatiladi.
+Foydalanuvchi tahrirlagan login sahifasi matnlari va favicon.svg saqlandi.
+
+O'zgartirilgan fayllar
+1. frontend/src/main.jsx
+   Logo komponentiga workspace parametri qo'shildi. Login .logo uslubida,
+   ichki sahifalar .workspace-brand uslubida ko'rinadi. TIN yozuvi bilan logo
+   yuqorida bir qatorda turadi. Menyu sidebar-header, sidebar-scroll va
+   sidebar-bottom bo'limlariga ajratildi. Faqat bo'limlar ro'yxati aylanadi;
+   brend va foydalanuvchi hisobi joyida turadi. Faol bo'lim aria-current bilan
+   belgilanadi. Kichik ekranda menyuni tugma, fon yoki Escape bilan yopish mumkin.
+   Yuqori panel menyu tugmasida aria-controls va aria-expanded bor.
+   Pastki izoh TIN tomonidan Marva Company uchun ishlab chiqilganini bildiradi.
+
+2. frontend/src/workspace.css — yangi fayl
+   style.css dan keyin import qilinadi. Ish maydoni uchun alohida uslublar.
+   Yon menyu 276px; kichik desktop ekranlarda 260/244px. Telefon ekranida
+   ochiladigan 290px gacha menyu, fon pardasi va yopish tugmasi ishlaydi.
+   Yopiq mobil menyu klaviatura va ekran o'quvchisidan ham yashiriladi.
+   100dvh, min-height:0 va overflow-y:auto menyuning pastki bo'limlarini ochadi.
+   Asosiy matn 15px; jadvallar, inputlar va tugmalar 14px; yordamchi matnlar
+   asosan 12px. Menyu tugmalari kamida 47px, asosiy tugmalar kamida 42px.
+   Kartochkalar, POS va filial hisoblarining bo'shliqlari hamda satrlari moslandi.
+   Ko'p sonli qiymatlar kartadan chiqmasligi uchun o'ralishi ruxsat etiladi.
+   Dashboard keng ekranda 4, o'rta ekranda 2, juda tor ekranda 1 ustun bo'ladi.
+   Bildirishnoma dialogi topbar ichida joylashgani sabab unga alohida matn/fon
+   berildi; panelning och matni oq dialogga meros bo'lmaydi.
+   Topbar hover uslubi faqat panel tugmalariga qo'llanadi, dialogga o'tmaydi.
+
+3. frontend/src/theme.js
+   Yon panel #193f36, yuqori panel #234b40; och matn #f6f2e7.
+   Faol menyu foni #dec68e, uning matni #193f36. Oltin tusdagi sahifa foni qoldi.
+   sidebar-text, topbar-text, nav-active, nav-active-text ranglari Sozlamalarda
+   ham o'zgartiriladi. Mavjud Settings komponenti colors ro'yxatini o'qiydi.
+   crm-theme-USER-tin-v1 belgisi eski standart #fcf8ed panel ranglarini yangi
+   rangga bir marta o'tkazadi. Foydalanuvchi tanlagan boshqa ranglar saqlanadi.
+   Saqlash kalitlari, kassa qoralamasi va yuborilmagan amallar o'zgartirilmadi.
+
+4. frontend/index.html
+   Brauzer sarlavhasi TIN — Marva Company, tavsif va theme-color yangilandi.
+
+Tekshiruvlar
+- Vite production build o'tdi: mahalliy yig'ish va yakuniy Docker yig'ishi.
+- Chrome asosidagi ichki brauzerda boshliq hisobi bilan haqiqiy web ochildi.
+- Loginning mavjud matnlari saqlangani DOM orqali tekshirildi.
+- 1366x768: umumiy panel, POS, TIN yuqoridagi joylashuvi ko'rildi.
+- 1024x600: Sozlamalargacha yon menyu aylanishi tekshirildi;
+  scrollHeight=574, clientHeight=325, scrollTop=249. Hisob pastda qoladi.
+- 390x844: menyu ochish, bo'lim tanlash, yopish tugmasi, fon tugmasi va Escape;
+  umumiy panel joylashuvi tekshirildi, gorizontal sahifa toshishi yo'q.
+- 1920x1080: katta ekran ustunlari va dialog ranglari tekshirildi.
+- Rang migratsiyasi: yangi hisob, eski standartlar, shaxsiy ranglar saqlanishi
+  va buzilgan localStorage yozuviga fallback xotiradagi mock bilan tekshirildi.
+  Alohida test fayli yoki ishchi bazada test savdolari yaratilmagan.
+- Brauzer konsolida tekshiruv vaqtida error/warn topilmadi.
+- EXE SHA256 oldingi qiymat bilan bir xil:
+  58630AC0D374B1DBC0E7284120C2E56D1314011F064EA8D1A4223F68DCE33FD1
+
+Ishga tushirish
+Docker web konteyneri qayta yig'ilib ishlayotgan markazga qo'yildi.
+API, PostgreSQL, savdo hisobi va EXE fayllari o'zgartirilmadi.
+Shu kundagi lokal tarmoq manzili: http://192.168.1.27:8784/
+Eski sahifa ochiq bo'lsa Ctrl+F5 bilan yangilash kerak.
+
+Keyingi dasturchi uchun
+Faqat ichki sahifalar dizaynini workspace.css orqali tahrirlash qulay.
+Loginning o'z uslublari style.css ichidagi .login/.logo selektorlarida.
+Rang standartlari theme.js da; ranglarni hardcode qilish o'rniga CSS var ishlating.
+Joriy EXE 0.4.3 ushbu web dizayni bilan qayta yig'ilmagan; foydalanuvchi keyin
+so'rasa desktop build alohida qilinadi. Eski installer yoki server ZIP yangilanmadi.
+
+Keyingi yangilanish (2026-09-18): foydalanuvchi loginni ham yangilashni so'radi.
+Shu fayldagi login o'zgarmadi degan qayd birinchi dizayn bosqichiga tegishli.
+Yangi login va tayyor mavzular tafsiloti: docs/25_TIN_LOGIN_VA_MAVZULAR.txt.

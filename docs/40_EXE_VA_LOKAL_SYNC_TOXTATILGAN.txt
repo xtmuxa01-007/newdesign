@@ -1,0 +1,70 @@
+EXE VA ESKI LOKAL SINXRONLASH VAQTINCHA TO‘XTATILGAN — 2026-11-05
+================================================================
+
+Foydalanuvchining aniq talabi: EXE o‘chirilmaydi, lekin uning server bilan
+ishlashi va markaziy CRM hisoblariga ta’siri foydalanuvchi qayta so‘raguncha
+to‘xtatiladi. Hozir web va Telegram Mini App ishlatiladi.
+
+SERVER SIYOSATI
+CRM_DESKTOP_ENABLED=0 — markaziy webni ochadigan Windows/Electron klient
+APIga kira olmaydi. Oldingi seans ham bu cheklovni chetlab o‘tmaydi.
+CRM_LEGACY_SYNC_ENABLED=0 — eski lokal baza/navbat sinxronlashlari yopiq.
+Ikkala qiymatning faqat aynan '1' bo‘lishi tegishli yo‘lni ochadi; yo‘q,
+bo‘sh yoki boshqa qiymat o‘chiq hisoblanadi. Standart qiymatlar 0.
+Eski sync ikkala flag 1 bo‘lgandagina ishlashi mumkin. Faqat zamonaviy
+EXEni yoqish eski lokal navbatni avtomatik qayta faollashtirmaydi.
+
+Ma’lum EXE/Electron klientlari va eski python-httpx transporti API so‘rovi
+autentifikatsiya yoki biznes DB amallariga yetmasdan 503 desktop_paused oladi.
+Vaqtinchalik 503 eski ochiq interfeysning javobi noma’lum amal/request_id
+yozuvini o‘chirib yubormasligi uchun tanlangan; pauza commit bo‘lmaganini
+isbotlamaydi. Qayta tekshirish nusxasi lokal xotirada saqlanadi.
+Yangi interfeys savdo tahriri so‘rovini ham POSTdan oldin umumiy recovery
+xotirasiga yozadi. Noma’lum javobda tahrir oynasi natijani tekshirish
+oynasiga topshiradi; keyingi tekshiruv ayni payload/request_id bilan,
+foydalanuvchi bosgandagina bajariladi. Pauza ekraniga o‘tish nusxani o‘chirmaydi.
+/api/sync va /api/local ostidagi yo‘llar eski sync o‘chiq paytda User-Agent
+yoki tokenidan qat’i nazar bloklanadi. Push, bootstrap, katalog/rasmlar,
+qurilma ro‘yxati, ro‘yxatdan o‘tish va activate-shared ham shu jumladan.
+Desktop latest.yml va installer yuklashlari yopiq; tarqatilgan fayllar
+o‘chirilmaydi. OIDC bilan tekshiriladigan CI nashr endpointi saqlanadi.
+
+Oddiy web/Telegram brauzerlari, jumladan Telegram Desktop WebView shu
+cheklovga tushmaydi. Electron yoki desktop markerini telegram-web deb
+nomlash blokni ochmaydi. Ilovada EXE to‘xtatilgani haqida tushunarli xabar bor.
+
+BU NIMA QILMAYDI
+EXE, AppData, device.json, lokal SQLite, yuborilmagan navbat, zaxira, server
+qurilma yozuvi/tokeni, inbox va SharedBranch o‘chirilmaydi yoki almashtirilmaydi.
+Mavjud savdo, kirim, qoldiq, narx, pul va qarzlar qayta yozilmaydi.
+Hech qanday lokal ma’lumot markazga import qilinmaydi. Lokal sync worker
+shu kodda sozlangan bo‘lsa ham pauzada ishga tushmaydi; navbat saqlanadi.
+Telegram kunlik hisobot workeriga bu siyosat ta’sir qilmaydi.
+
+WEB TAHRIRI
+Eski sync o‘chiq paytda eski qurilma web yozuvchisi hisoblanmaydi. Shu bois
+hatto active=true bo‘lgan tarixiy qurilma ham adminning kg/narx tahriri,
+web savdo/kirim va katalogni bloklamaydi. Rol, filial, arxiv, stale expected_kg,
+request_id, hisob-kitob va audit/boshliq bildirishnomasi tekshiruvlari qoladi.
+GET /api/desktop/status oddiy webdan holatni ko‘rsatadi: enabled, paused,
+legacy_sync_enabled, code va detail. Bu biznes ma’lumotini o‘qimaydi.
+
+CHEGARA
+Server o‘rnatilgan eski binarning tarmoqqa ulanishga urinishini masofadan
+to‘xtata olmaydi; uning API va sinxronlash so‘rovlarini rad etadi.
+User-Agent/klient markeri dastur turini aniqlaydi, yangi autentifikatsiya
+chegarasi emas. Bu qoida foydalanuvchi so‘ragan mavjud EXElar uchun pauza.
+
+QAYTA YOQISH
+Foydalanuvchi keyin aniq so‘raguncha ikkala flag 0 qoladi. Qayta ishlashda
+avval lokal navbatlar va markaziy reviziyalar solishtiriladi. Eski qurilma
+tokenlarini yoki CRM_LEGACY_SYNC_ENABLED ni ko‘r-ko‘rona qayta yoqish mumkin
+emas: pauzada qilingan kg/narx tahrirlariga eski navbat zid kelishi mumkin.
+Eski ma’lumotni markazga yuborish/import qilish alohida aniq ruxsat talab qiladi.
+
+SINOV
+Faqat disposable SQLite va marva_ci PostgreSQL ishlatiladi. Eski protokol
+testlarida ikki flag test jarayonida 1 qilinadi; ishlayotgan CI ilovasi va
+ishchi server standart pauzada qoladi. Pauza, oldingi seans, eski token,
+to‘liq biznes snapshoti, admin kg/narx tahriri, xabar va Telegram alohida
+tekshiriladi. Ishchi bazada sinov savdosi yoki qoldiq tahriri bajarilmaydi.

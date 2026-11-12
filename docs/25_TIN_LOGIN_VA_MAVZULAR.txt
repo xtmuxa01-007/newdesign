@@ -1,0 +1,85 @@
+2026-09-18 — TIN login va tayyor rang mavzulari
+
+Foydalanuvchi so'rovi
+Login sahifasini ichki panel bilan uyg'unlashtirish, iborani chiroyli va kamroq
+qalin qilish, faqat oldindan mavjud shior/iboralarni yangilash. Sozlamalarga
+tilla-qora, osmon, okean va boshqa tayyor dizaynlarni qo'shish. Faqat web.
+
+O'zgarishlar
+frontend/src/main.jsx:
+- login.css import qilindi. Login iborasi ikkita alohida satr guruhiga ajratildi:
+  Mijoz narxni unutishi mumkin. Samimiy munosabat esa yodda qoladi.
+- Birinchi qism och, ikkinchi qism tilla rangda. Qalinlik 500.
+- Login yordamchi yozuvi, input placeholderlari va kirish izohi soddalashtirildi.
+- Mavjud pastki login yozuvi TIN Company / Marva Company uchun ko'rinishida.
+- Ichki footerda oldingi shior o'rnida Hisobda aniqlik. Ishda ishonch.
+
+frontend/src/login.css (yangi):
+- Ichki panel bilan bir xil CSS rang o'zgaruvchilari ishlatiladi.
+- To'q yashil ibora paneli, tilla tusdagi orqa fon va och kirish kartochkasi.
+- Logo 64px, TIN yozuvi 42px. Telefon ekranida ular 48px va 32px.
+- Ibora 34–56px, font-weight 500, line-height 1.3, muvozanatlangan satrlar.
+- Forma sarlavhasi 550 qalinlikda; yordamchi matn 14px, input/tugma 15px,
+  pastki izoh 12px. Input va asosiy tugma kamida 50px balandlikda.
+- 760px gacha bir ustun; ilgari yashirilgan ibora endi mobil ekranda ham bor.
+- Stil faqat login selektorlariga tegishli. Mavjud favicon.svg saqlandi.
+
+frontend/src/pages/Dashboard.jsx:
+- Hammasi nazorat ostida -> Aniq hisob, xotirjam ish.
+frontend/src/pages/Donations.jsx:
+- Kichik farq, alohida hisob -> Ezgu niyat, aniq hisob.
+Ibora yo'q joylarga yangi shior qo'shilmadi. Moliyaviy ma'no va yordamchi
+hisob-kitob ko'rsatmalari saqlandi.
+
+frontend/src/theme.js:
+- presets ro'yxati qo'shildi: gold, sky, ocean, emerald, lavender, graphite.
+- Ko'rinadigan nomlar: Tilla rangli dizayn, Osmon, Okean, Zumrad, Lavanda, Grafit.
+- Har bir palette defaults bilan birlashtirilib barcha mavjud ranglarni oladi.
+  Shu sabab eski mavzudagi qo'lda tanlangan rang yangi mavzuga aralashmaydi.
+- Asl yashil/tilla defaults va mavjud foydalanuvchi ranglari avtomatik o'zgarmaydi.
+- Saqlash oldingi crm-theme-USER kaliti bilan ishlaydi. Serverga yozilmaydi;
+  boshqa brauzer yoki boshqa foydalanuvchining tanloviga o'tmaydi.
+
+frontend/src/pages/Settings.jsx:
+- Dastlabki ranglarni tiklash tugmasi bilan bir guruhda 6 mavzu kartasi.
+- Har birida kichik rangli layout ko'rinishi, nomi va tavsifi bor.
+- Tanlash bir bosishda: saveColors -> localStorage -> state -> applyTheme.
+- Faol kartada chegara, belgi va aria-pressed ko'rsatiladi.
+- Ranglarni keyin alohida o'zgartirish imkoniyati saqlangan. Hech bir tayyor
+  palette bilan mos kelmasa Joriy dizayn: Shaxsiy ranglar deb ko'rsatiladi.
+- Tiklash mavjud asl palitrani qaytaradi. Login/parol funksiyasiga tegilmadi.
+
+frontend/src/workspace.css:
+- Mavzu kartalari uchun responsive grid, miniature ko'rinishlar va tanlov stili.
+- Mayda elementlar: icon, mahsulot rasmi yo'q joy, hisob soni, cart/payment,
+  jadval chegaralari, ehson izohi, focus va hover ranglari CSS var bilan moslashadi.
+- Xatolik va faol/faolsiz holatlarning semantik belgilariga tegilmadi.
+
+Tekshiruv
+- Mahalliy Vite build va Docker production build muvaffaqiyatli.
+- Barcha 6 mavzu va default uchun barcha rang kalitlari/HEX qiymatlar tekshirildi.
+- Matn/surface, muted/surface, muted/page, sidebar matni/foni, topbar matni/foni,
+  faol menyu matni/foni, tugma matni/foni va accent matni/foni kontrasti >=4.5.
+- Mavzu readTheme orqali qayta o'qilganda palette aynan saqlanishi tekshirildi.
+- Haqiqiy web brauzer: login 1366x768 va 390x844; shrift qalinligi 500, logo
+  yuklanishi, forma, mobil ibora va gorizontal toshib chiqmaslik tekshirildi.
+- Yangi login orqali kirildi; barcha 6 mavzu tugmasi bosilib ranglar va yagona
+  faol tanlov tekshirildi. Okean tanlab reload qilinganda tanlov saqlangan.
+- Tilla-qora sozlamalar va Okean umumiy paneli vizual ko'rildi.
+- 390px da mavzu grid bitta 293px ustun; ekran kengligidan tashqariga chiqmaydi.
+- Brauzer tekshiruvlarida error/warn topilmadi.
+
+Qo'llash
+Faqat Docker web xizmati qayta yig'ildi. API va baza sxemasi o'zgarmadi.
+EXE 0.4.3 qayta yig'ilmadi. Ushbu dizaynni EXEga qo'shish keyingi so'rovda.
+Joriy web: http://192.168.1.27:8784/. Eski ochiq sahifani Ctrl+F5 qiling.
+Sozlamalar -> Ranglar -> Tayyor dizaynlar orqali mavzuni tanlash mumkin.
+Login kirishdan oldin asl yashil/tilla palitrada; foydalanuvchining shaxsiy
+mavzusi hisobga kirganidan keyin qo'llanadi (mavjud ajratish saqlangan).
+
+Keyingi tahrirlar
+Login: main.jsx ichidagi Login komponenti va login.css.
+Ibora: Dashboard.jsx, Donations.jsx va main.jsx footeri.
+Yangi mavzu: theme.js presets ga id/label/description/palette qo'shing.
+Sozlamalar tugmalari avtomatik yaratiladi. Palette matn va fon kontrastini
+tekshiring. Qo'lda rang tanlash va defaults resetni saqlab qoling.

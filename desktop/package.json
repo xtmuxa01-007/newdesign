@@ -1,0 +1,68 @@
+{
+  "name": "marva-crm-desktop",
+  "productName": "TIN CRM",
+  "version": "0.5.3",
+  "private": true,
+  "description": "TIN Company — Marwa Company uchun umumiy savdo va filiallar hisobi",
+  "author": "TIN Company",
+  "main": "shared-main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "44.3.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "uz.marva.crm",
+    "compression": "maximum",
+    "electronLanguages": [
+      "en-US"
+    ],
+    "files": [
+      "shared-main.cjs",
+      "connection.html",
+      "connection.js",
+      "central-profile.cjs",
+      "preload.cjs",
+      "setup.css",
+      "assets/tin-logo.png",
+      "assets/tin-icon.ico",
+      "updater.cjs"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "extraResources": [
+      {
+        "from": "../backend/dist/marva-backend",
+        "to": "backend"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "executableName": "Marva CRM",
+      "icon": "assets/tin-icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "TIN CRM",
+      "deleteAppDataOnUninstall": false
+    },
+    "artifactName": "TIN-CRM-Setup-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://tincrm.uz/api/desktop/updates/"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9"
+  }
+}

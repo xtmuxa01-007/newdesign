@@ -1,0 +1,144 @@
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-heading,
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sales-analytics .analytics-section-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border: 1px solid #bdcc9c;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #f8f6de, #dfeccc);
+  color: #176047;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-heading h2,
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-title h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -.035em;
+}
+.sales-analytics .analytics-finance-heading p,
+.sales-analytics .analytics-visuals-title p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0 18px;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 142px;
+  padding: 16px;
+  border: 1px solid #becb9e;
+  border-radius: 17px;
+  background: url('/emerald/satin-pearl.svg') center / cover, linear-gradient(145deg, #fffdf1, #e8f0da);
+  box-shadow: inset 0 1px 0 #fff, 0 8px 18px -18px #1e6047aa;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #466449;
+}
+.sales-analytics .analytics-finance-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  height: 34px;
+  border: 1px solid #bfcf9b80;
+  border-radius: 10px;
+  background: #dfeacb88;
+  color: #206448;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card dd {
+  margin: 0;
+  font-size: clamp(22px, 1.65vw, 30px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -.025em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.sales-analytics .analytics-finance-card .unit { font-size: 11px; font-weight: 400; letter-spacing: 0; }
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card.inflow {
+  background: url('/emerald/satin-dark.svg') center / cover, linear-gradient(135deg, #096047, #004739);
+  border-color: #c6b76b;
+  color: #f4fff0;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card.inflow dt,
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card.inflow .unit { color: #e0edc9; }
+.sales-analytics .analytics-finance-card.inflow .analytics-finance-icon { background: #ffffff1c; color: #f2f6d5; }
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card.donation {
+  background: url('/emerald/satin-pearl.svg') center / cover, linear-gradient(135deg, #fff3cd, #f0e9c6);
+  border-color: #d4c286;
+}
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-card.debt {
+  background: linear-gradient(145deg, #fff6eb, #f5e9dc);
+  border-color: #dfc1a8;
+}
+.sales-analytics .analytics-finance-card.debt .analytics-finance-icon { background: #ecd2c366; color: #9d5140; border-color: #dfc1a8; }
+.app-shell.emerald-workspace .sales-analytics .analytics-finance-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 15px;
+  border: 1px solid #c8d1a477;
+  border-radius: 12px;
+  background: #edf2df;
+  margin: 0;
+  font-size: 12px;
+}
+.analytics-finance-note svg { flex: 0 0 18px; margin-top: 2px; }
+.app-shell.emerald-workspace .sales-analytics .analytics-grain {
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 24px 0 14px;
+  padding: 0 4px;
+}
+.sales-analytics .analytics-visuals-title { display: flex; align-items: center; gap: 12px; color: #1e6648; }
+.sales-analytics .analytics-visuals-title h2 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
+.app-shell.emerald-workspace .sales-analytics .analytics-grain .field { margin: 0; }
+.app-shell.emerald-workspace .sales-analytics .analytics-charts { gap: 20px; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-panel { padding: 22px; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-head { align-items: center; padding-bottom: 16px; border-bottom: 1px solid #c7d1a577; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-head > span { font-size: 11px; padding: 6px 9px; border: 1px solid #c5cfa580; border-radius: 8px; background: #edf2df; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-scale { flex-direction: row; justify-content: space-between; margin-top: 18px; font-size: 11px; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-grid { stroke: #b8c89b88; stroke-dasharray: 4 5; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-bar { fill: var(--analytics-bar-fill); }
+.app-shell.emerald-workspace .sales-analytics g:is(:hover, :focus) .analytics-chart-bar { fill: var(--analytics-bar-active); stroke: none; }
+.app-shell.emerald-workspace .sales-analytics .analytics-chart-tooltip { padding: 12px 14px; border-radius: 12px; border: 1px solid #c4cfa277; background: #eaf0dc; font-size: 12px; }
+.sales-analytics .analytics-branch-total { padding: 17px; margin-top: 18px; border: 1px solid #c9c17d; border-radius: 15px; background: url('/emerald/satin-dark.svg') center / cover, #075540; color: #f6fff2; }
+.sales-analytics .analytics-branch-total > span { display: block; font-size: 12px; color: #e0eacb; }
+.sales-analytics .analytics-branch-total strong { display: block; margin-top: 7px; font-size: 27px; line-height: 1.3; }
+.app-shell.emerald-workspace .sales-analytics .analytics-branch-total .unit { font-size: 12px; color: #e0eacb; font-weight: 400; }
+.app-shell.emerald-workspace .sales-analytics .analytics-branch-bars { gap: 12px; margin-top: 16px; }
+.sales-analytics .analytics-branch-bar { padding: 14px; border: 1px solid #c9d2ab88; border-radius: 13px; background: #fffff555; }
+.app-shell.emerald-workspace .sales-analytics .analytics-branch-bar > div:first-child { font-size: 13px; align-items: center; }
+.analytics-branch-rank { display: inline-grid; place-items: center; width: 25px; height: 25px; margin-right: 7px; border-radius: 8px; background: #dce9c8; color: #216046; font-size: 11px; }
+.app-shell.emerald-workspace .sales-analytics .analytics-branch-track { height: 8px; margin: 12px 0 8px; background: #dce5cb; }
+.app-shell.emerald-workspace .sales-analytics .analytics-branch-bar small { font-size: 11px; }
+@media (max-width: 1250px) {
+  .app-shell.emerald-workspace .sales-analytics .analytics-finance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .app-shell.emerald-workspace .sales-analytics .analytics-finance { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .app-shell.emerald-workspace .sales-analytics .analytics-finance-card { min-height: 112px; gap: 12px; }
+  .app-shell.emerald-workspace .sales-analytics .analytics-grain { flex-wrap: wrap; gap: 14px; }
+  .app-shell.emerald-workspace .sales-analytics .analytics-grain .field { width: 100%; }
+  .app-shell.emerald-workspace .sales-analytics .analytics-chart-panel { padding: 16px; }
+  .app-shell.emerald-workspace .sales-analytics .analytics-chart-title h2 { font-size: 18px; }
+}

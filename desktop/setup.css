@@ -1,0 +1,226 @@
+/* Boshlang'ich ulanish oynasi React loginining yashil/tilla uslubiga mos. */
+:root {
+  font:
+    15px "Segoe UI",
+    Arial,
+    sans-serif;
+  color: #20382e;
+  background: #efe6ce;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.setup-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(460px, 1fr);
+  min-height: 100vh;
+}
+.setup-story {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+  padding: clamp(32px, 4vw, 64px);
+  background: #193f36;
+  color: #f6f2e7;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.brand img {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+}
+.brand > span {
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+.brand small {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  margin-top: 10px;
+}
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  margin-bottom: 14px;
+  color: #155d50;
+}
+.setup-story .eyebrow {
+  color: #dec68e;
+}
+h1 {
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 0 0 28px;
+}
+h1 em {
+  color: #dec68e;
+  font-style: normal;
+}
+.setup-intro p {
+  max-width: 430px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #d7e1d9;
+}
+.setup-note {
+  border-top: 1px solid #f6f2e730;
+  margin-top: 28px;
+  padding-top: 22px;
+  font-size: 13px;
+  color: #dec68e;
+}
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  font-size: 13px;
+}
+footer span {
+  color: #c4d2c9;
+}
+.setup-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px;
+}
+.online-connection #update {
+  margin-top: 12px;
+}
+form {
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #d7c8a5;
+  border-radius: 22px;
+  padding: 32px;
+  background: #fffdf7;
+  box-shadow: 0 12px 44px #243d2710;
+}
+h2 {
+  color: #153b2f;
+  font-size: 30px;
+  font-weight: 550;
+  letter-spacing: -0.8px;
+  margin: 0 0 12px;
+}
+p {
+  margin: 0;
+  color: #526058;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.form-intro {
+  margin-bottom: 26px;
+}
+label {
+  display: block;
+  margin: 18px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+input,
+select,
+button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  font: inherit;
+  border: 1px solid #d7c8a5;
+  border-radius: 10px;
+}
+input,
+select {
+  display: block;
+  margin-top: 9px;
+  background: #fff;
+  color: #20382e;
+  font-size: 15px;
+}
+input::placeholder {
+  color: #687970;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #155d50;
+  box-shadow: 0 0 0 3px #155d501c;
+}
+button {
+  background: #155d50;
+  color: #fff;
+  border-color: #155d50;
+  cursor: pointer;
+  font-weight: 550;
+}
+button:hover:not(:disabled) {
+  background: #0b483d;
+}
+button:focus-visible {
+  outline: 3px solid #dec68e;
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+input:disabled,
+select:disabled {
+  opacity: 0.75;
+}
+.secondary {
+  background: #fffdf7;
+  color: #155d50;
+  border-color: #d7c8a5;
+  font-size: 13px;
+}
+.secondary:hover:not(:disabled) {
+  background: #e5ebdd;
+}
+#error {
+  color: #a13c30;
+  padding: 12px;
+  margin: 16px 0;
+  background: #fff0ed;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+#error:empty {
+  display: none;
+}
+@media (max-width: 950px) {
+  .setup-story {
+    padding: 32px;
+  }
+  .setup-side {
+    padding: 24px;
+  }
+  form {
+    padding: 26px;
+  }
+}
+@media (max-height: 700px) {
+  .setup-story {
+    position: static;
+    height: auto;
+    min-height: 100vh;
+  }
+}

@@ -1,0 +1,85 @@
+JORIY HOLAT: 2026-09-16 da test/demo fayllari va bazalari olib tashlandi.
+Quyida bo'limning ishlab chiqish tarixi va biznes qoidalari saqlangan.
+Amaldagi o'rnatish va bo'sh baza: 21_TOZA_VERSIYA.txt. Eski demo loginlari ishlamaydi.
+
+WEB MINI CHEGIRMALAR — 2026-09-15
+
+FOYDALANISH
+POSda mahsulot tanlab, hozir olinadigan summani naqd/kartaga kiriting.
+Masalan, jami 13 200, naqd 13 000. Qolganini chegirma qilish tugmasi 200
+so‘mni mini chegirma sifatida belgilaydi. Savdoni yakunlash bilan saqlanadi.
+Limit har bir savdoda 5 000 so‘m, shu jumladan aynan 5 000. Katta farqda
+tugma o‘chiq, API ham rad etadi. Naqd va karta birga ishlatilishi mumkin.
+Qarzga savdo bilan mini chegirma bir vaqtda ishlatilmaydi: qolgan farqning
+hammasi chegirma bo‘lgani uchun qarz qoldig‘i qolmaydi.
+Savat/narx/to‘lov o‘zgarsa yangi holat uchun chegirmani qayta tanlang.
+Mini chegirmani bekor qilish tugmasi tasdiqni olib tashlaydi.
+
+PUL QOIDASI — FOYDALANUVCHI TANLOVI
+Mini chegirma ta’minotchining haqidan ayriladi. Ehsondan qoplanmaydi.
+13 200 - 200 = 13 000: yakuniy savdo va ta’minotchi haqi 13 000,
+kassaga 13 000 kiradi. Ehson qoldig‘i o‘zgarmaydi. Mini chegirma 200
+alohida hisobda ko‘rinadi; uni yana bir marta ta’minotchi haqidan ayirmang.
+Bir necha mahsulot bo‘lsa, katalog chegirmasidan keyingi qator summalariga
+mutanosib taqsimlanadi. Bir necha ta’minotchi bo‘lsa ularning qatorlariga
+tegishli ulush o‘z haqidan ayriladi. Jami ulush aynan mini chegirmaga teng.
+Eng katta kasr qoldig‘iga bir tiyindan taqsimlash yaxlitlash farqini yo‘qotadi.
+Narx/kg va katalogdagi foiz o‘zgarmaydi. Faqat shu savdoning qator jami kamayadi.
+
+QAYERDA KO‘RINADI
+Ehson hisobi: Mini chegirmalar jami, alohida jadvalda savdo, filial,
+asl summa, chegirma, ta’minotchidan ayrilgan ulush, naqd/karta, xodim va vaqt.
+Ta’minotchilar: mini chegirma alohida ustun; qolgan haq chegirmadan keyin.
+Savdolar va tarix: savdo tafsilotida qator mini chegirmasi va yakuniy jami.
+Audit: Mini chegirma berildi yozuvi va ta’minotchilar bo‘yicha ulushlar.
+JSON eksport: mini_discount obyekti va shares; items[].mini_discount.
+
+DASTURCHI UCHUN
+models.py MiniDiscount: sale_id unique, branch/user, original_total, amount,
+created_at. DB check 0 < amount <= 5000 va original_total >= amount.
+MiniDiscountShare: mini_discount_id, sale_item_id unique, supplier_id, amount.
+Eski jadvallarga ustun qo‘shilmagan; create_all yangi jadvallarni yaratadi.
+schemas.Checkout.mini_discount default 0, Decimal, ikki kasr, limit 5000.
+routes_sales.checkout: server asl jami narxni expected_total bilan tekshiradi,
+mini_discount aynan total-cash-card bo‘lishini tekshiradi, net total hisoblaydi.
+Mini yozuvi, ulushlar, stock kamayishi va audit bitta tranzaksiyada saqlanadi.
+Takror request_id bir xil savdo qaytaradi; asl jami/chegirma/pul/items yoki
+qarz ma’lumoti farq qilsa 409. Takror so‘rov narx o‘zgarsa ham eski natijani oladi.
+mini_discounts.allocate: int tiyinlarda mutanosib taqsimlash; nol summali
+qatorga chegirma tushmaydi. Teng kasrda product ID bo‘yicha qator tartibi.
+Sale.total va SaleItem.total net summalar. Supplier earned shu net qatorlardan.
+accounting.supplier_debt qo‘shimcha mini_discount jami qaytaradi, ammo ikkinchi
+marta ayirmaydi. Ehson hisoblash formulasi o‘zgarmagan.
+GET /api/mini-discounts: manager, branch scope, offset/100 ta sahifa,
+umumiy count va amount, actor va ulushlarning supplier nomi.
+pos.jsx: miniApproval joriy savat/total/cash/card kalitiga bog‘langan;
+pending payload bilan birga saqlanadi, serverga amount aniq yuboriladi.
+EXE manbalari va paketlari o‘zgarmagan. Lokal CRM_BRANCH_ID rejimida mini
+checkout rad etiladi, yangi ulushlar uchun EXE sync ushbu ishga kirmaydi.
+
+TEKSHIRUV
+backend/tests/test_mini_discounts.py: 14 test o‘tdi. Limit, 0.01 so‘m,
+invalid summa/NaN, rollback, ikkita ta’minotchi, aralash to‘lov, yaxlitlash,
+replay va JSON, role/branch scope, qarz bilan qo‘shmaslik va EXE guard.
+To‘liq tekshiruvda avval 87 passed, 1 failed, 2 skipped bo‘ldi: failed test
+13000 va 13000.00 pul satrlarini aynan teng deb kutgan. Decimal qiymat va
+bir xil ID tekshiruviga tuzatildi; 14 ta mini testi qayta o‘tdi. Ishchi hisob
+kodi bu tuzatishda o‘zgarmadi. PostgreSQL parallel 2 test bajarilmagan.
+Frontend build va mavjud 9 pul/recovery testi o‘tdi.
+Brauzerda 5800 farqda tugma o‘chiqligi, 800 farqda tanlanishi va to‘lovni
+o‘zgartirganda tasdiq bekor bo‘lishi tekshirildi.
+Doimiy jurnal: docs/12_DOIMIY_ISHLAR_JURNALI.txt.
+
+2026-09-15 yakuniy UI: demo #101 13 800 - 900 = 12 900 so‘m yakunlandi.
+Ehsonda mini 900 va ta’minotchi ulushi 900 ko‘rindi; ehson qoldig‘i 6 400
+bo‘lib qoldi. Xodim va vaqt jadvalda ko‘rsatilishi screenshotda tekshirildi.
+
+2026-09-15 QOIDANI ANIQLASHTIRISH
+5000 avtomatik chegirma emas, faqat yuqori chegara. Kassir to‘lovni minglikda
+kiritadi va tugmani bosadi. 13800 ->13000 bo‘lsa 800 chegirma; 12900 yakuniy
+to‘lov mini chegirma uchun rad etiladi. Cash+card yig‘indisi 1000 ga karrali
+bo‘lishi va chegirma <=5000 bo‘lishi shart. Har bir to‘lov turi alohida
+minglik bo‘lishi shart emas (6500+6500=13000 mumkin).
+Avvalgi #101 demo tarixiy yozuvi o‘zgartirilmaydi; yangi qoida yangi savdolarga.
+Tekshiruv: 15 mini test o‘tdi, React build o‘tdi.
+

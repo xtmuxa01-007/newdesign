@@ -1,0 +1,100 @@
+.app-shell .theme-design-workbench {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: 24px;
+  margin: 28px 0;
+}
+.app-shell .theme-design-workbench .theme-presets {
+  margin: 0;
+}
+.theme-design-workbench .theme-preset-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.theme-design-workbench .theme-preset {
+  gap: 10px;
+}
+.theme-design-workbench .theme-preview {
+  height: 58px;
+}
+.app-shell .theme-home-preview {
+  position: sticky;
+  top: 100px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+}
+.theme-home-preview-heading {
+  margin-bottom: 18px;
+}
+.theme-home-preview-heading .eyebrow {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.theme-home-preview-heading h3 {
+  margin: 5px 0 6px;
+  font-size: 19px;
+}
+.theme-home-preview-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.app-shell .theme-home-preview .stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+.app-shell .theme-home-preview .stat-card {
+  --radius: 18px;
+  min-height: 182px;
+  padding: 16px;
+}
+.app-shell .theme-home-preview .card-header {
+  min-height: 36px;
+  align-items: flex-start;
+}
+.app-shell .theme-home-preview .card-title {
+  font-size: 13px;
+  line-height: 1.45;
+}
+.app-shell .theme-home-preview .card-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 11px;
+}
+.app-shell .theme-home-preview .card-icon svg {
+  width: 19px;
+  height: 19px;
+}
+.app-shell .theme-home-preview .card-value {
+  font-size: 30px;
+}
+.app-shell .theme-home-preview .card-unit {
+  font-size: 12px;
+}
+.app-shell .theme-home-preview .card-meta {
+  font-size: 11px;
+  line-height: 1.6;
+}
+@media (max-width: 1100px) {
+  .app-shell .theme-design-workbench {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .app-shell .theme-home-preview {
+    position: static;
+  }
+}
+@media (max-width: 480px) {
+  .app-shell .theme-home-preview {
+    padding: 14px;
+  }
+  .app-shell .theme-home-preview .stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

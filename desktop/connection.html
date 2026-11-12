@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self'; script-src 'self'"
+    />
+    <title>TIN — Markazga ulanish</title>
+    <link rel="stylesheet" href="setup.css" />
+  </head>
+  <body>
+    <main class="setup-layout">
+      <section class="setup-story">
+        <div class="brand">
+          <img src="assets/tin-logo.png" alt="" /><span
+            >TIN<small>Savdo va filiallar hisobi</small></span
+          >
+        </div>
+        <div class="setup-intro">
+          <span class="eyebrow">UMUMIY BAZA</span>
+          <h1>Bir filial.<br /><em>Barcha kompyuterlar.</em></h1>
+          <p>
+            Web va EXE bir xil savdo, ombor va hisoblar bilan ishlaydi. Istalgan
+            kompyuterdan o‘z hisobingiz bilan kiring.
+          </p>
+          <div class="setup-note">
+            Savdo va tahrirlash uchun internet aloqasi kerak.
+          </div>
+        </div>
+        <footer>TIN Company <span>Marwa Company uchun</span></footer>
+      </section>
+      <section class="setup-side">
+        <form id="setup" class="online-connection">
+          <span class="eyebrow">MARKAZGA ULANISH</span>
+          <h2>Aloqani tekshiring</h2>
+          <p class="form-intro">
+            Internet va markaziy server aloqasini tekshiring. Eski lokal baza va
+            yuborilmagan amallar kompyuterda saqlanadi.
+          </p>
+          <p id="server" class="connection-help"></p>
+          <p id="error" role="alert"></p>
+          <section id="recovery" hidden>
+            <p class="connection-help">
+              Server bazasi yangilangan bo‘lsa, eski profilni zaxiralab
+              kirishingiz mumkin. Eski baza, rasmlar va yuborilmagan amallar shu
+              PCda alohida papkada saqlanadi; ular yangi markaziy bazaga
+              yuborilmaydi. Keyin o‘z login va parolingiz bilan kirasiz.
+            </p>
+            <button id="retire" type="button">
+              Eski bazani saqlab markazga kirish
+            </button>
+          </section>
+          <button id="retry" type="button">Qayta ulanish</button>
+          <p id="status" role="status"></p>
+          <button id="update" type="button">Yangilanishni tekshirish</button>
+          <p id="update-state" role="status"></p>
+        </form>
+      </section>
+    </main>
+    <script src="connection.js"></script>
+  </body>
+</html>

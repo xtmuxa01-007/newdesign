@@ -1,0 +1,205 @@
+HISOBOT, AMALLAR TARIXI, EXCEL VA JSON EKSPORT
+===========================================
+
+DASHBOARD
+GET /dashboard?branch_id=1. Boshliq branch_id yubormasa barcha filiallar.
+Admin branch_id yubormasa server uning filialini tanlaydi.
+today: Toshkent bugungi 00:00 dan kun oxirigacha savdo.
+month: joriy oyning 1-kunidan bugun oxirigacha.
+year: joriy yil 1-yanvardan bugun oxirigacha.
+Savdo metrikalariga ehson qo‘shilmaydi; naqd/karta balansiga qo‘shiladi.
+Hisobotda stock kg, qiymat, faol qoldiqlar soni, ta’minotchi qarzi,
+ehson tushumi/to‘lovi/qoldig‘i, naqd/karta va filiallar kesimi qaytadi.
+Frontend dashboard har 30 soniyada va fokus qaytganda yangilanadi.
+Yangilash/Yangi savdo tugmalari faqat Mini App bosh sahifasida bor;
+oddiy web/EXEda metrikalar to‘g‘ridan-to‘g‘ri boshlanadi, POS yon menyuda.
+Oddiy web/EXE «Filiallar holati» bir nechta filial bo‘lsa karusel ko‘rinishida:
+desktop kartalari avvalgi gridga nisbatan 30% kengroq, telefonda to‘liq sig‘adi.
+Yon tugmalar, klaviatura va surish ishlaydi. Mini App bu qismda eski gridni oladi.
+Ombor/POS mahsulotlari uchun ham qayta yuklash mavjud.
+
+SAVDO RO‘YXATI
+«Savdolar va tarix» sahifasida har filialning nomli alohida tanlovi bor.
+Boshliq dastlab birinchi faol filial tarixini ko‘radi, arxiv filialni ham
+tanlay oladi. Admin faqat o‘z filialini ko‘radi. Savdo ro‘yxati, davr summasi
+va Excel/JSON doim tanlangan filialniki; savdolar uchun umumiy tanlov yo‘q.
+Filial almashtirilganda sahifalash, sana/qidiruv va ochiq tafsilotlar tozalanadi.
+GET /sales?branch_id=1&start=2026-01-01&end=2026-01-31&offset=0.
+start/end ixtiyoriy, ikkala sana ham to‘liq kunni qamraydi.
+UTCga aylantirish serverning Asia/Tashkent zonasi orqali bajariladi.
+Har sahifa 100 ta savdo, yangi savdo avval. Total/donation agregatlari
+faqat sahifa emas, butun tanlangan davr uchun qaytadi.
+Savdo bosilganda SaleItem nom, SKU, kg, narx, chegirma va summa ko‘rinadi.
+Savdo qatorining tugma bo‘lmagan istalgan joyini bosish shu tafsilotni
+ochadi. Tab bilan qatorga o‘tib Enter yoki bo‘sh joy orqali ham ochiladi;
+fokus va kursor ustidagi qator ajratiladi. «O‘chirish» va boshqa ichki
+tugmalar faqat o‘z amalini bajaradi, savdo tafsilotini birga ochmaydi.
+SaleItem nom/SKU/narx/chegirma tarixiy snapshot, bugungi katalogga bog‘lanmaydi.
+Savdo qatori va Dashboarddagi so‘nggi savdolarda «Jami olingan» naqd + karta
+va shu savdoning keyin to‘langan qarz puli yig‘indisini ko‘rsatadi. Ehson
+naqd/karta ichida bo‘lgani uchun shu summaga kiradi; ochiq qarz olinmagan pul
+sifatida qo‘shilmaydi. Masalan mahsulot 100 600, naqd 101 000 bo‘lsa qator
+101 000 ko‘rsatadi. Mahsulot qiymati tafsilotda va savdo ko‘rsatkichlarida
+alohida saqlanadi; bu o‘zgarish moliyaviy yozuvlarni tahrirlamaydi.
+
+AUDIT
+Audit: id, branch_id, user_id, actor (ism snapshot), action, detail JSON, vaqt.
+Qamrov: kirish/chiqish, filial/xodim yaratish va yangilash, ta’minotchi,
+mahsulot va rasm qo‘shish, kirim, chegirma, savat yaratish/tahrir/o‘chirish,
+yakunlangan savdo, ta’minotchi/ehson to‘lovi, JSON eksport.
+Yozuvchi amal va audit bir tranzaksiyada saqlanadi. Amal bekor bo‘lsa audit
+ham commit qilinmaydi. Oddiy GET o‘qishlar har safar logga yozilmaydi.
+Muvaffaqiyatsiz login urinishlari LoginAttemptda, biznes tarixida emas.
+Parol yoki token auditga kiritilmaydi; faqat password_changed boolean.
+GET /audit?q=Kirim&offset=0 100 tadan sahifalanadi, amal yoki actor qidiriladi.
+Admin faqat o‘z filialiga tegishli auditlarni ko‘radi. «Barcha amallar» tabida
+boshliq «Barcha filiallar va umumiy amallar» tanlovini ochishi mumkin. Bu
+tanlov /audit so‘roviga branch_id yubormaydi: filial auditlari bilan birga
+filialga bog‘lanmagan SKU, mahsulot arxivi va xodim amallari ham ko‘rinadi.
+Filial nomini bosish auditni shu filialga qaytaradi; ayni filialni qayta
+bosish ham umumiy tanlovni yopadi. Audit doirasi savdo ro‘yxati va JSON/Excel
+eksportining tanlangan filialini o‘zgartirmaydi.
+UI detail JSONni o‘zbekcha sarlavhali maydonlar ko‘rinishida ochadi.
+Admin va boshliq xato moliyaviy amalni sabab bilan bekor qilishi mumkin.
+Savdoni «Savdolar» jadvalidagi «O‘chirish» tugmasi yoki savdo tafsilotidagi
+«Savdoni o‘chirish» orqali bekor qiladi. Sabab va tasdiq talab qilinadi;
+asl yozuv tarixda saqlanadi. Admin faqat o‘z filialining savdosini o‘chiradi.
+Asl audit saqlanadi, joriy hisobdan chiqarilgan yozuvning nusxasi ham arxivga
+yoziladi. Tafsilot: 34_EHSON_LIMITI_VA_AMALNI_BEKOR_QILISH.txt.
+Auditni API orqali tahrirlash/o‘chirish endpointi yo‘q. DB superuseri
+texnik jihatdan yozuvlarni o‘zgartira oladi; bu kriptografik tamper-proof log emas.
+
+O‘ZGARISHLAR VA BILDIRISHNOMALAR
+«Savdolar va tarix → O‘zgarishlar» narx tahriri va bekor qilingan savdolarni
+alohida ko‘rsatadi. Filial, boshlanish/tugash sanasi va amal turi bilan
+filtrlash mumkin. Admin o‘z filialini, boshliq barcha filiallar yoki
+tanlangan filialni ko‘radi. Narxning oldingi/yangi qiymati va bekor qilingan
+savdo mahsulotlari tarixiy audit/arxiv nusxasidan olinadi; joriy ombor narxi
+eski savdo narxini almashtirmaydi. Eski narx auditida mahsulot nomi/SKU
+nusxasi bo‘lmasa, joriy katalog nomi ishlatilgani tafsilotda ko‘rsatiladi.
+
+Boshliqqa barcha filiallar bo‘yicha dastur ichidagi bildirishnomalar
+ko‘rinadi. Ro‘yxat 15 soniyada va oynaga qaytilganda yangilanadi. Tafsilotni
+ataylab ochish yoki ko‘rsatilganlarni o‘qilgan deb belgilash shu hisobning
+o‘qilganlik holatini saqlaydi; boshqa boshliqqa ta’sir qilmaydi. O‘qilgan
+o‘zgarish tarixdan o‘chmaydi. Sahifani yoki bildirishnoma ro‘yxatini shunchaki
+ochish moliyaviy yozuvlarni o‘zgartirmaydi. Tafsilot va texnik qoidalar:
+36_OZGARISHLAR_VA_BILDIRISHNOMALAR.txt.
+
+SAVDO TARIXINI EXCELGA YUKLASH
+«Savdolar va tarix»da filialni, boshlanish va tugash sanasini tanlab
+«Excel yuklash»ni bosing. Bir yoki ikkala sana bo‘sh bo‘lsa shu chegarasi
+ochiq qoladi. Sana oralig‘idagi ikkala kun ham Toshkent vaqti bilan kiradi.
+GET /sales/export.xlsx?branch_id=1&start=2026-10-01&end=2026-10-31.
+Excelga faqat ekrandagi 100 qator emas, tanlangan filtrdagi barcha savdolar
+va ularning mahsulot qatorlari olinadi. «Hisobot», «Savdolar», «Mahsulotlar»
+varaqlari bor; pul 2, kilogramm 3 kasr bilan formatlanadi. Sana/vaqt
+ustunlari Toshkent vaqti. Mahsulot nomi, SKU va sotilgan paytdagi narxi
+tarixiy snapshotdan olinadi. Bekor qilingan savdolar joriy eksportda yo‘q.
+«Jami olingan» — savdodagi naqd+karta va shu savdodan keyin olingan qarz
+to‘lovi. Keyingi qarz to‘lovi tanlangan savdo davridan tashqarida bo‘lishi
+ham mumkin; bu shu savdolarning hozirgi holati, faqat davr tushumi emas.
+Asl JSON yuklash ham saqlandi. Boshliq arxiv filial tarixini ham yuklaydi,
+admin o‘z filialini; kassir bu eksportga kira olmaydi.
+
+SAVDOLAR ANALIZI
+Menyudagi «Savdolar analizi» boshliq va admin uchun. Boshliq bir filial yoki
+«Barcha filiallar»ni, admin faqat o‘z filialini ko‘radi. Arxiv filialning
+saqlangan savdolari ham hisobga olinadi. Bu bo‘lim ma’lumotlarni o‘qiydi.
+Dastlab Toshkentdagi joriy oyning 1-kunidan bugungacha ko‘rsatiladi.
+«Oyni tanlash» boshqa oy uchun oyning birinchi/oxirgi kunini oladi; joriy
+oy bugun bilan tugaydi. «Shu oy», «O‘tgan oy» yoki boshlanish/tugash
+sanalarini alohida tanlash mumkin. Kabisa va oy uzunligi hisoblanadi.
+Filialni almashtirish tanlangan sanalarni saqlaydi. Teskari yoki bo‘sh
+sana oralig‘ida so‘rov va Excel yuklash to‘xtatiladi.
+GET /sales/analytics?branch_id=1&start=2026-10-01&end=2026-10-31.
+branch_id boshliqda bo‘sh qolsa barcha filiallar; admin serverda o‘z
+filialiga chegaralanadi. start/end bo‘sh bo‘lsa API joriy oy/bugunni oladi.
+
+KO‘RSATKICHLAR MA’NOSI
+goods_total — savdo sanasi bo‘yicha mahsulot qiymati, ehson kirmaydi.
+sales_count — tanlangan davrdagi savdolar soni; kg — sotilgan kilogramm.
+average_sale — goods_total / sales_count; savdo yo‘q bo‘lsa 0.
+cash/card — shu davr savdolarida dastlab olingan naqd/karta, ehson ichida.
+received_at_sale — cash + card, keyingi qarz to‘lovi bu qiymatga kirmaydi.
+donation — shu davr savdolarida yozilgan ehson, mahsulot qiymatidan alohida.
+debt_created — shu davr savdolarida yozilgan dastlabki qarz.
+debt_outstanding — ayni davr savdolaridan HOZIR to‘lanmagan qarz qoldig‘i;
+  davr oxiridagi tarixiy qoldiq emas. Keyin qarz yopilsa bu qiymat kamayadi.
+debt_collected — shu davrda olingan qarz to‘lovlari; asl savdo boshqa oyda
+  qilingan bo‘lishi mumkin. Oldingi qarzning haqiqiy to‘lovi ham kiradi.
+  Qarz to‘lovining sanasi bo‘yicha hisoblanadi. Mahsulotsiz kiritilgan
+  oldingi qarzning asosiy summasi savdo yoki davr tushumi hisoblanmaydi.
+period_inflow — received_at_sale + debt_collected, davrning jami tushumi.
+expenses — shu davrda qayd etilgan filial xarajatlari, o‘z sanasi bo‘yicha.
+Bu ko‘rsatkichlar foyda yoki kassadagi mavjud qoldiqni hisoblamaydi.
+Bekor qilingan amallar odatiy hisobga kirmaydi; asl audit/arxiv saqlanadi.
+
+GRAFIK VA JADVALLAR
+6 kartada mahsulot savdosi, jami tushum, savdolar soni, kg, o‘rtacha savdo
+va xarajat; alohida pul/qarz/ehson tafsilotlari mavjud. Asosiy grafik
+mahsulot qiymatini kun/oy bo‘yicha, ikkinchi grafik filiallar kesimida
+ko‘rsatadi. Ustun ustiga olib borish yoki Tab bilan tanlash aniq summa va
+savdolar sonini ko‘rsatadi. 62 kundan uzun davrda avtomatik oylik grafik;
+kunlik tanlov 366 kungacha. Bu faqat grafik tanlovi, savdo tarixiga limit emas.
+Kunlar 3660 kungacha, oylar 1200 oygacha nol davrlar bilan to‘ldiriladi;
+undan uzun oraliq uchun amallar bo‘lgan sanalar va UI izohi bor.
+Filial va oy jadvallari pul, qarz, ehson va xarajatni alohida ko‘rsatadi.
+Mahsulot jadvali qiymat bo‘yicha eng ko‘p sotilgan 20 mahsulotni ko‘rsatadi.
+U mahsulotning joriy katalog nomi/SKU bilan guruhlanadi; aniq sotilgan
+paytdagi nom/SKU uchun savdo tarixi va uning Excel mahsulotlarini oching.
+
+ANALIZNI EXCELGA YUKLASH
+GET /sales/analytics/export.xlsx ayni filial/start/end filtrlari bilan.
+«Excel yuklash»dagi «Hisobot», «Kunlar», «Oylar», «Filiallar», «Mahsulotlar»
+varaqlari umumiy ko‘rsatkichlar, tafsilotlar hamda oylik/filial grafiklarini
+saqlaydi. Excel mahsulotlari UI dagi 20 qator bilan cheklanmaydi.
+Har ikki Excel yuklashda filial/davr so‘rov boshida saqlanadi. Yuklash
+paytida tanlov o‘zgarsa yoki sahifa yopilsa eski javob yangi tanlov uchun
+fayl sifatida yuklanmaydi; kerak bo‘lsa yangi tanlovda qayta bosing.
+Excel haqiqiy .xlsx; CSVga nomini almashtirish ishlatilmaydi. Matnlar formula
+sifatida bajarilmaydi; 15 raqamdan katta aniq qiymatlar Excel yaxlitlashidan
+saqlash uchun matn katakda yoziladi. Excel/analiz hech qanday parol/xesh/
+seans eksport qilmaydi. Eksport auditga qayd etiladi, biznes summalari
+o‘zgarmaydi. Bu bazaning to‘liq zaxirasi emas.
+
+Excel varaqlari TIN / Marwa Company sarlavhasi, yashil/oltin ranglar,
+ajratilgan yakuniy ko‘rsatkichlar va tartibli filial/davr ma’lumotlari bilan.
+Jadval sarlavhalari o‘raladi, ustunlar va qator balandliklari matnga mos,
+pul ustunlari o‘ngga tekislanadi. Filtrlar, qotirilgan sarlavha, aniq son
+formatlari va varaqlardagi ma’lumot joylashuvi saqlanadi. Chop etish maydoni,
+sahifa sarlavhasi/raqami va grafiklarning uslubi ham moslashtirilgan.
+Bu fayl ko‘rinishi web, EXE va Mini Appdan olingan Excelga bir xil qo‘llanadi.
+
+JSON EKSPORT
+GET /sales/export ayni filial va sana filtrlarini qabul qiladi, pagination yo‘q.
+Content-Disposition attachment. UI Blob orqali .json fayl yuklaydi.
+Kodlash UTF-8, ensure_ascii=false, indent=2.
+schema_version=1. Kelgusida strukturani buzib o‘zgartirsangiz versiyani oshiring.
+
+YUQORI DARAJALI MAYDONLAR
+schema_version, exported_at, timezone, currency, weight_unit, filter,
+branches, sellers, suppliers, sales.
+sales ichida har savdoning items ro‘yxati bor.
+branches/sellers/suppliers referens IDlarni inson o‘qiydigan nomga bog‘laydi.
+Parollar, password_hash va seanslar eksport qilinmaydi.
+Pul va kilogrammlar JSON satr ko‘rinishida, masalan "13800.00", "0.333".
+
+Dasturchi Python misoli:
+    import json
+    from decimal import Decimal
+    data = json.load(open('marva-savdolar.json', encoding='utf-8'))
+    total = sum(Decimal(s['total']) for s in data['sales'])
+
+Eksport savdo tarixini beradi, bazaning to‘liq zaxirasi emas.
+Kirim, parol, rasmlar, seans va to‘lovlarni to‘liq saqlash uchun backup ishlating.
+Juda katta tarix hozir xotiraga yig‘iladi; katta hajmda sana bo‘yicha
+bo‘lib eksport qiling. Kelgusida oqimli eksport yoki navbatdagi eksport ishini
+qo‘shish mumkin. Bekor qilingan savdolar odatiy eksportga kirmaydi; asl nusxa
+operation_cancellations va auditda saqlanadi. Savdo tahririda oldingi/yangi
+holat SaleEditda saqlanadi.
+
+SAVDODAN MAHSULOTNI QAYTARISH
+Savdoni tahrirlashda qaytgan mahsulot qatorini olib tashlash mumkin.
+Qolgan savdo va ombor qayta hisoblanadi; oldingi va yangi holat tarixda qoladi.
+Amaldagi tartib va to‘lovlarni moslash: 22_SAVDO_TAHRIRLASH.txt.

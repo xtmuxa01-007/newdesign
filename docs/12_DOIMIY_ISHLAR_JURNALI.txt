@@ -1,0 +1,1667 @@
+MARVA CRM — DOIMIY O‘ZGARISHLAR JURNALI
+Bu faylga keyingi ishlar ham sana bilan qo‘shiladi; oldingi yozuvlar saqlanadi.
+
+2026-09-11 — Offline va Windows EXE bosqichi boshlandi
+Talab: internet uzilganda filial lokal ishlaydi; internet qaytganda server
+bilan almashadi. Har filialda bitta yozuvchi lokal backend ishlaydi.
+Mavjud React, Python va markaziy PostgreSQL saqlanadi.
+
+Tekshirilgan fayllar: backend/app/db.py, models.py, main.py,
+routes_sales.py, common.py, security.py, backend/tests/conftest.py.
+Aniqlangan holat: barcha moliyaviy amallar commit bilan tugaydi;
+PostgreSQLdagi row lock SQLite uchun yetarli emas. Lokal bazada yozish
+tranzaksiyalarini BEGIN IMMEDIATE yordamida ketma-ket bajarish kerak.
+
+Bosqichlar: 1) lokal tranzaksiya va doimiy yuborish navbati;
+2) qurilmani ro‘yxatga olish, server qabul qilish va katalogni olish;
+3) avtomatik worker va interfeys holati; 4) Electron/Python paketlash;
+5) internet uzilishi, takroriy yuborish va ikki filial sinovlari.
+Hozir EXE va to‘liq sinxronlash tayyor deb hisoblanmaydi.
+
+2026-09-11 — Lokal baza va navbat kodi
+backend/app/db.py: diskdagi SQLite uchun WAL, FULL durability, foreign_keys,
+30 soniyali busy_timeout va BEGIN IMMEDIATE qo‘shildi. Bu qoldiqni o‘qib
+keyin yozish oralig‘idagi parallel savdo poygasini oldini oladi. Hozir sodda
+yechim sifatida o‘qish tranzaksiyalari ham qulf oladi; yuklama testida baholanadi.
+PostgreSQL va xotiradagi SQLite test sozlamalari saqlandi.
+
+backend/app/offline_queue.py: offline_outbox jadvali; UUID event/device,
+ketma-ket raqam, filial, JSON payload va ACK vaqti. enqueue commit qilmaydi.
+pending faqat yuborilmagan yozuvlarni ketma-ket beradi. acknowledge boshqa
+qurilmaning yozuvini tasdiqlashni rad etadi va takroriy ACKni xavfsiz qabul qiladi.
+install_capture: alohida sessionmaker uchun after_flush listener. Stock,
+Receipt, Sale, SaleItem, SupplierPayment, DonationPayment, SavedCart va Audit
+o‘zgarishlari asosiy tranzaksiya bilan birga navbatga tushadi. User va sessiya
+parollari navbatga yozilmaydi. Hozir listener ishchi serverda yoqilmagan;
+filial runtime ulanishi keyingi bosqichda bajariladi.
+
+backend/app/main.py: yangi jadval create_all orqali yaratilishi uchun modul importi.
+backend/tests/test_offline_queue.py: disk bazasi qayta ochilganda navbat saqlanishi,
+rollback atomarligi, avtomatik ID, boshqa qurilma ACKi va takroriy ACK tekshirildi.
+Natija: 2 yangi test o‘tdi. venv ishlatilmadi, mavjud .test-deps ishlatildi.
+Sandbox test kutubxonasini o‘qishga ruxsat bermadi; ruxsatli test buyrug‘i o‘tdi.
+
+Qolgan: serverda qurilma autentifikatsiyasi va idempotent import, ID mapping,
+pull katalog/rasmlar, filialga biriktirish, worker, UI, Electron/PyInstaller,
+o‘rnatuvchi va real uzilgan tarmoq sinovlari. Hali ma’lumot serverga yuborilmaydi.
+
+2026-09-11 — Qurilma va markaziy qabul navbati
+Foydalanuvchi javobi: tayyor server yo‘q; ushbu kompyuterda markaz va ikki
+filial uchun sinov muhiti tayyorlanadi.
+backend/app/routes_sync.py yozildi: sync_devices va sync_inbox jadvallari.
+POST /api/sync/devices faqat boss uchun; filialga bitta asosiy qurilma;
+maxfiy token faqat bir marta qaytariladi, bazada uning SHA256 xeshi saqlanadi.
+POST /api/sync/push Bearer qurilma tokeni bilan ishlaydi. Filial tekshiriladi,
+navbat raqami ketma-ket bo‘lishi shart. Takroriy event_id bir xil payload bilan
+kelganda yana ACK qaytaradi; boshqa payload 409. Paket xatosi butun paketni
+rollback qiladi. Qabul vaqti saqlanadi; javobdagi applied=false ataylab:
+hisobotga proyeksiya/import qatlami hali yozilmagan. Inbox ACK tayyor sinxron
+hisobot degani emas. main.py ga router qo‘shildi.
+backend/tests/test_sync_inbox.py: token yo‘qligi, boshqa filial, takroriy
+yuborish, o‘zgargan payload va paket rollbacki tekshirildi. Navbat bilan
+birgalikda 4 test o‘tdi. Oldingi to‘liq backend tekshiruvi: 40 passed, 2 skipped.
+
+backend/tests/test_demo_seed.py: oldin yozilgan seed_demo.py uchun ikki filial
+balansi, 98 savdo, 18 savat, 2 tugagan qoldiq, 12 rasm, qayta seed va mavjud
+ishchi ma’lumotni saqlash sinovlari qo‘shildi. Natija keyingi yozuvda qayd etiladi.
+
+2026-09-11 — Tekshiruv yakuni
+To‘liq backend testi: 44 passed, 2 skipped, 1 dependency deprecation warning.
+Demo seedning hisoblari va mavjud ma’lumotga aralashmasligi ham tekshirildi.
+O‘tkazib yuborilgan 2 test haqiqiy PostgreSQL parallel tranzaksiyalarini talab qiladi.
+Bu bosqichda EXE yig‘ilmadi, lokal capture ishchi runtimega ulanmagan,
+avtomatik worker, pull va markaziy hisobotga import hali tugallanmagan.
+Keyingi ish shu jurnalning davomiga yoziladi; hech bir eski yozuv o‘chirilmaydi.
+
+2026-09-11 — Tranzaksiya paketlari va haqiqiy markaziy hisobga qo‘llash
+offline_queue.py: har row o‘rniga bitta DB tranzaksiyasining barcha flushlari
+version=2 changes paketiga birlashtirildi. after_flush_postexec orqali JSON
+yangilanishi saqlanadi; rollback/session yakunida vaqtinchalik xotira tozalanadi.
+sync_projection.py: yangi SyncIdentity jadvali lokal ID -> markaziy ID uchun.
+apply_bundle jadvallar ro‘yxati, turlar, filial/xodim, immutable tarix,
+savdo jami va ehson, stock kilogramm deltalari hamda manfiy balanslarni tekshiradi.
+Inbox, mapping va hisobotlar bitta tranzaksiyada yoziladi; applied_at to‘ldiriladi.
+routes_sync.py: push endi applied=true faqat haqiqiy qo‘llashdan keyin qaytaradi.
+bootstrap boshlang‘ich filial nusxasi va mapping; catalog hamda images pull qo‘shildi.
+security.py va sales/stock/finance routelari: EXEga bog‘langan filialda markaziy
+yozish bloklanadi, asosiy qurilma yagona yozuvchi. Qulf olish tartibi tuzatildi.
+Yangi testlar: lokal checkout -> markaziy dashboard, qayta yuborilganda 1 savdo,
+noto‘g‘ri stock delta butunlay rollback, markazda ikkinchi yozuvchini taqiqlash.
+Shu paytdagi nishonlangan sinov: 7 passed.
+
+2026-09-11 — Worker, lokal runtime va interfeys
+sync_worker.py: har 15 soniyada push/pull, tarmoq davomida DB qulfi ushlanmaydi,
+faqat applied ACKdan keyin navbat belgilanadi. Katalog, foydalanuvchi va rasmlar
+olinadi. Parol/active o‘zgarsa lokal seanslar bekor qilinadi. SyncState diskda.
+local_runtime.py: alohida data-dir dagi SQLite, CRM_BRANCH_ID va uploads; React
+fayllari shu lokal backend orqali beriladi. main.py lifespan worker/capture ni
+boshlaydi va to‘xtatadi; lokal katalog/xodim tahriri markazga yo‘naltiriladi.
+provision_local.py: boshliq loginidan birinchi snapshot olinadi; mavjud baza
+almashtirilmaydi, tokenni tiklash fayli saqlanadi. Hozir CLI sozlash bosqichi.
+frontend/src/SyncStatus.jsx, main.jsx, style.css: yuborilmagan amallar, oxirgi
+sinxronlash, xato matni va qo‘lda qayta urinish tugmasi.
+Worker testiga server commit qilgach HTTP javobi yo‘qolishi va worker qayta
+ochilganda savdo 1 marta qolishi qo‘shildi. Natija keyingi yozuvda.
+
+2026-09-11 — Desktop paket va jonli demo
+Worker bilan 8 maqsadli test o‘tdi; to‘liq backend: 48 passed, 2 skipped.
+React production build muvaffaqiyatli. Electron 44.3.0, electron-builder
+26.15.3 reyestrdan tekshirildi; PyInstaller 6.22.2 .test-deps ga o‘rnatildi.
+desktop/: main.cjs, preload.cjs, setup.html/js, package.json, pnpm lock/workspace.
+Electron sandbox/contextIsolation yoqilgan; Node rendererda o‘chirilgan;
+tashqi navigatsiya/popup va ruxsat so‘rovlari cheklangan. Setup IPC faqat lokal
+setup.html dan ishlaydi. Parol child argv emas stdin orqali o‘tadi.
+backend/desktop_entry.py: setup yoki runtime EXE entry. NSIS o‘rnatuvchi va
+Python EXE yig‘ildi. Keyingi tuzatishlardan so‘ng qayta yig‘ish talab etiladi.
+scripts/build_desktop.py qayta yig‘ish uchun; requirements-desktop.txt versiya.
+scripts/desktop_demo.py: .local-tools/offline-demo da to‘liq markaz va ikki
+filial bazasi. Bu sinov markazi SQLite; ishchi markaz PostgreSQL bo‘lib qoladi.
+Jonli tekshiruvda markaz yopildi, backend EXEda kassir1 OFFLINE-EXE-TEST savdosi
+qilindi: 0.100 kg, 1380 so‘m mahsulot, 20 so‘m ehson, 1400 naqd.
+sync/status endpointida ikki DB session bir vaqtda BEGIN IMMEDIATE olgani
+sabab qulf xatosi topildi. main.sync_status endi auth bilan bir xil get_db
+seansini SyncWorker.status(db) ga beradi. Alohida regression test qo‘shildi.
+Oxirgi binarlar shu tuzatish bilan qayta yig‘iladi.
+Manbalar: https://www.electronjs.org/docs/latest/tutorial/security va
+https://www.electron.build/nsis/ — sandbox hamda installer sozlamalari.
+
+2026-09-11 — Jonli uzilish va qayta ulanish tekshiruvi yakuni
+Tuzatilgan backend EXE qayta ochildi: markaz o‘chiq paytda pending=3,
+"Serverga aloqa yo‘q. Lokal ishlash davom etadi." qaytdi.
+Markaz qayta yoqilgach OFFLINE-EXE-TEST savdosi markazda ID=99 bilan 1 marta
+ko‘rindi: total=1380.00, donation=20.00, cash=1400.00. Worker error bo‘sh.
+Yangi login auditlari ham navbatga tushgani sabab tekshiruv paytida pending=1
+bo‘lishi normal; bu yo‘qolgan savdo emas, navbatdagi login yozuvi.
+SQLite status regression bilan 5 projection testi o‘tdi; 9 frontend testi
+ham o‘tdi. To‘liq oldingi run: 48 passed, 2 skipped; yangi test alohida o‘tdi.
+React production build va NSIS installer muvaffaqiyatli yig‘ildi.
+scripts/open-demo.ps1 qo‘shildi: -Branch 1/2 bilan alohida demo profili ochiladi.
+desktop main userData demo profilini ajratadi, lokal backend health.instance
+tekshiruvidan keyin Reactni ochadi. MainWindow ko‘rinishi uchun show/focus qo‘shildi.
+docs/13_OFFLINE_EXE_QOLLANMA.txt da run/build va bajarilmagan qismlar aniq yozildi.
+Bu 0.2.0 sinov paketi; PostgreSQL, LAN, migratsiya/zaxira va masofaviy narx
+buyruqlari hali yakunlanmagani sabab ishchi tizim to‘liq tugadi deb hisoblanmaydi.
+
+Desktop JS va open-demo.ps1 sintaksis tekshiruvlari o‘tdi. README dagi eski
+"offline yo‘q" jumlasi yangi sinov rejimi havolasiga almashtirildi.
+scripts/demo.ps1 dagi login izohi tuzatildi: mavjud boshliq paroli demo seed
+bilan o‘zgarmaydi; boshqa demo hisoblarda MarvaDemo2026! ishlatiladi.
+Brauzer orqali vizual tekshirish urinishi Codex webview attach timeout sabab
+bajarilmadi. Paketlangan Electron child backend health status=ok va instance
+UUID bilan javob bergani CLI orqali tekshirildi. Toza PCda install sinovi qolgan.
+
+2026-09-11 — Ikki filial, kunlik zaxira va uzilgan setup
+sync_projection.py: markaziy auditga _sync_source (device_id, branch_id,
+local_audit_id) qo‘shildi. Lokal IDlar qaysi qurilmaga tegishli ekani saqlanadi.
+routes_sync.py: RegisterDevice endi klient oldindan saqlagan UUID/token juftligini
+qabul qiladi; bir xil sozlash takrorlanganda ikkinchi qurilma yaratilmaydi.
+Eski inboxda applied_at bo‘sh bo‘lsa, haqiqiy apply bajarilmasdan ACK berilmaydi.
+provision_local.py qayta tartiblandi: atomic_json fsync+replace; local_installation
+belgisi DB bilan bir tranzaksiyada yoziladi; DB tayyor, config yetishmagan
+holat tarmoqqa chiqmasdan tiklanadi. Tugallanmagan staging fayli o‘chirilmaydi,
+initializing-incomplete-UUID.db nomi bilan saqlanadi. CLI va desktop_entry.py
+endi bir xil provision_device funksiyasidan foydalanadi.
+local_backup.py: sqlite3.backup bilan izchil WAL nusxa, SHA256 manifest,
+rasmlar, ZIP yo‘llarini tekshirish; kunlik nusxalar avtomatik o‘chirilmaydi.
+Hali yuklanmagan rasmlar missing_images ro‘yxatida; DB zaxirasi baribir olinadi.
+sync_worker/local_runtime: kunlik zaxira internet bo‘lmasa ham ishlaydi.
+main.py: admin/boss uchun zaxira yaratish va ZIP yuklash endpointlari.
+SyncStatus.jsx va main.jsx: Zaxira yuklash tugmasi va backup xatosi ko‘rinadi.
+Testlar: ikki filial bir xil lokal sale ID bilan push; registration ACK yo‘qolishi;
+DB aktivatsiya/config oralig‘ida uzilish; WALdagi commit bo‘lmagan yozuv
+zaxiraga kirmasligi; buzilgan manifest va ../ yo‘lni rad qilish.
+Dastlab 8 test o‘tdi, 3 backup testi WinError32 ko‘rsatdi: sqlite3 context
+manager ulanishni yopmas ekan. contextlib.closing bilan aniq yopish qo‘shildi.
+Qayta tekshiruv natijasi keyingi jurnal yozuviga qo‘shiladi.
+
+Qayta tekshiruv: 11 passed. Backup sqlite ulanishlari closing bilan yopildi;
+provision metadata o‘qish ham Windowsda faylni band qilmasligi uchun yopiladi.
+Kunlik ZIP buzilgan bo‘lsa, u o‘chirilmaydi; yangi tasdiqlangan nusxa yaratiladi.
+Desktop versiyasi 0.3.0 ga ko‘tarildi. Qo‘llanmada kunlik zaxira va hali
+tugallanmagan zaxiradan tiklash alohida tushuntirildi.
+Setup oldin /api/sync/capabilities orqali registration=2 ni tekshiradi;
+eski serverda qayta tiklanmaydigan yarim registratsiya yaratilishining oldi olindi.
+
+2026-09-11 — 0.3.0 tekshiruv va paket natijasi
+To‘liq backend: 55 passed, 2 skipped (PostgreSQL parallel sinovlari).
+Capabilities qo‘shilgach setup recovery testlari qayta bajarildi: 2 passed.
+React build o‘tdi. PyInstaller backend va NSIS Marva CRM Setup 0.3.0.exe yig‘ildi.
+Jonli EXEda markaz o‘chiq paytida backup_error bo‘sh; kunlik ZIP yaratildi.
+Admin POST /api/local/backups orqali ikkinchi ZIP oldi. Diskdagi hajmlar
+112098 va 112388 bayt. Zaxirada demo baza, navbat, sozlama va mavjud rasmlar bor.
+Demo markaz yangi kod bilan qayta yoqildi: protocol=2, registration=2.
+Eski backend test jarayoni yopildi, 1-filial yangi desktop paketida ochishga berildi.
+0.2.0 installer saqlandi; yangi 0.3.0 installer alohida nom bilan yaratildi.
+Yakuniy desktop tekshiruvi: "Marva — filiallar hisobi" nomli haqiqiy Windows
+oynasi va uning alohida marva-backend.exe jarayoni mavjudligi tasdiqlandi.
+0.3.0 installer hajmi: 141251393 bayt. Demo oynasi foydalanuvchi sinovi uchun ochiq.
+
+2026-09-11 — Boshqa manzildagi PCga o‘rnatish paketi
+Foydalanuvchi boshqa PC boshqa filial/manzilda ekanini tasdiqladi.
+Demo markaz bazasidan faqat o‘qish orqali boshliq va rahbar boss hisoblari
+active=1 ekanligi tekshirildi. Demo paroli seed va demo launcherda tasdiqlandi.
+docs/14_BOSHQA_PC_GA_ORNATISH.txt qo‘shildi: installer bosqichlari, demo hisoblar,
+127.0.0.1 cheklovi, HTTPS markaz talabi, bir filialga bitta offline qurilma,
+mavjud demo qurilmalari bandligi, zaxira va yangilash cheklovlari tushuntirildi.
+scripts/prepare-transfer.ps1 yozildi: package.json versiyasiga mos tayyor EXEni
+qo‘llanma bilan yangi UUIDli papkaga nusxalaydi; SHA256 ro‘yxatini chiqaradi;
+asl va nusxa hashini solishtiradi. Baza, .env yoki device token ko‘chirilmaydi.
+Birinchi ishga tushirishda PowerShell tipografik apostrofni satr chegarasi deb
+qabul qildi; xato matnlari double-quote bilan tuzatildi. Qayta ishga tushirish
+exit 0 bilan o‘tdi va installer nusxasi hash orqali tasdiqlandi.
+Paket: desktop/release/kochirish-0.3.0-0e6b67f44bef4f529008ad8077e3c430
+EXEning o‘zi o‘zgarmadi, 0.3.0 qayta build talab qilinmadi. Biznes kodga
+tegilmadi, backend testlari qayta bajarilmadi. Boshqa jismoniy PCga o‘rnatish,
+tashqi markazni deploy qilish va migratsiya hali bajarilmagan.
+
+2026-09-11 — PowerShell bloklanganida demo ochish
+Foydalanuvchida open-demo.ps1 ExecutionPolicy sabab ochilmadi.
+Loyiha ildiziga DEMO_OCHISH.cmd qo‘shildi: oldindan tayyorlangan 1-filial
+bazasi va paketlangan EXE mavjudligini tekshiradi, MARVA_DATA_DIR ni faqat
+ishga tushiriladigan jarayonga beradi va start orqali desktopni ochadi.
+Windows ExecutionPolicy o‘zgartirilmadi. Fayl ikki marta bosib ishlatiladi.
+
+2026-09-14 — Web qarz funksiyasi (ish jarayoni)
+Foydalanuvchi EXE qismini muzlatdi: desktop manbalari, backend/dist va EXE
+installerlarga tegilmayapti. Faqat umumiy web backend/frontend ishlab chiqilmoqda.
+Offline audit: frontend/src/api.js barcha amallarni fetch /api orqali yuboradi;
+POS localStorage faqat savat va yuborilgan so‘rovni tiklash uchun. Mustaqil
+brauzer offline savdosi, Service Worker va IndexedDB savdo navbati mavjud emas.
+Lokal tarmoqdagi serverga aloqa bo‘lsa tashqi internetsiz ishlash mumkin.
+Offline xatti-harakatiga o‘zgartirish kiritilmadi.
+models.py: debtors, debts, debt_payments alohida jadvallari qo‘shildi; eski
+sales ustunlari o‘zgartirilmadi. Yangi jadvallar mavjud create_all bilan yaratiladi.
+schemas.py: qarzdor ism/familiya, ikki telefon, manzil; Checkout debtor_id va
+qaytarish sanasi; qarzni yopishda naqd/karta va idempotent request_id.
+routes_debts.py: admin/boss qarzdor yaratish/tahrirlash; barcha uch rol o‘z
+filiali qarzlarini ko‘rish/yopish; due_date Toshkent sanasida bugun yoki oldin
+bo‘lsa to‘lanmaguncha bildirishnoma. To‘lov immutable alohida yozuv, branch
+qulfi va unique debt_id/request_id takroriy pul kirimini to‘sadi.
+routes_sales.py: qisman naqd/karta + qolgan qarz yoki to‘liq qarz; stock va qarz
+bir tranzaksiyada. Qarzdor/sana ham qayta yuborish identifikatorida solishtiriladi.
+accounting.py: faqat qabul qilingan qarz to‘lovi kassaga qo‘shiladi; customer_debt
+alohida. Supplier haqi sotilgan mahsulot summasicha, ehson qarzga yozilmaydi.
+Frontend: POS qarzdor/sana, Qarzlar bo‘limi va qarzdor ma’lumotlari formasi,
+naqd/karta bilan to‘landi modal, global bildirishnoma 30 soniyada yangilanadi.
+Qarz yopish mavjud recovery orqali javobi yo‘qolgan to‘lovni aynan qayta tekshiradi.
+Hisobotlar/JSONda qarz va to‘lov tafsilotlari, dashboardda mijoz qarzi ko‘rinadi.
+Tekshiruvlar va yakuniy natijalar quyidagi yozuvlarda davom ettiriladi.
+
+2026-09-14 — Web qarz yakuniy tekshiruv va foydalanish
+To‘liq backend tekshiruvi: 74 passed, 2 skipped (PostgreSQL parallel sinovlari).
+19 ta yangi qarz holati mavjud testlarga qo‘shildi. Testlar ishchi bazada emas.
+Frontend money/recovery 9 passed. React production build ikki marta o‘tdi;
+yakuniy JS index-Cd-TPG3g.js. Oxirgi o‘zgarishlar faqat UI matnlari: savdo
+ro‘yxatida qarzdor nomi va to‘lov hali tasdiqlanmasdan To‘landi demaydigan sarlavha.
+scripts/web_demo.py qo‘shildi: .local-tools/web-demo/web.db alohida doimiy
+sinov bazasi, frontend/dist, 127.0.0.1:8782. Eski offline-demo bazasi va EXE
+qurilma bog‘lanishlariga tegilmadi. Ishchi server PostgreSQL bo‘lib qoladi.
+Brauzer orqali demo boshliq hisobida Sinov Qarzdor (ikki sun’iy telefon/manzil)
+yaratildi. #99 savdo: 1 kg, 13 800 jami, 3 800 naqd, 10 000 qarz, muddat
+2026-09-14. Bildirishnoma soni 1 va qarzdor/sana/summa ko‘rindi. Qarz #1
+6 000 naqd + 4 000 karta bilan yopildi. Bildirishnoma 0 bo‘ldi; To‘langan
+ro‘yxatida Boshliq, 2026-09-14 16:31 Toshkent vaqti va taqsimot ko‘rindi.
+Screenshotda jadval va menyu sig‘ishi tekshirildi. Bu faqat sun’iy web demo.
+docs/15_WEB_QARZLAR.txt qo‘shildi: to‘liq foydalanish tartibi, hisob-kitob,
+API/jadvallar, ruxsatlar, idempotent to‘lov, frontend, testlar, offline holati.
+EXE manbalari/buildlari yangilanmadi; desktop/release hamda backend/distga
+ushbu ish davomida hech narsa yozilmadi. Offline mustaqil web rejimi qo‘shilmadi.
+
+2026-09-14 — Mini chegirma (ish boshlandi)
+Talab: POSda naqd+karta bilan jami orasidagi farqni bitta tugma orqali mini
+chegirma qilish, har savdoda maksimal 5 000 so‘m. Ehson bo‘limida alohida ro‘yxat.
+Moliyaviy manba bo‘yicha savol yuborildi: ehson hisobidan qoplash yoki supplier
+haqini kamaytiruvchi savdo chegirmasi. Javobga bog‘liq hisoblar hozircha yozilmadi.
+Mustaqil qismlar: MiniDiscount jadvali (sale unique, branch/user, original_total,
+amount, created_at), amount 0 dan katta va <=5000 DB cheklovi, Checkout schema
+limiti; POS mini tasdiq aynan savat/total/cash/cardga bog‘langan; to‘lov/savat
+almashsa yangi holatga oldingi chegirma avtomatik qo‘llanmaydi. Qarz bilan birga
+qo‘llanmaydi. Ehson oynasida mini chegirmalar jami va alohida tarix jadvali qo‘shildi.
+EXEga tegilmadi. Yakuniy hisoblar va tekshiruvlar keyingi yozuvlarda.
+
+2026-09-15 — Mini chegirma ta’minotchi hisobidan yakunlandi
+Foydalanuvchi ta’minotchidan ayrish va alohida hisoblashni tanladi.
+models.py: MiniDiscountShare qo‘shildi; sale_item unique va supplier ulushi.
+mini_discounts.py: int tiyinlarda eng katta kasr qoldig‘i usuli bilan mutanosib
+allocate va ulushli mini_data javobi. Nol qator chegirma olmaydi.
+routes_sales.py: limit/schema, farqni aniq tekshirish, net Sale/SaleItem,
+MiniDiscount va shares bitta transaction, audit va idempotent replayda
+original total + mini amount tekshiruvi. Qarz va EXE rejimi bilan qo‘shilmaydi.
+accounting.py: supplier mini_discount summasi alohida, earned/debt netdan
+olinadi. Ehson hisobi formulasi o‘zgarmadi. routes_finance: ulushli ro‘yxat.
+Frontend: POS to‘lovdan keyingi jami, Ehsonda supplier ulushlari, Suppliersda
+mini ustuni, Reports qator mini chegirmasi. Frontend build index-B0ZZlle6.js.
+Testlar: full 87 passed, 1 failed, 2 skipped. Failure bir xil pulning 13000 va
+13000.00 yozilishini farqlagan test assertion edi; Decimal va ID tekshiruviga
+tuzatildi. Mini bo‘yicha barcha 14 test qayta o‘tdi. Frontend 9 passed.
+2026-09-14 brauzerda 5800 farq bloklandi, 800 tanlandi, summa12900 ga
+almashtirilganda oldingi tasdiq o‘chdi. 2026-09-15 eski server/tab yopilgani
+aniqlandi va faqat web_demo.py 8782 alohida bazasi qayta yoqildi.
+docs/16_MINI_CHEGIRMALAR.txt to‘liq foydalanish va kod/hisob izohlari yozildi.
+EXE, backend/dist va desktop/release o‘zgartirilmadi.
+
+2026-09-15 — Yakuniy brauzer tasdig‘i
+Demo web savdo #101: 13 800 asl summa, 12 900 naqd, 900 mini chegirma.
+Savdo yakunlandi va stock 118.167 kg dan 117.167 kg ga kamaydi.
+Ehson oynasida mini jami 900, 1 ta savdo, Oqtepa Tekstil (demo) ulushi 900,
+Boshliq va 15-sentabr 08:28 vaqti ko‘rindi. Ehson qoldig‘i 6 400 o‘zgarmadi.
+Screenshotda mini jadval va jami kartalari tekshirildi. Barcha tekshiruvlar
+sun’iy web-demo bazasida; haqiqiy tashqi to‘lov amalga oshirilmagan.
+Web server 127.0.0.1:8782 da foydalanuvchi sinovi uchun ishga tushirilgan.
+
+2026-09-15 — Kassir nazorati va minglik mini chegirma
+Foydalanuvchi aniqlashtirdi: 5000 har savdodan ayrilmaydi, faqat maksimal limit.
+Mini chegirmadan keyingi to‘lov minglik bo‘lishi kerak: 13800 ->13000,
+12900 emas. Kassir naqd/karta summasini kiritadi va tugma bilan o‘zi tasdiqlaydi.
+routes_sales.py: mini_discount mavjud bo‘lsa paid % 1000 == 0 tekshiruvi
+qo‘shildi. Eski yakunlangan savdo replay o‘z natijasini qaytaradi; eski tarix
+qayta yozilmadi. Kassir tanlagan minglik summa uchun haqiqiy farq <=5000
+bo‘lishi shart; naqd va kartaning yig‘indisi tekshiriladi.
+pos.jsx miniAllowed: jami to‘lov tiyinlarda 100000 ga karrali; noto‘g‘ri
+summada tugma o‘chiq. Yaqin pastki minglik misoli va faqat tugma bilan chegirma
+qo‘llanishi haqida izoh qo‘shildi. Kiritilgan pul avtomatik almashtirilmaydi.
+Mini testlari: 15 passed. 12900 rad etilishi, 13000 chegirmasiz rad etilishi,
+6500 naqd +6500 karta/800 chegirma qabul qilinishi tekshirildi. Limit5000 va
+0.01 chegirma testlari ham minglik yakuniy summalar bilan o‘tdi.
+React build o‘tdi: index-AO4H4bES.js. EXEga tegilmadi.
+
+2026-09-15 — Filial xarajatlari: amalga oshirish
+models.BranchExpense yangi jadvali: request_id unique, branch/supplier/user,
+amount, method(default cash), reason, created_at. Ijobiy summa va cash/card
+DB cheklovlari. Eski yozuvlar va EXE paketlari o‘zgartirilmadi.
+schemas.NewExpense: branch optional (boss tanlashi shart, qolgan rol serverdan
+olinadi), supplier, summa, majburiy sabab, default cash, request_id.
+routes_expenses.py: GET options uchala rolga o‘z filialidagi mablag‘ va supplier
+haqini beradi; GET history managerga scoped sahifalangan tarix; POST uchala
+rolga filial qulfi, cash/card qoldiq va supplier haqidan oshmaslik tekshiruvlari.
+Takror request_id bir xil natija, boshqa payload 409. Audit bilan bir commit.
+accounting.py: xarajat tanlangan kassa va supplier debt dan ayriladi; supplier
+paid eski haqiqiy pul berish bo‘lib qoladi, expenses alohida. Ehson o‘zgarmaydi.
+ExpenseModal.jsx: boss filial tanlaydi, boshqa rol own branch locked; naqd
+oldindan tanlangan; supplier, summa, sabab. Mavjud recoverablePost saqlanadi.
+Expenses.jsx: admin/boss Filiallar va xarajatlar, filial cash/card/xarajat
+qoldiqlari va alohida tarix. main menyu; Team filiallardan o‘tish tugmasi;
+POSda kichik Filial xarajati tugmasi; Suppliersda xarajatlar alohida ustun.
+Frontend build o‘tdi: index-Bkevcw2X.js; mavjud 9 frontend testi o‘tdi.
+Backend testlari ishlamoqda, natija quyidagi yozuvda.
+
+2026-09-15 — Filial xarajatlari yakuniy tekshirildi
+To'liq backend: 104 passed, 2 skipped (PostgreSQL parallel testlari bu muhitda
+bajarilmadi). Frontend 9 test va production build muvaffaqiyatli.
+Brauzerda kassir1 / Malika To'xtayeva (demo) Chilonzor filialida Oqtepa
+Tekstil (demo) uchun 1000 so'm naqd xarajat kiritdi. Sabab: Demo sinov:
+filial uchun tozalash vositasi. Demo xarajat #1 saqlandi.
+Naqd 645425.35 -> 644425.35; supplier haqi 437519.85 -> 436519.85.
+Boshliq sahifasida tarix, xodim, sabab, sana va filial tasdiqlandi;
+ta'minotchilar jadvalida xarajat alohida 1000 ko'rindi.
+docs/17_FILIAL_XARAJATLARI.txt yaratildi: foydalanish, hisob formulasi,
+API, fayllar, takror so'rov himoyasi, testlar va mavjud chegaralar yozildi.
+EXE, offline va sinxronlash kodlari o'zgartirilmadi. Web demo 8782 portda.
+
+2026-09-15 — Ta'minotchilar sahifasida xarajatlar alohida ko'rsatildi
+Talab: filial ehtiyoji uchun supplier hisobidan ishlatilgan pul egasiga berilgan
+summa bo'lmasin; ta'minotchilar bo'limida barcha xarajatlar ko'rinsin.
+accounting.py tekshirildi: paid faqat SupplierPayment, expenses faqat
+BranchExpense; debt = earned - paid - expenses. Hisob formulasi to'g'ri,
+backend formulasi va eski ma'lumotlar o'zgartirilmadi.
+frontend/src/pages/Suppliers.jsx: alohida Xarajatlar jami kartochkasi qo'shildi;
+Berilgan mablag' nomi Ta'minotchilarga berilgan pul deb aniqlashtirildi;
+to'lovlar tarixi va jadval ustuni egasiga berilgan pul ekanligi aniq yozildi.
+frontend/src/pages/SupplierExpenses.jsx yangi komponent: Barcha qilingan
+xarajatlar, jami summa va soni, supplier, filial, summa, naqd/karta, sabab,
+xodim, vaqt. GET /expenses mavjud filial ruxsatlari bilan ishlaydi.
+Tarix 100 tadan mustaqil sahifalanadi, yangilash va xato/bo'sh holatlari bor.
+Frontend production build o'tdi: index-Dk3OTq1-.js.
+Mavjud test_expenses.py: 15 passed. Uchala rolda paid=0, expenses=1000,
+debt=12800 tekshiruvi o'tdi. EXE va offline/sinxronlashga tegilmadi.
+
+2026-09-15 — Kassa jamisi va shaxsiy sozlamalar
+Dashboard.jsx: yillik karta o'rniga naqd+karta jami, ikkalasi izohda; filial
+kartalariga jami qo'shildi. Mavjud backend filial ruxsatlari saqlandi.
+Settings.jsx/theme.js/main.jsx: 18 rang tanlovi, user.id bo'yicha shu brauzerda
+saqlash, tiklash, barcha rollar uchun Sozlamalar va login/parol formasi.
+style.css: fon va matn ranglari CSS o'zgaruvchilariga o'tdi, settings grid.
+schemas.AccountSettings/routes_auth POST /auth/settings: joriy parol talab,
+login bandligini tekshirish, parol hash, eski seanslarni yopish, audit,
+10 noto'g'ri urinishdan keyin 15 daqiqa limit, EXE rejimi cheklangan.
+test_settings.py: 5 passed. Frontend build index-DV6UwHIz.js o'tdi.
+Brauzerda jami/naqd/karta va filial jami ko'rindi; rang o'zgartirish, reload
+saqlanishi va tiklash tekshirildi. Color input uchun onInput ham qo'shildi,
+brauzerda rang tanlanganda darhol qo'llanadi. Sinov rangi asl holga qaytarildi.
+docs/18_SOZLAMALAR_VA_KASSA.txt batafsil yozildi. EXE va offline o'zgarmadi.
+Demo server yangilangan backend bilan 8782 portda ishlayapti.
+
+2026-09-15 — Foydalanuvchi talabi: tilla tus va to'q o'qiladigan matnlar
+Dashboard.jsx: avvalgi yillik kartaning nomi Kassadagi pullar; qiymati cash+card,
+izohda naqd va karta, joylashuvi avvalgidek uchinchi karta. Yillik API saqlangan.
+theme.js: fon #efe6ce yumshoq tilla, kartalar #fffdf7, menyu/topbar #fcf8ed,
+asosiy matn #20382e, izoh #526058, sarlavha #153b2f; chegara va jadval ham
+mos tilla tusga o'tdi. Oldin saqlangan standart ranglar gold-v1 migratsiyasi
+bilan yangilanadi, foydalanuvchi o'zi tanlagan boshqa ranglar saqlanadi.
+style.css: karta izohi 9px dan 11px ga; yashil karta izohi/valyuta oq,
+qorong'i fonda matn kontrasti yaxshilandi.
+Production build muvaffaqiyatli. Brauzerda tilla fon, to'q matn va uchinchi
+Kassadagi pullar kartasi tekshirildi. EXE va hisoblash backendiga tegilmadi.
+
+2026-09-15 — Offline/EXE ishlarini qayta davom ettirish
+Foydalanuvchi barcha qolgan offline–online ishlarini bajarishga ruxsat berdi.
+Tashqi server va boshqa PC yo'q: shu kompyuterda mahalliy sinov tanlandi.
+offline_queue protokol3: Debtor/Debt/DebtPayment/MiniDiscount/Share/Expense
+ham bitta tranzaksiya navbatiga tushadi. projection lokal IDlarni xaritalaydi,
+qarz tengligi, minglik mini ulushlari va kassa/supplier qoldig'ini tekshiradi.
+Bootstrap yangi jadvallarni oladi; worker server versiyasini tekshiradi;
+CRM_OFFLINE_V3 yangi runtime uchun yoqiladi. Eski guard saqlanadi.
+8 eski sync/provision testi va yangi offline-v3 end-to-end testi o'tdi:
+qarzdor, qarz savdo, qarz to'lovi, mini savdo, xarajat — 5 navbat;
+internet yo'q, server qabul qilib ACK yo'qolishi, worker qayta ochilishi,
+navbat0, hisoblar aynan teng. Keyingi ish: tiklash, paket va PostgreSQL.
+
+2026-09-16 — Davom etish va mahalliy PostgreSQL
+0.4.0 installer oldingi yig'ishda yaratildi; yakuniy tiklash CLI va monitoring
+qo'shimchalari bilan qayta yig'ish davom etmoqda.
+Docker Desktop sailor-ingest.sock xatosi sabab ishga tushmadi. Ubuntu WSL ichiga
+Ubuntu repository docker.io va docker-compose-v2 o'rnatildi, Docker Engine ishladi.
+compose.offline-demo.yaml: alohida PostgreSQL demo, rasmlar volume, faqat
+127.0.0.1:8784 port; alohida marva_test test bazasi. Ishchi web.dbga tegilmaydi.
+app/demo_server.py sun'iy demo seedni faqat CRM_DEMO_MODE=1 bilan yoqadi.
+backend/.dockerignore EXE build/distlarni Linux obrazidan chiqaradi.
+restore_local.py/--restore CLI: checksum, yangi papka, markaz jurnalidan yetishmagan
+amallarni tiklash, pending navbat saqlanishi, session tozalash va FK/integrity tekshiruv.
+local_upgrade.py: schema qo'shishdan oldin backup, runtime-version marker.
+Desktop barqaror port saqlaydi: localStorage rang/retry har ochishda yo'qolmaydi.
+Dashboardda qurilma ulangan filial uchun Oxirgi kelgan ma'lumot vaqti ko'rinadi.
+scripts/offline_smoke.py haqiqiy paketlangan backend bilan ikki filial sinovi.
+Oldingi to'liq backend SQLite tekshiruvi: 110 passed, 2 skipped; frontend 9 passed.
+PostgreSQL to'liq testi va paketlangan ikki filial sinovi davom etmoqda.
+
+2026-09-16 — 0.4.0 yakuniy real sinovlar
+Docker PostgreSQLda to'liq suite 112 passed, 0 skipped (52.77s).
+0.3 sxema -> 0.4 va pending tiklash qo'shimchasi SQLite 2 passed.
+Haqiqiy backend EXE 8784 PG markazdan ikki filialni sozladi. API o'chiq paytda
+qarz, to'lov, mini chegirma, xarajat ishladi; navbatlar 7 va 6 (login auditlari ham).
+Ikki backend to'xtatilib, markaz hali o'chiq paytda qayta ochildi. Markaz yoqildi:
+ikkala filialda navbat0; 6 moliyaviy hisob markaz bilan teng.
+To'liq Windows Electron ilovasi 1-filialda ishga tushdi; barqaror port57532,
+health va React200. Alohida yangi sinov kassiri login/parolini EXEdan o'zgartirdi;
+eski session401, yangi login/parol lokal va markazda200.
+Installer 0.4.0 yakuniy build 141288787 bayt, 2026-09-16 07:44:55; NotSigned.
+MARKAZNI_YOQISH/TOXTATISH.cmd, OFFLINE_FILIAL_1/2.cmd qo'shildi;
+start-offline-center.ps1 WSL keeper bilan distro yopilishining oldini oladi.
+docs/19_OFFLINE_040_YAKUNIY.txt: foydalanish, sinxronlash, tiklash, yangilash,
+fayllar va qolgan tashqi server/toza PC tekshiruvlari to'liq yozildi.
+
+2026-09-16 — Ko'chirish paketi va EXE restore qo'shimcha tasdig'i
+prepare-transfer.ps1 0.4.0 installer + AVVAL_OQING + OFFLINE_QOLLANMA + SHA256
+bilan desktop/release/kochirish-0.4.0-bfd210eede8b44be897c06a2aaf11f1e yaratdi.
+14_BOSHQA_PC_GA_ORNATISH.txt yangi holatga qayta yozildi.
+start-offline-center.ps1 -NoBrowser haqiqiy bajarildi: markaz ishladi, WSL keeper bor.
+Paketlangan marva-backend.exe --restore bilan to'xtatilgan 2-filialning dastlabki
+backupidan restore-cli-test yangi papkasi tiklandi. Serverdan keyingi voqealar
+olindi, 6 moliyaviy hisob expected.json bilan aynan teng. Asl baza o'zgarmadi.
+
+2026-09-16 — Haqiqiy serverga joylash paketini yakunlash
+Foydalanuvchi server/EXE ishga tushirish uchun qolgan ishlarni tayyorlashni so'radi.
+Tashqi VPS/domen va boshqa fizik Windows PC hali yo'q; avvalgi mahalliy sinov
+roziligi doirasida ish bajarildi. Haqiqiy internet serveri joylashtirilmadi.
+compose.production.yaml: alohida PostgreSQL/images volumelar, healthcheck,
+restart, Secure cookie, faqat gatewayning 80/443 portlari. Demo seed yo'q.
+deploy/Caddyfile: avtomatik HTTPS va API uchun asl Host/proto saqlaydigan proksi.
+scripts/server.py: Linux standart Python + Docker; init kuchli parollarni
+production.env ga yaratadi (terminalga chiqarmaydi), up ishlayotgan markazni
+backup qilib keyin yangilaydi, check API/protokol/gatewayni tekshiradi.
+Backup API ni qisqa to'xtatib izchil pg_dump + rasmlarni oladi; finally orqali
+API qayta yoqiladi. SHA256 manifest faqat to'liq muvaffaqiyatdan keyin yoziladi.
+Restore faqat boshqa va bo'sh projectga; asl project yoki mavjud konteyner/
+jadval/rasmlar bo'lsa rad etadi. Dump single-transaction, xavfsiz image verify,
+rasm egasi crm ga qaytariladi. Tiklangan API operator tanlamaguncha yoqilmaydi.
+OS project qulfi parallel backup/up/restore to'qnashuvlarini to'xtatadi.
+deploy/marva-backup.service/.timer: kunlik Linux jadvali, Persistent=true.
+Bu timer VPS yo'qligi sabab haqiqiy serverga o'rnatilmadi; aniq o'rnatish
+buyruqlari 20-hujjatda. Offsite manzil yo'q, uzatish sozlangan deb aytilmaydi.
+scripts/server_smoke.py: yangi tasodifiy source va restored Docker projectlar,
+local CA ga ishonch bilan haqiqiy TLS tekshiruvi, Secure cookie bilan kirish,
+fake demo katalog/savdolarni zaxiralash va barcha jadval qiymatlari hamda
+JPEG hashlarini solishtirish. 1-urinishda sinov loginiga demo paroli noto'g'ri
+berilgan edi; production yaratgan parolga tuzatildi. 2-urinish to'liq PASS.
+Natija .local-tools/marva-release-test-a544c216/result.json; sinov konteynerlari
+to'xtadi, bazalar saqlandi. Oldingi bazalar o'zgartirilmadi.
+scripts/tests/test_server.py: 6 test PASS — buzilgan backupni erta rad etish,
+asl/ishlatilgan targetni himoyalash, dump xatosidan so'ng APIni tiklash,
+init parolini ustidan yozmaslik, yaroqsiz domenni rad etish.
+scripts/build_server_package.py: explicit fayl ro'yxati bilan server-0.4.0.zip
+va SHA256, env/lokal bazalar/node_modules/buildlar kirmaydi.
+docs/20_SERVERGA_JOYLASH_VA_ISHLATISH.txt: o'rnatish, timer, yangilash, tiklash,
+filial ulash, real ishga qabul tekshiruvi, markazni eski backupga qaytarishdagi
+ACK jurnalini solishtirish zarurati, qolgan haqiqiy server/toza PC cheklovlari.
+EXE biznes kodi o'zgarmadi; oldingi sinovdan o'tgan 0.4.0 installer saqlanadi.
+
+2026-09-16 — Foydalanuvchi so'rovi bilan to'liq tozalash va ixchamlashtirish
+Foydalanuvchi barcha bazalarni bo'shatish, yagona abduqodir boss hisobi qoldirish,
+test/demo va eski EXElar hamda ishlatilmaydigan kodlarni o'chirishni aniq so'radi.
+main.py: birinchi startda avtomatik ikki filial yaratish olib tashlandi.
+.env: so'ralgan boshliq hisobi va yangi tasodifiy PostgreSQL paroli sozlandi.
+Parolning ochiq qiymati jurnalga yoki manba arxiviga yozilmadi.
+Eski marva-offline-v4 va ikki marva-release-test projectlari konteyner/volumelari,
+restored nusxasi hamda ularning 8 eski tasviri o'chirildi. Yangi marva-crm
+PostgreSQL markazi yaratildi. Faqat users=1, boshqa barcha jadvallar=0 tekshirildi.
+Login va 11 bo'limga so'rov o'tdi, sinov sessiya/audit yozuvlari ham tozalandi.
+Mahsulot API filial talab qiladi; filial bo'lmasa frontend so'rov yubormaydi.
+111 backend test o'tdi, 2 PG-only o'tkazib yuborildi. Shundan keyin foydalanuvchi
+so'raganidek test manbalari, pytest va requests ishlatilmaydigan dependencies,
+seed_demo/demo_server/api_load_test/stress_test hamda demo skriptlar o'chirildi.
+Frontend build, PyInstaller va Electron NSIS muvaffaqiyatli o'tdi. Yangi EXE
+bo'sh alohida profil bilan ishga tushdi va jarayonlari keyin yopildi.
+Installer 141288787 -> 132455798 bayt; compression=maximum va electronLanguages
+faqat en-US (Uzbek React matnlari saqlanadi). Ishchi runtime fayllari kesilmadi.
+Eski 0.2/0.3 EXElar, 0.3/0.4 takror transfer papkalari, blockmap/debug,
+win-unpacked, backend build/dist/spec, frontend dist/node_modules, desktop
+node_modules, .test-deps, .pytest_cache, .pnpm-store, .local-tools, eski uploads
+va backups olib tashlandi. Ishchi manba, lock/requirements fayllar saqlandi.
+AppData profilini butunlay o'chirish avtomatik review tomonidan rad etildi.
+Aniq fayllar o'qib tekshirildi: eski marva-desktop DB/outbox, ikki backup va
+8780 demo recovery fayli. Keyin faqat shu 5 baza/zaxira/log/recovery fayli
+aniq LiteralPath bilan muvaffaqiyatli o'chirildi; boshqa profil sozlamasi saqlandi.
+compose.yaml test xizmatlarisiz, loyiha nomi marva-crm, port127.0.0.1:8784.
+MARKAZNI_YOQISH/TOXTATISH yangi markazga moslandi; WSL keeper .runtime ichida.
+server.py/compose.production.yaml boshliq defaulti abduqodirga moslandi;
+init yangi tashqi serverga hali ham alohida tasodifiy parol yaratadi.
+README, 20-server qo'llanmasi va yangi 21_TOZA_VERSIYA.txt yangilandi.
+Eski demo-only qo'llanmalar olib tashlandi. Bo'lim tarixi va ushbu jurnal saqlandi.
+Migratsiya, backup/restore va sinxronlash himoyalari joriy funksiyalarga kerakligi
+sabab saqlandi. Har eski versiya nomi ko'ringan ishlaydigan kod kesilmadi.
+Yakuniy o'lchov: loyiha 133135553 bayt atrofida, manba/hujjat 543060 bayt;
+EXE 132455798 bayt, server ZIP 136611 bayt (jurnal o'zgarishi bilan biroz o'zgaradi).
+Joriy 3 Docker xizmati ishlayapti, /api/health=ok. VACUUM ANALYZE bajarildi.
+Eski profilni umumiy o'chirish rad etilishi aniq fayllarni tekshirib o'chirish
+bilan hal qilindi; bloklangan zarur baza tozalash amali qolmadi.
+
+2026-09-17 — LAN va 0.4.2 savdo tahrirlash
+sync_worker.py: lokal xususiy IPv4 HTTP manzillari qo'llab-quvvatlandi.
+start-lan/enable-lan va TARMOQNI_YOQISH.cmd: Windows LAN port va firewall sozlash.
+compose.yaml: installer yuklash bind mount; 8785 xato porti APP_PORT/default8784
+localhost bilan moslandi. nginx /downloads orqali joriy installer tarqatiladi.
+
+models.py: SaleEdit yangi jadval; schemas.py: EditSale/Item tekshiruvlari.
+sale_edits.py: 72 soat, rol/filial, versiya, idempotency, ombor/kassa/ta'minotchi
+qayta hisoblari. Yopilgan qarzning naqd/karta to'lovlari audit bilan tuzatiladi.
+routes_sales.py: GET/POST edit va edit_version/editable_until javoblari.
+sync_sale_edits.py: server mustaqil qayta hisoblab yuborilgan holatni solishtiradi.
+sync_projection/offline_queue/routes_sync/sync_worker/provision_local: protokol4
+va SaleEdit snapshot import. Oddiy eski paketlar 2/3 bilan mos qoladi.
+local_upgrade.py: 0.4.2 additive yangilash va backup.
+SaleEditModal.jsx/Reports.jsx: tahrir oynasi, hisob preview, sabab va xato holati.
+Frontend build, PyInstaller, Electron NSIS 0.4.2 yig'ildi.
+PostgreSQL 10/10, SQLite 9/9 (1 PG-only skip), brauzerda savdo tahriri o'tdi.
+Parallel edit, takror sync, qalbaki sync, kg/rol/filial/vaqt va yopilgan qarz sinovlari.
+Oldingi markaz pg_dump backups/before-0.4.2.dump saqlandi; baza tozalanmadi.
+Markaz yangilandi, health=ok, protocol=4, sale_edits jadvali mavjud.
+Local yuklashdagi installer hajmi 132471157 bayt, yig'ilgan faylga teng.
+README va docs20/21 versiya havolalari, docs22 ishlatish/cheklovlar yozildi.
+Faqat 0.4.2 installer/server arxivi qoldiriladi; vaqtinchalik test manbalari
+olib tashlanadi. Boshqa fizik Windows PC va VPS tekshiruvi hali yo'q.
+LAN qayta faollashtirish UAC oynasi foydalanuvchi tomonidan bekor qilindi. Mahalliy http://127.0.0.1:8784 ishlaydi; LAN hozir tekshiruvdan o'tmadi. Tarmoq uchun TARMOQNI_YOQISH.cmd administrator tasdig'i bilan kerak.
+
+2026-09-17 — boshqa PC EXE uchun LAN ishga tushirildi
+Docker markaz qayta ishga tushirildi. Asosiy filial ID=1, Asosiy kassa qurilmasi
+allaqachon ro'yxatdan o'tgan; qurilma/baza qayta yaratilmagan.
+Windows portproxy qoidasi saqlangan bo'lsa ham LAN tinglovchisi yo'q edi.
+scripts/enable-lan.ps1 ga qoidadan keyin Restart-Service iphlpsvc -Force qo'shildi.
+Administrator ruxsati bilan bajarildi, LAN health=ok.
+http://192.168.1.7:8784/ HTTP200, sync protocol4, installer132471157 bayt.
+Boshqa fizik PCdan yakuniy kirishni foydalanuvchi o'z EXEsida tekshiradi.
+
+2026-09-17 — boshqa laptop EXE ulanishi diagnostikasi
+LAN tinglovchisi 192.168.1.7:8784 va subnet firewall faol.
+API logida POST auth/login=200, POST sync/devices=409 qayd etilgan.
+Filial1 allaqachon Asosiy kassa qurilmasiga bog'langan, received_sequence=1.
+Qurilma nomi marva bo'lishi xato emas; bir filialga ikkinchi offline qurilma
+ro'yxatga olish cheklovi sabab bo'lishi mumkin. Mavjud qurilma va yozuvlar
+ma'lumot yo'qotmaslik uchun o'chirilmadi. Laptopdagi aniq xato so'raldi.
+
+LAN diagnostikasi: server Ethernet IP manzili 192.168.1.7 dan 192.168.1.10 ga o'zgargan. 8784 port yangi IPda tinglayapti; firewall LocalSubnet uchun faol. Eski IP timeout, yangi IP health=ok va bosh sahifa HTTP200. Baza va qurilma biriktirish o'zgartirilmadi.
+
+2026-09-18 — EXE 0.4.3 lokal markazga ulanishni tuzatish
+Foydalanuvchi VPS tayyorligini aytdi; http://161.97.70.124:8784 ochiq health va
+capabilities parolsiz tekshirildi: server ishlaydi, protocol4. Asosiy sabab:
+public HTTP server_url tomonidan rad etilar, eski EXE esa har xatoda umumiy
+login/parol xabarini berar edi. Keyin foydalanuvchi faqat lokal sinovni tanladi.
+VPSga hech narsa joylanmadi va parol yuborilmadi.
+
+backend/app/connection.py: nazoratdagi ConnectionProblem va xavfsiz xabarlar.
+provision_local.py: discovery, boss tekshiruvi, alohida setup-attempts kalitlari;
+xato parol bo'lsa o'rnatish fayli yaratilmaydi; registerdan oldin kalit saqlanadi.
+routes_sync.py: boss uchun branches/band device ro'yxati, device identity va
+jurnal xeshi, katalogga branch qo'shildi. Bir filialga bitta PC cheklovi saqlandi.
+Bir xil device/token bilan qayta urinish kompyuter yorlig'i o'zgarsa ham ishlaydi.
+desktop_entry.py: --discover/--provision JSON javobi, server/parol/filial xatolari
+alohida tushunarli xabar. Token yoki server HTML'i logga chiqmaydi.
+desktop/main.cjs: bounded child stdout, close hodisasi bilan JSON o'qish,
+180s timeout, discovery IPC; preload.cjs faqat kerakli kanalni ochadi.
+setup.html/setup.js: 1-filial defaulti olib tashlandi. Serverga kirishdan keyin
+filial nomi va bandligi ko'rinadi. Ro'yxatni yangilash, so'rovda formani bloklash.
+sync_worker.py: URL trim/host/path tekshiruvi; katalog bilan filial nomi yangilanadi;
+user role/branch o'zgarishi ham lokal seansni tugatadi. Server manzili statusda.
+change_server: qurilma/filial/oxirgi jurnal mosligi tekshirilib, config atomar
+saqlanadi. Navbat yoki mavjud savdolar o'chirilmaydi; eski server nusxasi rad etiladi.
+main.py va frontend/src/ServerSettings.jsx, pages/Settings.jsx: boshliqning
+lokal EXEsida server manzilini tekshirish va saqlash formasi. Tarmoqni kutishda
+lokal autentifikatsiya DB qulfi bo'shatiladi.
+local_upgrade.py/package.json: 0.4.3. Yangi sxema majburiy migratsiyasi yo'q.
+
+start-offline-center.ps1: odatiy yoqishda --build olib tashlandi; -Rebuild alohida.
+Shu bilan tayyor Docker obrazlarini internetsiz ishga tushirish mumkin.
+start-lan.ps1: readiness qayta urinishi, ildizda TARMOQ_MANZILI.txt yaratish.
+Hozir IP192.168.1.27. LAN yoqildi, health=ok, capabilities discovery/identity=true.
+Markazda mavjud filial1 Asosiy filial/Asosiy kassa va bo'sh filial2 marva aniqlandi.
+Ularning qurilmalari yoki ma'lumotlari o'chirilmadi. Yangilashdan oldin pg_dump
+backups/before-0.4.3.dump saqlandi, markaz Dockerda qayta yig'ildi.
+
+SQLite5 va alohida PostgreSQL5 integratsion test o'tdi. Ikki filial initial
+snapshot, 409 band filial, noto'g'ri login, lost registration response retry,
+offline navbat, ACK yo'qolishi/takroriy yuborish, katalog refresh/backup,
+server manzilini almashtirish va noto'g'ri/eski identity rad etish tekshirildi.
+Birinchi PG urinishida WSL bilan test konteyneri to'xtagani uchun DNS xatosi;
+test konteyneri qayta yoqilgach barcha testlar o'tdi.
+Yig'ilgan frozen backend: discovery, bootstrap, markaz o'chganida 2 savdo,
+offline restart/login, reconnect, markazda aynan2 savdo, local/server API o'tdi.
+Test boshida audit ham navbatga tushishini hisobga olmay pending2 kutilgani
+tuzatildi; keyingi to'liq tekshiruv o'tdi. Haqiqiy bazaga test savdosi yozilmadi.
+Yangi EXE boshlang'ich oynasi ko'rib tekshirildi; boshqa fizik laptopga
+masofaviy kirish yo'q, foydalanuvchi u yerda o'rnatib tekshiradi.
+Frontend/PyInstaller/NSIS yig'ildi. Joriy installer0.4.3. Oldingi0.4.2 installer
+va test artefaktlari tozalanadi. README, docs20/21 va docs23 yangilandi.
+Yakun: faqat0.4.3 EXE/server ZIP va SHA256 qoldi. Eski0.4.2, unpacked/build, vaqtinchalik test kodlari va test konteyneri olib tashlandi. Yakuniy installer133272198 bayt, LAN yuklash hajmi mos, health=ok. Ishchi baza zaxirasi saqlandi.
+
+2026-09-18 — faqat web uchun TIN dizayni
+frontend/src/main.jsx: login va ish maydoni logolari alohida uslubga ajratildi;
+TIN yuqoriga joylandi, MARVA COMPANY izohi, menyu scroll, mobil yopish/Escape,
+aria-current/aria-expanded va TIN/Marva footer qo'shildi. Login matnlari qoldi.
+frontend/src/workspace.css: yangi alohida ichki sahifa uslublari; to'q yashil
+sidebar/topbar, tilla faol menyu, 14–15px matnlar, qulay jadval va kartochkalar,
+moslashuvchan layout. Bildirishnoma dialogi panelning och rangini olmaydi.
+frontend/src/theme.js: yangi panel palitrasi va 4 ta sozlanadigan matn/faol rang;
+faqat eski standart ranglarni migratsiya qilish, shaxsiy ranglarni saqlash.
+frontend/index.html: TIN — Marva Company sarlavha/tavsif/theme-color.
+Tekshiruv: Vite va Docker production build o'tdi; login, umumiy panel, POS,
+Sozlamalar, dialog, 1366x768/1024x600/390x844/1920x1080 joylashuv ko'rildi.
+Menyu scroll, yopish, Escape, mobil fon tugmasi, rang migratsiyasi o'tdi.
+Brauzer konsolida error/warn yo'q. Ishchi bazaga test savdosi yozilmadi.
+Dockerning faqat web xizmati qayta yig'ildi; LAN http://192.168.1.27:8784/.
+EXE qayta yig'ilmadi: 0.4.3 SHA256 avvalgidek
+58630AC0D374B1DBC0E7284120C2E56D1314011F064EA8D1A4223F68DCE33FD1.
+Batafsil: docs/24_TIN_WEB_DIZAYN.txt. style.css va favicon.svg o'zgartirilmadi.
+
+2026-09-18 — login dizayni va 6 tayyor mavzu (web)
+main.jsx + yangi login.css: login ichki panelga moslandi; ibora 500 qalinlikda,
+och/tilla satrlarda, input/tugma/izohlar o'qishga qulay. Mavjud login matnlari
+shu safar foydalanuvchining yangi talabi bilan yangilandi. Mobil ibora ko'rinadi.
+Dashboard.jsx: Aniq hisob, xotirjam ish. Donations.jsx: Ezgu niyat, aniq hisob.
+Footer: Hisobda aniqlik. Ishda ishonch. Faqat oldingi iboralar o'rni yangilandi.
+theme.js: Tilla rangli dizayn, Osmon, Okean, Zumrad, Lavanda, Grafit presetlari.
+Settings.jsx: previewli mavzu tugmalari va defaults tiklash, aria-pressed,
+yagona faol tanlov, shaxsiy rang holati; mavjud rang inputlari saqlangan.
+workspace.css: mavzu kartalari va mayda elementlarning rangga moslashuvi.
+Vite/Docker build o'tdi. 7 palitra uchun ranglar/kontrast/saqlash tekshirildi.
+Brauzerda login, 6 mavzu almashtirish, Okean reload, mobil 390px va desktop
+1366px tekshirildi; konsol error/warn yo'q. EXE va baza o'zgarmadi.
+Batafsil: docs/25_TIN_LOGIN_VA_MAVZULAR.txt. Web http://192.168.1.27:8784/.
+
+2026-09-18 — TIN dizayni Windows EXEga o'tkazildi, 0.4.4
+Foydalanuvchi webdagi oxirgi ko'rinishni EXEda ham so'radi. Keyingi CI/CD,
+serverga joylash va avtomatik yangilash taklifi foydalanuvchi tomonidan hozircha
+bekor qilindi; bu imkoniyatlar ushbu ishda qo'shilmadi va tashqi server o'zgarmadi.
+desktop/package.json: TIN CRM nomi, TIN Company muallifi, 0.4.4, TIN shortcut
+va ikona, setup.css/logo fayllari installerga qo'shildi. appId uz.marva.crm,
+package name va executableName Marva CRM eski o'rnatish bilan mos qoldi.
+desktop/main.cjs: TIN oyna nomi, ikona, tilla fon; userData/sessionData oldingi
+AppData/Marva CRM papkasiga bog'landi. Lokal baza, local-port.json va ranglar
+shu joydan olinadi. MARVA_DATA_DIR sinov profili ham alohida saqlanadi.
+desktop/setup.html va yangi setup.css: server/filialga dastlabki ulanish oynasi
+web loginiga mos yashil/tilla uslubda. Mavjud forma IDlari va ulanish oqimi qoldi.
+scripts/build_desktop.py: mavjud favicon.svg ichidagi PNGdan tin-logo.png va
+tin-icon.ico yaratadi. Logoning o'zi o'zgartirilmadi; Pillow allaqachon talabda bor.
+backend/app/local_upgrade.py: VERSION=0.4.4, zaxira olib o'tish saqlandi.
+frontend/src/workspace.css: EXE sinxronlash banneri va tugmalari tanlangan
+mavzu ranglariga moslandi. Frontend, PyInstaller va NSIS yig'ishlari o'tdi.
+compose.yaml/nginx.conf/start-lan.ps1/TARMOQ_MANZILI.txt: yangi TIN-CRM-Setup.exe
+yuklash URLi; eski Marva-CRM-Setup.exe URLi ham ayni yangi faylni beradi.
+Mahalliy Dockerning faqat web xizmati qayta yig'ildi, API/DB qayta yaratilmagan.
+README, docs20/21, yangi docs/26_TIN_EXE_DIZAYN.txt va server ZIP ro'yxati yangilandi.
+
+Tekshiruv: haqiqiy packaged Electron setup/login oynalari ko'rib tekshirildi.
+Alohida test bazasida frozen backendga login, 6 mavzu almashtirish va reload
+orqali saqlash o'tdi. Internet markazi mavjud bo'lmagan holatda 0.250 kg / 5000
+so'm savdo lokal saqlandi; sales=1, offline_outbox=3, SQLite integrity_check=ok.
+0.4.3 dan 0.4.4 ga runtime o'tishi va avtomatik zaxira yaratilishi tasdiqlandi.
+ASAR ichidagi main/preload/setup/CSS/logo fayllari manbalarga teng. ProductName
+TIN CRM, CompanyName TIN Company, FileVersion 0.4.4. Paketlangan web, frontend/dist
+va LANda berilayotgan barcha web fayllari baytma-bayt teng; health=ok.
+LANdan installer to'liq yuklab SHA256 tekshirildi: 133653303 bayt,
+47e6b73cbeac27ea127934374dfb837b04b5a6e0a303a54d3cdde8e41a0cab8a.
+Boshqa fizik Windows kompyuterda bu versiya tekshirilmagan. Ishchi baza va
+foydalanuvchi hisoblariga test ma'lumoti kiritilmadi. Brauzer konsoli xatosiz.
+Eski 0.4.3 EXE/server ZIP/checksum, win-unpacked, backend build/dist/spec,
+blockmap/debug va ushbu ishning alohida sinov bazalari/fayllari o'chirildi.
+desktop/release ichida faqat TIN CRM Setup 0.4.4.exe, server-0.4.4.zip va ularning
+SHA256 fayllari qoldi. Ishchi zaxiralar saqlandi; ishlab chiqish kutubxonalari qoldi.
+Havola: http://192.168.1.27:8784/downloads/TIN-CRM-Setup.exe.
+
+2026-09-18 — VPS CI/CD uchun dastlabki tekshiruv va kirish tayyorlash
+Foydalanuvchi server161.97.70.124, HTTP8784, repo xtmuxa01-007/marva ni berdi.
+DNS/domen o'zgarmasin; SSH port/login noma'lum; main deploy branch tasdiqlandi.
+Aniqlashtirishda butun VPS, boshqa xizmatlar bilan, qayta qurish tanlandi.
+Har qanday tozalashdan oldin inventar, baza/sozlama va tashqi zaxira shart.
+Faqat ochiq GET so'rovlari: health200/ok, sync protocol4, eski Marva web aktivlari.
+Mahalliy git main, remote HEAD o'qiladi; GitHubga yozish hali tekshirilmagan.
+Windows/Ubuntu foydalanuvchisida SSH config/kalit yo'q edi. Alohida operator
+va avtomatik deploy Ed25519 kalitlari .runtime/deploy-keys ichida yaratildi.
+Papka ACL joriy foydalanuvchi/SYSTEMga cheklandi, ikkala maxfiy fayl gitignoreda.
+Serverga kalit qo'shilmagan, maxfiy qiymatlar chatga chiqarilmagan.
+docs/27_CI_CD_TAYYORLASH.txt ga tekshiruv, Secrets nomlari, kirish va zaxira
+tartibi yozildi. Foydalanuvchidan provayder Console orqali login/sshd portini
+aniqlash natijasi kutilmoqda. Serverda o'chirish, deploy yoki DNS o'zgarishi yo'q;
+zaxira hali olinmagan, chunki SSH kirishi hali mavjud emas. Workflow qo'shilmadi.
+
+2026-09-18 22:46 — GitHubdan eski kod tushirilganidan keyingi tiklash tekshiruvi
+Foydalanuvchi oxirgi kodlar o'chgan bo'lishi mumkinligini bildirdi. Tekshiruvda
+HEAD32ef0dd, reflogda22:25 reset HEAD, refs/stash629025a topildi. Stash nomi:
+GitHubdan yangilashdan oldingi ozgarishlar. Ish papkasida kod allaqachon bor edi;
+stash apply/pop/reset/clean bajarilmadi va hech bir manba fayli ustidan yozilmadi.
+114 tracked va13 untracked — jami127 manba fayli stash bilan solishtirildi.
+Kodlarda farq yo'q, faqat TARMOQ_MANZILI.txt dagi tekshirilgan vaqt yangilangan.
+server-0.4.4.zip ichidagi barcha ishchi manbalar ham mos; faqat doimiy jurnalga
+keyinroq yozilgan CI/CD yozuvi arxivdan farq qiladi. Demak tekshirilgan so'nggi
+TIN0.4.4 manbalari yo'qolmagan. Python manbalari sintaksisi AST bilan tekshirildi.
+TIN CRM Setup0.4.4.exe va server0.4.4.zip SHA256lari avvalgi qaydlarga mos.
+backups/code-recovery-20260918-224604-421011 papkasida working-source.zip,
+history-and-stash.bundle, working-changes.patch, stash-with-untracked.patch,
+git-status.txt, reflog.txt, recovery-report.json yaratildi. ZIP CRC va Git bundle
+verify o'tdi; hisobotda arxiv/nusxa SHA256lari bor. Git stash saqlab qolindi.
+Bu arxiv kod/tarix uchun; ishchi DB zaxirasi deb hisoblanmaydi. Maxfiy .env,
+SSH kalitlari va haqiqiy bazalar kod arxiviga qo'shilmadi.
+Mahalliy docker compose ps bo'sh: ushbu project xizmatlari ishga tushmagan.
+LAN8784 so'rovi uzildi. Xizmatlarni to'xtatish/yoqish yoki DBni o'zgartirish
+bajarilmadi. VPSga o'zgartirish va GitHubga push qilinmadi.
+
+2026-09-18 22:53 — oxirgi versiyani asosiy ish papkasida faol qilish
+Foydalanuvchi tiklangan yangi kodni asosiy papkada ishlatishni so'radi.
+C:/Users/Abduqodir/Desktop/marva_crm_codex papkasi127 faylli tiklash ZIPi bilan
+solishtirildi: barcha ishchi kodlar mos, faqat jurnal/tarmoq vaqti keyin yangilangan.
+Manba fayllarini eski zaxira ustidan qayta yozish kerak emas edi.
+Haqiqiy sabab: qayta ochilgan Docker avvalgi API/web obrazlarini ishlatgan;
+TIN sahifasi va branch_discovery/device_identity imkoniyatlari hali xizmatda yo'q edi.
+API qisqa to'xtatilib, PostgreSQL dump, rasmlar va sozlamalar izchil saqlandi:
+backups/before-current-code-20260918T175208Z-9939755f. pg_restore --list,
+rasm arxivi tekshiruvi va barcha fayllar SHA256lari muvaffaqiyatli.
+configuration.zip maxfiy .env nusxasini ham saqlaydi; bu backup Gitga kiritilmaydi.
+.runtime/backup-before-current-code.py — shu mahalliy zaxira uchun yordamchi.
+docker compose -p marva-crm build api web; up -d --no-deps --wait api web bajarildi.
+Mavjud DB konteyneri va postgres_data/product_images volumelari saqlandi.
+Lokal127.0.0.1:8784 va LAN192.168.1.27:8784: health=ok, joriy TIN sahifasi,
+branch_discovery/device_identity=true, TIN EXE yuklash tekshiruvlari o'tdi.
+CSS/JS baytma-bayt 0.4.4 buildga teng, HTMLda faqat Windows satr tugash farqi bor.
+Ishlayotgan API ichidagi28 Python manba fayli asosiy papka bilan SHA256 bo'yicha teng.
+So'nggi manbalar mahalliy main branch commitiga saqlanadi; GitHub push va VPSga
+deploy bajarilmaydi. Avvalgi stash va kod/tarix tiklash arxivlari saqlanadi.
+
+2026-09-19 — foydalanuvchi so'rovi bilan lokal ishga tushirish
+scripts/start-offline-center.ps1 -NoBrowser orqali mavjud Docker db/api/web
+xizmatlari ishga tayyorlandi, WSL faol saqlash jarayoni tekshirildi.
+http://127.0.0.1:8784/ HTTP200, TIN sarlavhasi va /api/health status=ok.
+Sahifa Codex brauzer panelida ochishga yuborildi. Kod qayta yig'ilmadi,
+ishchi bazani tozalash/tiklash yoki tashqi serverga o'zgartirish bajarilmadi.
+
+2026-09-19 — GitHub CI/CD orqali kichik interfeys yangilanishi
+Foydalanuvchi CI/CDni o'zi sozlaganini aytib, kodga yaxshilash kiritib GitHubga
+yuborishni so'radi. origin/main350d368 dagi ci-cd.yml fast-forward bilan olindi.
+Mavjud workflow main pushda avval alohida CI bazasi bilan Docker tekshiradi,
+keyin ayni commitni serverdagi deploy buyrug'iga beradi. Workflow o'zgartirilmadi.
+Oldingi Actions35425493265 completed/success ekani API orqali tekshirildi.
+frontend/src/main.jsx: login paroliga ko'rsatish/yashirish tugmasi, Eye/EyeOff,
+aniq label va aria-pressed/aria-controls. type=button: ko'rinishni almashtirish
+login so'rovini yubormaydi; parol qiymati saqlanadi, ko'rinish standartda yashirin.
+frontend/src/login.css: tugma input ichida, matn bilan ustma-ust tushmaydi,
+tanlangan ranglarga mos hover va klaviatura focus ko'rinishi.
+frontend/src/SyncStatus.jsx: EXE qaysi markaz manziliga qarayotganini ko'rsatish;
+xato bo'lsa boshliqqa Sozlamalar -> Markaziy server yo'nalishi; Hozir sinxronlash
+bosilganda so'rov yuborilgani haqida xabar. Navbatga qo'yishni muvaffaqiyatli
+sinxronlash deb ko'rsatmaydi, haqiqiy natija mavjud status/vaqt bilan keladi.
+Tekshiruv: Vite production build va mahalliy Docker web build muvaffaqiyatli;
+brauzerda sichqoncha/Space bilan ko'rsatish-yashirish, matn saqlanishi, label
+va formaning yuborilmasligi tekshirildi. Konsolda error/warn kuzatilmadi.
+Parol DOM orqali yashirilganda o'qilmasligi sabab matn saqlanishi qayta
+ko'rsatib vizual tasdiqlandi; haqiqiy hisob/parol ishlatilmadi.
+Backend, baza sxemasi, EXE qurilma sozlamasi va DNS o'zgartirilmadi.
+Bu commit main branch orqali avtomatik web deploy uchun. EXE installer qayta
+yig'ilmadi: o'rnatilgan0.4.4 ilova yangi frontendni avtomatik olmaydi.
+CI/CD natijasi GitHub Actionsdagi ushbu commit runida kuzatiladi.
+
+2026-09-19 — bugungi sana va TIN CRM 0.4.5 EXE
+Foydalanuvchi Bugungi savdo kartasidagi "Toshkent vaqti bo'yicha bugun"
+matni o'rniga haqiqiy sanani chiqarish, GitHubga yuborish va EXEni yangilashni
+so'radi. frontend/src/pages/Dashboard.jsx kartasi endi, masalan,
+"19-sentabr 2026" ko'rsatadi. Sana qat'iy yozilmagan: Asia/Tashkent vaqtida
+hisoblanadi, mavjud 30 soniyali yangilanishda va oynaga qaytilganda yangilanadi.
+frontend/src/dates.js: mavjud uzDate yordamchisiga includeYear parametri
+qo'shildi; oldingi qisqa sana va sana/vaqt chaqiriqlarining formati saqlandi.
+desktop/package.json va backend/app/local_upgrade.py versiyasi 0.4.5 bo'ldi.
+EXEga sana bilan birga oldingi commitdagi parol ko'rsatish/yashirish tugmasi
+va sinxronlash panelining markaz manzili/xabar o'zgarishlari ham kiritildi.
+compose.yaml yangi installerga yo'naltirildi; README va docs20/21dagi joriy
+versiya ma'lumotlari yangilandi. appId, profil yo'li va baza sxemasi o'zgarmadi.
+Mavjud AppData/Marva CRM profili va filial ma'lumotlari saqlanadi; haqiqiy
+qurilmaning server manzili/paroli o'zgartirilmadi, bazalarga test yozuvi yo'q.
+
+Tekshiruvlar: Vite production build, PyInstaller backend va Electron NSIS
+yig'ishlari muvaffaqiyatli. uzDate uchun Toshkent yarim tunidan oldin/keyin,
+yil almashishi va avvalgi formatlar Node assert orqali tekshirildi.
+Installer ProductName=TIN CRM, FileVersion=0.4.5, hajmi 133654287 bayt.
+SHA256: 7d57524041899c407c360a65de6dac552998ce4497327b542d31642b258aeb96.
+EXE ichidagi 4 ta web fayli frontend/dist bilan baytma-bayt teng,
+app.asar package versiyasi 0.4.5. Mahalliy Dockerda faqat web qayta yig'ildi:
+/api/health=ok, JS/CSS production buildga teng, installer yuklash SHA256i mos.
+Bu safar boshqa fizik PCda o'rnatish sinovi bajarilmadi.
+
+GitHubga main branch orqali yuboriladi, mavjud CI/CD workflow o'zgarmadi.
+Joriy installer va SHA256 desktop/release papkasida; eski release va vaqtincha
+yig'ish fayllari yangi paket tekshirilgach olib tashlanadi. Zaxiralar saqlanadi.
+GitHub v0.4.5 release uchun faqat installer va SHA256 fayli tayyorlanadi;
+maxfiy sozlamalar, kalitlar va bazalar unga kiritilmaydi. CI/CD natijasi va
+serverning ayni JS/CSS fayllarni berishi pushdan keyin tekshiriladi.
+Yangilash: eski CRM oynasini yoping va 0.4.5 installerni avvalgi joyga o'rnating.
+GitHubga kod yuborish avval o'rnatilgan EXEni o'zidan yangilamaydi;
+ushbu ishda avtomatik EXE updater qo'shilmadi.
+
+2026-09-19 — TIN CRM 0.4.6: yangi tincrm.uz bazasiga bir martalik o'tish
+Foydalanuvchi serverdagi yangi bazani asosiy deb belgiladi, EXElardagi hozirgi
+eski ma'lumotlar kerak emasligini va keyingi offline savdolar saqlanishi
+kerakligini tasdiqladi. HTTPS health=ok va sync protocol4/registration2 tekshirildi.
+Eski qurilma manzilini oddiy almashtirish o'rniga alohida doimiy profil qilindi.
+desktop/central-profile.cjs: https://tincrm.uz, tincrm-uz-v1 namespace.
+desktop/main.cjs: faol baza legacy branch/centers/tincrm-uz-v1 ichida; yangi
+sessionData va persist partition eski localStorage savat/so'rovlarini ajratadi.
+Oldingi appId va userData saqlandi: eski/yangi EXE parallel ochilishini bitta
+ilova qulfi cheklaydi. Lokal port yangi profilga yoziladi. prepare-center
+buyrug'i eski backendni umuman ochishdan oldin ishlaydi. Sozlash oynasi yopilsa
+yordamchi process ham to'xtaydi. Server manzili birinchi ulanishda qat'iy tincrm.uz.
+desktop/setup.html/js, preload.cjs: tayyor domen, server boshliq hisobi,
+filialni serverdan tanlash va eski baza zaxiralanishi haqida tushunarli izoh.
+backend/app/center_profile.py: SQLite backup API orqali WAL bilan izchil nusxa,
+ZIP SHA256/integrity tekshiruvi va center-profile.json bir martalik belgi.
+Eski bazaning o'zi ham o'chirilmaydi. Eski outbox, qurilma tokeni yoki sessiya
+yangi bazaga ko'chmaydi. Yangi baza mavjud bootstrap API orqali olinadi.
+backend/desktop_entry.py: --prepare-center. local_upgrade va package versiyasi0.4.6.
+Keyingi restart, internet uzilishi yoki EXE yangilanishida profil nomi o'zgarmaydi,
+yangi yig'ilgan savdolar va navbat saqlanadi. Band filial ikkinchi PCga tortib
+olinmaydi. Serverdagi haqiqiy bazaga test savdosi yoki majburiy reset qilinmadi.
+
+Tekshiruvlar:
+backend/tests/test_center_profile.py vaqtinchalik SQLite markaz/filiallar va
+MockTransport bilan o'tdi: eski navbat yuborilmasligi, noto'g'ri parol, javobi
+uzilgan bootstrapni o'sha qurilma bilan davom ettirish, to'g'ri filial nusxasi,
+offline login/savdo, qayta ochishda navbat saqlanishi, ACK yo'qolgach takroriy
+so'rov, markazda aynan bitta savdo, katalogni olish, ikkinchi PC/filial himoyasi.
+desktop/central-profile.test.cjs 3 tekshiruvdan o'tdi: eski PC setupga boradi,
+ulangandan keyin aynan yangi baza ochiladi, backup xatosida eski backend ochilmaydi.
+Yig'ilgan Python EXE --prepare-center sinovi o'tdi. ASAR ichidagi barcha
+o'zgargan desktop fayllari manba bilan bir xil. NSIS installer yig'ildi.
+TIN CRM Setup0.4.6.exe:133656226 bayt,
+SHA256:b19a9171a562f4917bffa89ed3206d97b0715750f8862d08bc578054d69a526a.
+Shu PCdagi yopiq0.4.4 dastur0.4.6 ga o'rnatildi (installer exit0, versiya0.4.6.0).
+Haqiqiy ochilgan setup oynasi vizual tekshirildi: domen va backup izohi to'g'ri.
+Serverdagi boshliq login/parolini foydalanuvchi oynaning o'ziga kiritadi;
+chatdan parol olinmadi. Boshqa fizik PClarga o'rnatish masofadan bajarilmadi.
+README, docs20/21, yangi docs28, compose installer yo'llari va server ZIP
+ro'yxati yangilandi. Eski release/build fayllari yangi paket tekshirilgach
+olib tashlanadi; haqiqiy zaxira va bazalar saqlanadi. Kod main branchga,
+installer/SHA256 v0.4.6 GitHub releasega chiqariladi; mavjud CI/CD kuzatiladi.
+Shu ish davomida foydalanuvchi ochilgan oynada hisobini kiritib filialni uladi.
+Haqiqiy tincrm.uz /api/sync/device orqali ushbu PC filial1 sifatida tasdiqlandi.
+Yangi lokal SQLite quick_check=ok, yuborilmagan amallar0, sinxronlash xatosi
+bo'sh, oxirgi muvaffaqiyatli sync2026-09-19 07:53:09UTC. Eski baza joyida,
+yaratilgan backup ZIP ham verify_backup orqali alohida tekshirildi.
+Serverga sun'iy sinov savdosi yuborilmagan; tekshiruv faqat mavjud holatni o'qidi.
+
+2026-09-21 — TIN CRM 0.4.7: MARWA, HOVER, FILIAL ALMASHTIRISH, EXE UPDATE
+Talab: CRMdagi Marva yozuvlarini Marwa qilish, dashboard kartalariga hover,
+EXE loginidan boshlang'ich ulanish oynasini qayta ochish, boshqa filialni
+tanlash, EXE yangilanishini dastur ichidan olish va GitHubga chiqarish.
+Ishchi ma'lumotlar tozalanmadi; 0.4.6 da boshlangan yangi offline savdolar
+va yuborish navbati o'z joyida saqlanadi.
+
+Frontend: main.jsx/index.html/Reports.jsx ko'rinadigan Marwa yozuvlari;
+workspace.css metric hover ko'tarilishi/soya va reduced-motion qoidasi;
+yangi DesktopControls.jsx/desktop-controls.css; Settings.jsx ga ulash.
+Desktop: main.cjs faol filial, alohida browser partition/port, backendni
+to'xtatish/ishga tushirish, trusted IPC asosiy frame tekshiruvi; preload.cjs
+tor reconnect/update API; setup.html/js/css qayta tanlash/bekor qilish;
+updater.cjs qat'iy tincrm.uz feed, fon tekshiruv/yuklash, foydalanuvchi
+tugmasidan zaxira va NSIS orqali o'rnatish. electron-updater6.8.9 locklandi.
+Texnik appId, Marva CRM.exe va AppData nomi saqlandi: bazani boshqa joyga
+ko'chirib yubormaslik va eski/yangi ilovaning bir vaqtda ochilmasligi uchun.
+
+Backend: desktop_profiles.py har filial bazasini alohida saqlaydi, server
+boshliq hisobini tekshiradi, boshqa PC band qilgan filialni olmaydi,
+yuborilmagan amallar bo'lsa almashtirmaydi, eski filialga o'sha qurilma
+bilan qaytadi. desktop_entry.py status/backup/discover/select buyruqlari.
+routes_desktop.py GitHub latest stable release va desktop-update.json
+validatsiyasi, 5 daqiqalik kesh, xatoda 30 soniyalik kutish, qat'iy
+download redirect. main.py router va API sarlavhasi, routes_finance.py
+JSON eksport nomi, local_upgrade.py 0.4.7.
+scripts/build_update_manifest.py installer hajmi/SHA512 va SHA256 yaratadi.
+scripts/publish_desktop_release.py Git credential manager orqali maxfiy
+qiymatni ko'rsatmasdan draft asset upload/hash tekshiruvi va CI successdan
+keyin stable release chiqarish. Git push web/API uchun; Windows paket va
+manifest alohida releasega chiqariladi. docs29 buni to'liq tushuntiradi.
+compose.yaml installer yo'llari, README, docs20/21 va server ZIP docs
+ro'yxati yangilandi. Mavjud CI/CDga backend unittest qo'shildi.
+
+Tekshiruv: frontend production build o'tdi. Alohida UI fixture brauzerda
+Marwa login/sidebar/footer va hover transform=-4px, soya bilan tasdiqlandi.
+Backend4 test o'tdi: eski bazalar ajratilishi, offline/sync/lost ACK/dedup,
+filialga qayta ulanish/qaytish, boss tekshiruvi, pending blok, feed validatsiya.
+Node7 test o'tdi: launcher3, updater3, haqiqiy electron-updater bilan
+redirectdan paketni olish va buzilgan SHA512ni rad etish1. Test installer
+ishga tushirilmagan, haqiqiy serverga test savdosi yozilmagan.
+PyInstaller backend va NSIS installer muvaffaqiyatli yig'ildi. ASARdagi
+7 desktop fayli manba bilan teng, electron-updater6.8.9 paket ichida.
+TIN-CRM-Setup-0.4.7.exe hajmi133988457 bayt,
+SHA256:b38b44ccbd1f3140c250517801b9a121ac7a268628fda34f3e88fdc2d186a61a.
+Shu PC joriy filial1, pending0; yangilashdan avval --profile-backup bilan
+izchil lokal zaxira olindi. O'rnatish va GitHub/production tekshiruvlari
+shu ishning davomi; boshqa fizik PCga avtomatik kirish mavjud emas.
+Eski0.4.6 klientlar0.4.7ni bir marta qo'lda o'rnatadi; keyingi versiyalar
+dastur ichida olinadi. Domen, parollar yoki serverdagi biznes baza o'zgarmadi.
+O'rnatish yakuni: NSIS /S exit0, o'rnatilgan Windows fayl versiyasi0.4.7.0.
+
+0.4.7 haqiqiy tarqatish tekshiruvi davomida GitHub repo PRIVATE ekanligi
+aniqlandi. Release fayllari autentifikatsiyasiz404 qaytardi. Dastlabki ochiq
+GitHub feed yo'li shu sabab almashtirildi; repo ommaviy qilinmadi.
+Yakuniy routes_desktop.py paketni markazdagi uploads/desktop-updates ichida
+saqlaydi va EXEga to'g'ridan-to'g'ri tincrm.uz dan beradi. Yangi publish API
+faqat GitHub Actions OIDC imzosiga ruxsat beradi: issuer/audience/exp/iat,
+repository ID1375422146, aniq repo/workflow/ref/sub/event tekshiriladi.
+PyJWT[crypto]2.14.0 backend/requirements.txt ga qo'shildi. Maxfiy GitHub
+tokeni EXEga, serverga, manba kodiga yoki logga qo'shilmadi.
+.github/workflows/desktop-release.yml va scripts/distribute_desktop_update.py
+yopiq repodagi stable release'ni olib, qisqa GitHub CDN havolasini serverga
+OIDC bilan beradi. Server redirectsiz HTTPS yuklaydi, hajm/SHA512 tekshiradi,
+izchil fayl+atomar manifest chiqaradi. Xatoda oldingi manifest saqlanadi,
+bir versiya almashtirilmaydi, downgrade bloklanadi. DNS/biznes DB o'zgarmaydi.
+Qo'shimcha server paroli yoki GitHub Secrets talab qilinmaydi.
+Yangilangan backend4 test o'tdi, jumladan haqiqiy RSA token imzosi, noto'g'ri
+repo/workflow/audience/ref/muddat, noto'g'ri SHA512, SSRF/redirect himoyasi,
+oldingi manifestni saqlash va takror nashr. docs29 yakuniy ishlashga yozildi.
+Windows0.4.7 loginida «Filialga qayta ulanish» orqali haqiqiy setup ochildi,
+filial1 ko'rindi; «Joriy filialga qaytish» login oynasini o'sha port/baza bilan
+qayta ochdi. Haqiqiy boshliq paroli test uchun kiritilmadi, savdo yozilmadi.
+Main9b0062c CI/CD35561381519 success; v0.4.7 installer/hash/manifest chiqarildi.
+Server tarqatish tuzatishi alohida commit/deploy bilan chiqadi; installerning
+server manzili aynan o'sha, allaqachon chiqarilgan EXE o'zgartirilmaydi.
+Server tuzatishi caea27f CI/CD35562152971 success. Birinchi tarqatish
+so'rovida403 qaytdi; sababini tokenni oshkor qilmasdan aniqlash uchun faqat
+repo/ref/workflow/audience kabi CI metama'lumoti va serverning qisqa xato
+javobi tarqatish logiga qo'shildi. Token yoki imzo logga chiqarilmaydi.
+403 sababi GitHub yangi subject formati ekanligi aniqlandi:
+repo:xtmuxa01-007@247305825/marva@1375422146:ref:refs/heads/main.
+Faqat shu o'zgarmas owner/repo IDli subject va avvalgi ayni repo formati
+qabul qilindi; boshqa owner/repo/workflow/ref cheklovlari saqlandi.
+RSA testiga yangi subject, release tag va boshqa owner IDni rad etish qo'shildi.
+
+0.4.7 YAKUNIY NATIJA
+17f77e7 uchun CI/CD35562848013 success (test va haqiqiy deploy).
+TIN desktop distribution35563018300 success: yopiq GitHubdan installer
+tincrm.uz serverining doimiy images volume'iga chiqarildi.
+Haqiqiy electron-updater/NsisUpdater bilan alohida test keshida0.4.6 klienti
+sifatida tekshirildi: server0.4.7 qaytardi, butun133988457 bayt EXE tincrm.uz
+dan yuklandi, SHA512 manifest bilan teng; SHA256 ham lokal installer bilan
+aynan bir xil: b38b44ccbd1f3140c250517801b9a121ac7a268628fda34f3e88fdc2d186a61a.
+Test installerni ishga tushirmadi. Shu PC haqiqiy o'rnatilgan EXE allaqachon
+0.4.7.0, filial1 va pending0; bazasi avvalgidek saqlangan.
+Ochiq yuklash manzili:
+https://tincrm.uz/api/desktop/updates/files/v0.4.7/TIN-CRM-Setup-0.4.7.exe
+Boshqa PClarda0.4.6/eskilardan0.4.7ga bir martalik qo'lda yangilash kerak.
+Shundan keyingi paketlar dastur ichida olinadi. GitHub repo PRIVATE saqlandi.
+
+Windows oynasidagi oxirgi tugma tekshiruvi foydalanuvchining Escape tugmasi
+bilan to'xtatildi; undan keyin Windows UI boshqarilmadi. Mustaqil, oldindan
+boshlangan tarmoq yuklash testi yuqoridagi natija bilan tugadi.
+Vaqtinchalik UI fixture va serverdan tekshirish uchun yuklangan nusxa
+tozalandi. Lokal release papkasida faqat0.4.7 EXE, SHA256, desktop-update.json,
+joriy server ZIP/SHA256 qoldi. Eski0.4.6 paketlar va qayta yaratiladigan
+backend build/dist, win-unpacked olib tashlandi. Ishchi bazalar va zaxiralar
+o'chirilmadi. Yakuniy jurnal commitida [skip ci] ishlatildi: faqat hujjat
+yangilandi, ishlaydigan kodning test/deploy natijasi yuqorida qayd etilgan.
+
+2026-09-21 — 0.4.8: SUMMA KARTALARINING HOVER RANGI
+Foydalanuvchi kartalarga sichqoncha olib borilganda fon rangi ham o'zgarishini
+so'radi. frontend/src/workspace.css: .metric:hover foni --nav-active (40%) va
+--surface (60%) aralashmasiga o'tadi. Dastlabki mavzuda och tilla, boshqa
+mavzularda o'sha mavzuga mos rang. .metric.accent:hover esa --accent rangini
+20% qoraytiradi. Matn ranglari saqlanadi. O'tish 180 ms; oldingi ko'tarilish
+va soya saqlangan, reduced-motion holatida animatsiya ishlamaydi.
+Chegara haqiqiy --green o'zgaruvchisiga bog'landi; mavjud bo'lmagan --primary
+fallback o'rniga foydalanuvchi tanlagan mavzu rangi olinadi.
+Frontend build va Prettier tekshiruvi o'tdi. CSS build: index-DhG1unrp.css.
+Yangi EXE uchun desktop/package.json va backend/app/local_upgrade.py versiyasi
+0.4.8 bo'ldi. compose.yaml, README va docs20/21 joriy fayl nomlariga o'tkazildi.
+Release izohi scripts/publish_desktop_release.py ichida yangilandi.
+Baza sxemasi, hisob-kitob va sinxronlash mantig'i o'zgartirilmadi.
+EXE yig'ish, GitHub main deploy va serverga tarqatish natijasi pastga qo'shiladi.
+
+0.4.8 TEKSHIRUV VA YIG'ISH NATIJASI
+f24628c main ga yuborildi. Marva CI/CD 35564471933 success; web tincrm.uz ga
+joylandi. Server HTMLdagi /assets/index-DhG1unrp.css to'liq lokal build bilan
+baytma-bayt bir xil va yangi ikkala hover qoidasi ham borligi tekshirildi.
+EXE resursidagi CSS ham shu fayl bilan SHA256 bo'yicha bir xil:
+EF05DAC8692E85C9C925B57C8EC977EE8B2F725F210E1100B0CF42307A0E4C22.
+Python build o'tdi. Windows NSISning uninstaller generatorini ishga tushirish
+Application Control tomonidan bloklandi. Avtomatik ruxsat tekshiruvi avval uni
+oddiy installer deb rad etdi; BUILD_UNINSTALLER, Install data=0 va aniq SHA256
+bilan past xavf isbotlangach diagnostikaga ruxsat berdi. Windows cheklovi
+aniqlangach, himoya sozlamalari o'zgartirilmadi va bloklangan fayl bajarilmadi.
+Yig'ish uchun electron-builder ichidagi UninstallerReader.exec ishlatildi:
+u NSIS bloklarini fayldan o'qib yordamchi uninstaller yozadi, EXEni ishga
+tushirmaydi. Ushbu usul .runtime/build-nsis-data-only.cjs yordamida faqat
+joriy versiyadagi kichik build generatoriga qo'llanildi (boshqa chaqiriqlar
+asl WineVmManager.exec orqali). Yakuniy NSIS build muvaffaqiyatli tugadi.
+Installer ProductVersion/FileVersion=0.4.8, ProductName=TIN CRM.
+137022887 bayt; SHA256:
+b69cf2cd1be462b4298876e1209849889e962f95ad81219c7f86438b14bf21cb.
+GitHub v0.4.8 release nashr etildi; EXE, SHA256 va desktop-update.json hash va
+hajmlari GitHub javobi bilan ham tasdiqlandi. Bu PCdagi ishlayotgan ilova
+majburiy yopilmadi, joriy bazaga tegilmadi, yangi installer ishga tushirilmadi.
+Serverga tarqatish natijasi pastga yoziladi.
+
+0.4.8 YAKUNIY NATIJA
+TIN desktop distribution 35564889105 success. Ochiq latest.yml javobi JSON
+(YAMLga mos) formatida; version=0.4.8, SHA512 va137022887 bayt hajm lokal
+manifest bilan aynan teng. Ochiq EXE HTTP javobining hajmi va MZ sarlavhasi
+ham tekshirildi. To'liq paket xeshi tarqatish paytida serverda tekshirilgan.
+https://tincrm.uz/api/desktop/updates/files/v0.4.8/TIN-CRM-Setup-0.4.8.exe
+0.4.7 va yangi EXEda Yangilanishni tekshirish orqali olinadi. O'rnatish
+foydalanuvchining qayta ishga tushirish tugmasi bilan bajariladi.
+Lokal release papkasida faqat0.4.8 EXE, uning SHA256 fayli, desktop-update.json,
+joriy server ZIP va SHA256 qoldirildi. Qayta yaratiladigan backend build/dist
+hamda win-unpacked o'chirildi. Ishchi baza va uning zaxiralari o'chirilmadi.
+Yakuniy hujjat commitida [skip ci]: ishlaydigan kod f24628c da test/deploydan
+muvaffaqiyatli o'tgan, yakuniy commit faqat ushbu natijalarni qayd qiladi.
+
+2026-09-25 — 0.5.0: BIR FILIALDA WEB VA BIR NECHTA PC
+Foydalanuvchi "Bu amalni filialning asosiy kompyuterida bajaring" xatosini
+bartaraf qilishni, filial savdo va tahrirlarini web/EXEdan bajarishni so'radi.
+Yangi desktop/shared-main.cjs barcha EXElarni tincrm.uz markaziy bazasiga
+ulaydi. Yangi PC uchun SyncDevice band qilish shart emas. Mavjud rol/filial
+huquqlari saqlandi. Ushbu rejimda savdo uchun internet kerak; bir nechta
+mustaqil offline yozuvchini aralashtiruvchi snapshot sync yoqilmadi.
+
+Serverga additive shared_branches jadvali va autentifikatsiyalangan
+/api/sync/activate-shared qo'shildi. Eski asosiy PCning izchil backupi olinadi,
+navbati tugatiladi, oxirgi sequence/digest tekshirilgach filial umumiy rejimga
+o'tadi. Javob yo'qolsa o'tish idempotent qayta tekshiriladi. O'tilgan filialga
+eski snapshot yozuvi rad etiladi. Lokal baza/outbox/o'tish backupi saqlanadi.
+Markaz rollbacki, backup xatosi yoki jurnal nomosligida o'tish to'xtaydi.
+Saqlangan savat amallarida filial -> savat qulf tartibi va qarz to'lovida
+filial qulfidan keyin joriy qiymatni qayta o'qish qo'llandi.
+
+Yangi Electron oynasi HTTPS markaziga, asosiy frame IPCsiga va alohida
+Chromium partitionga cheklangan. Aloqa xatosida qayta urinish/yangilash oynasi
+ochiladi. Eski lokal savdo backendiga avtomatik qaytmaydi. Web va EXEda
+tarmoq xatosi foydalanuvchiga o'zbekcha ko'rsatiladi. O'tish tartibi docs30da.
+
+Tekshiruv: backend unittest 11/11; desktop shared-main/updater/download
+7/7 o'tdi. Frontend production build, PyInstaller backend va Windows NSIS
+installer yig'ildi. Qayta ulanish oynasi brauzerda ko'rildi va tugma sinaldi;
+konsolda xato yo'q. Parallel sotuv testi vaqtinchalik SQLite BEGIN IMMEDIATE
+bilan o'tdi; PostgreSQLda parallel tranzaksiya testi bu PCda bajarilmadi.
+TIN-CRM-Setup-0.5.0.exe: 137029884 bayt. SHA256 yonidagi .exe.sha256 faylda;
+desktop-update.json aynan shu paketdan qayta yaratildi. Ishchi bazaga test
+yozuvi kiritilmadi va installer ishga tushirilmadi.
+
+Foydalanuvchi Git boshqa PCda ulanganligini aytdi va faqat shu PCdagi
+o'zgarishlarni so'radi. Gitga ulash/push/deploy foydalanuvchi tomonidan
+bajariladi. .git/.github yaratilmagan, serverga yoki GitHubga yuborilmagan.
+Avval server deploy, keyin eski asosiy filial PCda 0.5.0 o'tishi, undan keyin
+boshqa PC/webdan birga ishlash tartibi qo'llanadi.
+
+2026-09-26 — SHU PCNI MAVJUD GITHUB REPOGA ULASH
+Foydalanuvchi GitHub username xtmuxa01-007 va marva reposini tasdiqladi,
+Desktopdagi loyiha kodini GitHubga yuklashni so'radi. Git Credential Manager
+brauzer orqali ulandi; parol/token chatga yoki repo fayliga yozilmadi.
+origin https://github.com/xtmuxa01-007/marva.git qilib sozlandi. Mavjud
+6d9b75e tarixiga mahalliy main va fayllarni saqlagan holda bog'landi.
+Mahalliy nusxada yetishmagan ci-cd.yml va desktop-release.yml GitHubdan
+o'zgartirilmasdan tiklandi. .env/bazalar/kalitlar/release fayllari ignoreda.
+0.5.0 manbalari, testlari va hujjatlari shu tarix ustiga commit qilinadi;
+main push mavjud server CI/CDsini ishga tushiradi. EXE tarqatish alohida
+release bosqichi, Git tarixiga installer qo'shilmaydi.
+
+2026-09-26 — 0.5.0 SERVER VA EXE TARQATISH YAKUNI
+5c0ad7071543d0697f8ab54c7920ae5151e02842 main ga yuborildi. Marva CI/CD
+36229517171 success: test va production deploy o'tdi. tincrm.uz health200,
+shared_desktop=true; sahifadagi JS/CSS aktivlari mahalliy build nomlari bilan
+mos. GitHub v0.5.0 release aynan shu kod commitidan chiqarildi.
+EXE, SHA256 va desktop-update.json GitHubga yuklandi, API qaytargan hajm va
+xeshlar lokal fayllar bilan tekshirildi. TIN desktop distribution 36231917585
+success: paket tincrm.uz doimiy uploads volume'iga tarqatildi.
+Server latest.yml endi0.5.0; hajm137029884 va SHA512 lokal manifestga teng.
+
+Haqiqiy electron-updater/NsisUpdater orqali ishchi profilga tegmasdan,
+alohida vaqtinchalik keshda0.4.8 klienti sifatida tekshirildi.0.5.0 aniqlandi,
+137029884 bayt paket to'liq serverdan yuklandi va SHA512 tekshiruvi o'tdi.
+SHA256 lokal EXE bilan bir xil:
+3a17d64f6c2c921cfbbf3b211a7a4b78d1fdb9a60332469b4e24d15e4d14ca0a.
+Installer ishga tushirilmadi, ishchi baza o'zgartirilmadi.
+
+0.4.7+ EXEda Yangilanishni tekshirish -> yuklanishini kutish -> Qayta ishga
+tushirib o'rnatish. Oldindan yangi EXEni qo'lda PCga olib kelish shart emas.
+0.4.6 va eskilar uchun qo'lda o'rnatish havolasi:
+https://tincrm.uz/api/desktop/updates/files/v0.5.0/TIN-CRM-Setup-0.5.0.exe
+Har filialning eski asosiy PCsi birinchi ochilishda navbatni topshiradi.
+Umumiy0.5.0 rejimida savdo va tahrirlash uchun internet kerak.
+Yangilashni tarqatish tartibi docs30ga qo'shildi. Yakuniy hujjat commitida
+[skip ci]: kod avvalgi5c0ad70 commitida test/deploydan o'tgan.
+
+2026-09-26 — FILIAL ARXIVI VA PROGRAMMIST
+Foydalanuvchi filialni o'chirishni faqat o'z abduqodir hisobiga berishni va
+hisobidagi Boshliq nomini Programmist qilishni so'radi. Aniqlashtirishda
+tarixni saqlab arxivlashni tanladi. Haqiqiy filialni o'chirish so'ralmagan.
+system_owner hisob IDini bir marta bog'laydi va ko'rinadigan ism/rolni
+Programmist qiladi. Parol o'zgartirilmaydi va kodga kiritilmaydi. Boshqa
+boshliq egasining hisobini o'zgartira yoki uning loginini egallay olmaydi.
+branch_archives faqat holat belgisi: filial, savdo, qarz, ombor, savatlar,
+xodim va boshqa bog'liq yozuvlar saqlanadi. Arxivlash/tiklash filial qulfi
+bilan bajariladi, auditga yoziladi; yangi moliyaviy amallar bloklanadi.
+Xodimning eski seanslari yopiladi. Eski offline filial avval umumiy rejimga
+o'tishi kerak. UI Jamoa va filiallar bo'limida O'chirish/Arxiv/Tiklash bor,
+filial nomini yozib tasdiqlash talab qilinadi. Hisobotlar arxiv tarixini
+saqlaydi. 0.5.0 EXE markaziy webdan shu o'zgarishni oladi; yangi EXE yig'ilmaydi.
+6 yangi API/integratsiya testi va avvalgi11 test o'tdi; frontend build va
+mahalliy brauzerda egasi/boshqa Boshliq uchun huquqlar, arxivlash va tiklash
+tekshirildi. Sinovlar ishchi bazada bajarilmadi. Yo'riqnoma docs31da.
+
+2026-09-26 — MAHSULOT ARXIVI VA RESET TAYYORLASH
+Omborda faqat Programmist uchun mahsulotni arxivlash/tiklash qo'shildi.
+Mahsulot barcha filiallar katalogidan yashiriladi; SKU, qoldiq va moliyaviy
+hisoblar saqlanadi. SKU bilan tasdiq, audit va parallel product qulfi bor.
+Eski savat/savdo tahriri, kirim va boshqa yozuvlar API darajasida tekshiriladi.
+Foydalanuvchi serverni faqat o'z hisobi qoladigan qilib noldan boshlashni tanladi.
+Alohida reset_server_database.py: preview, tasdiq, API stop, dump+rasm backup,
+alohida PostgreSQL bazasida restore tekshiruvi, bitta tranzaksiyada reset,
+parolni saqlash va API restart. Oddiy deploy hech qanday reset bajarmaydi.
+Mahalliy 26 test va frontend build o'tdi. CI uchun 9 PostgreSQL testi hamda
+disposable marva-ci projectda to'liq zaxira/tiklash/reset tekshiruvi qo'shildi.
+Server yo'riqnomasi docs32da; production reset natijasi alohida qayd etiladi.
+
+2026-09-26 — SERVER RESET BAJARILDI
+Yakuniy kod a268d34. CI/CD run 36236987969 muvaffaqiyatli; 35 test va
+haqiqiy pg_dump/pg_restore/owner-login integratsiya tekshiruvi o'tdi.
+Server /opt/marva, project marva-crm; reset deployning /run/lock/marva-deploy.lock
+qulfi ostida bajarildi. Avval baza va rasmlar zaxiralandi, alohida PostgreSQLga
+tiklab tekshirildi, so'ng shu PCga nusxalanib SHA256 solishtirildi.
+Server backup: /opt/marva/backups/reset-20260926T105452Z-c619850f.
+PC backup: backups/server-reset-20260926/reset-20260926T105452Z-c619850f.
+Foydalanuvchi tanlagan doira bajarildi: 2 filial, 7 mahsulot, 5 savdo,
+12 kirim, boshqa4 hisob va qolgan biznes/sync yozuvlari tozalandi.
+Faqat user1 abduqodir (Programmist, boss), egasi bog'lanishi va reset auditi qoldi.
+Parol xeshi o'zgarmadi. Eski parol bilan HTTPS login, ikkala arxiv huquqi va
+filiallar soni0 tekshirildi; sinov seansi logout qilindi. /api/health: ok.
+Rasmlar va eski ma'lumotlar zaxirada saqlandi; DB ketma-ket IDlar qayta boshlanmadi.
+Shu PCdagi markaz profilida faqat center-profile.json bor, eski lokal baza yo'q.
+Boshqa eski offline profil bor PC uchun scripts/reconnect-after-reset.ps1
+fayl ko'chirish sinovi (fixture) va Windows PowerShell5 ishga tushishi tekshirildi.
+SSH operator kaliti .runtime/server-access/tin-maintenance ichida, Gitga kirmaydi;
+server host fingerprinti foydalanuvchi tasdiqlagan qiymatga solishtirildi.
+Maxfiy kalit, parol, env va backup repo ichiga yuborilmadi.
+
+2026-09-26 — SKU, QOLDIQ TAHRIRI VA EXE 0.5.1
+Faqat Programmist SKU va mavjud filial stock qoldig‘ini tahrirlaydi.
+SKU barcha filiallarda umumiy; eski savdo SKU snapshotlari saqlanadi.
+stock_adjustments qo‘shimcha jadvali: eski/yangi kg, sabab, user, vaqt, request_id.
+Parallel savdo/kirim va eskirgan qoldiq tekshiriladi, retry qayta yozmaydi.
+Narx, savdo, kirim va pul/qarz tarixi tuzatishdan o‘zgarmaydi.
+Bu PCda 0.4.8 o‘rnatilgani aniqlandi; avval tekshirilgan 0.5.0 ga yangilandi.
+O‘rnatilgan helper markazga online ulanishni tasdiqladi. Computer Use Esc bilan
+to‘xtatilgani uchun oyna boshqaruvi davom ettirilmadi.
+Boshqa PC 0.5.0 da resetdan qolgan eski device 401 xatosi borligi rasmda ko‘rindi.
+Foydalanuvchi yangi versiya so‘radi: 0.5.1 tiklash tugmasi zaxirani tekshirib,
+butun eski center profilini retired papkaga saqlaydi va toza online profil ochadi.
+Eski pending qayta yuborilmaydi; internet/zaxira xatosida ko‘chirish bo‘lmaydi.
+Serverdagi yangi 1 filial, 1 mahsulot, 1 stock, 1 kirim saqlanadi: reset qaytarilmaydi.
+Yo‘riqnoma docs/33_SKU_VA_QOLDIQ_TAHRIRI.txt ichida.
+
+0.5.1 YETKAZISH NATIJASI
+Kod/release commit: 017ad47. GitHub v0.5.1 relizi chiqarildi.
+CI/CD 36239108479 muvaffaqiyatli: 49 backend testi (shu jumladan PostgreSQL),
+frontend yig‘ilishi va alohida CI bazasida zaxira/tiklash/reset sinovi.
+EXE testlari va yig‘ilgan helperning haqiqiy HTTP 401 → backup → yangi online
+profil integratsiya sinovi o‘tdi. Production bazasiga sinov ma’lumoti yozilmadi.
+Brauzerdagi alohida fixture: SKU SINOV-051, 10 → 7.125 kg, sabab va tarix tasdiqlandi.
+O‘sha sinov rasmi .runtime/qoldiq-tahriri-sinov.png ichida (Gitga kirmaydi).
+Server /opt/marva 017ad47: API healthy; oldingi 1 filial/mahsulot/stock/kirim saqlangan,
+stock_adjustments jadvali mavjud; owner can_edit_inventory=true.
+Desktop distribution workflow 36239292585 muvaffaqiyatli.
+https://tincrm.uz/api/desktop/updates/latest.yml versiyasi 0.5.1.
+Paket: https://tincrm.uz/api/desktop/updates/files/v0.5.1/TIN-CRM-Setup-0.5.1.exe
+Hajmi 137048101 bayt; SHA256 ca3f42d3d189e885821cbe2b9553506b1824a3197b683b74326b17ab4e990b89.
+Bu PCdagi o‘rnatish avval 0.5.0 gacha yangilangandi; 0.5.1 tarqatishga chiqarildi.
+Boshqa PCdagi foydalanuvchi yangilanishni o‘rnatib, yangi tiklash tugmasini bosadi.
+Serverdagi to‘liq EXE SHA256 xeshi mahalliy paket bilan mosligi SSH orqali tasdiqlandi.
+Haqiqiy electron-updater 0.5.0 uchun 0.5.1 ni topdi va yuklashni boshladi.
+Bu PC tarmog‘ida to‘liq yuklash sust bo‘lgani uchun sinov yuklashi tugatilmasdan
+to‘xtatildi; to‘liq yuklash/hash sinovi o‘tdi deb hisoblanmasin. Ochiq HTTPS
+havolaning oxirgi 1024 bayti Range/206 orqali yuklanib asl faylga solishtirildi.
+
+
+2026-09-26 — 0.5.2: AMALDAGI KODNI QOLDIRISH
+Foydalanuvchi talabi bilan eski offline Electron main/setup va ularga tegishli
+lokal runtime/upgrade, LAN/WSL launcherlar, foydalanilmaydigan Caddy deployment
+modeli, eskirgan qo‘llanmalar va frontend offline panellari olib tashlandi.
+SyncStatusning markazda keraksiz 5 soniyalik so‘rovi ham olib tashlandi.
+Eski bazani saqlab o‘tish, backup/sync modullari va amaldagi testlar saqlandi.
+Backup tekshiruvlari scripts/backup_support.pyga ajratildi. CI cleanup/desktop
+testlarini ham bajaradi. README va server/EXE qo‘llanmalari yangilandi.
+AGENTS.md: har ishda eskirgan kod/buildlarni tozalash, biznes ma’lumotlari va
+kalitlarni saqlash. clean-builds.ps1 va clean_server_releases.py avval joriy
+installer xeshini tekshiradi; faqat tanilgan eski paketlarni tozalaydi.
+Lokal: backend 35 test o‘tdi, 14 PostgreSQL testi CIga qoldi; desktop 8 o‘tdi;
+cleanup 3 o‘tdi, 1 symlink testi Linux CIga qoldi. Frontend build muvaffaqiyatli.
+
+2026-10-01 — EHSON LIMITI VA XATO AMALNI BEKOR QILISH
+Production tarixida №103 savdo, Marwa Anjon: jami 56 937.60 so‘m,
+naqd 569 376 000.00, ehson 569 319 062.40. Tekshiruv faqat o‘qish orqali;
+haqiqiy to‘lov foydalanuvchi tomonidan aniqlanmaguncha yozuv o‘zgartirilmaydi.
+Savdo/tahrir/legacy sync va ehson chiqimi uchun bir amalda 15 000.00 limit.
+Web/EXE oynalari ortiqcha summada yangi saqlashni to‘xtatadi; eski javobi
+yo‘qolgan so‘rovlarni tekshirish ayni request_id bilan davom etadi.
+Admin o‘z filialida, boshliq barcha faol filiallarda moliyaviy amallarni
+sabab va joriy holat tasdig‘i bilan bekor qiladi. Ombor/pul/qarz qaytariladi,
+asl yozuvlar OperationCancellation snapshotida, asl auditlar esa tarixda qoladi.
+Bekor qilingan UUIDlar eski oynadan yoki syncdan qayta yozilishdan himoyalandi.
+Qoldiq tuzatishini bekor qilish Programmistga tegishli; keyingi ombor amali,
+sarflangan kirim yoki manfiylashadigan pul/ehson/ta’minotchi hisobida rad etiladi.
+Kirimlar turli tartibda bekor bo‘lsa joriy faol kirim narxi yoki boshlang‘ich
+narx qaytariladi; keyingi alohida chegirma saqlanadi.
+Parallel bekor qilish/tahrir/qarz to‘lovida yo‘qolgan yozuv 409 qaytaradi.
+Mahalliy mavjud 44 backend testi va yangi 15 bekor qilish testi o‘tdi;
+40 PostgreSQL holati CI uchun. Donation testlari shu mavjud 44 ichida.
+Frontend build va cleanup 3 testi o‘tdi; symlink tekshiruvi Linux CI uchun.
+Mavjud baza reset qilinmaydi; qo‘shimcha jadval oddiy deployda yaratiladi.
+Yo‘riqnoma docs/34_EHSON_LIMITI_VA_AMALNI_BEKOR_QILISH.txt.
+
+YETKAZISH VA №103 TUZATISH NATIJASI
+fcdde72 commit main orqali chiqarildi; CI/CD 36893783144 muvaffaqiyatli.
+Server API healthy, PostgreSQL konteyner identifikatori va biznes bazasi
+saqlandi. Serverning o‘zida 15 000.00 qabul qilinishi, 15 000.01 rad etilishi
+va yangi bekor qilish jadvali/joriy tarix ma’lumotlari tekshirildi.
+Foydalanuvchi mahsulot pulini saqlab, ortiqcha ehsonni chiqarishni tasdiqladi.
+Zaxira: /var/backups/marva/correction-sale-103-20261001T164805Z-526b4c29.
+pg_dump, pg_restore --list va SHA256 yozildi. №103 bitta tranzaksiyada
+SaleEdit bilan tuzatildi: cash 569 376 000.00 → 56 937.60, donation
+569 319 062.40 → 0.00. Savdo jami 56 937.60, Polo 0.659 kg, savdo qatori,
+ombor kg, ta’minotchi hisobi, asl sana/kassir/mijoz va so‘rov IDsi saqlandi.
+SaleEdit №2, savdo tahrir versiyasi1; oldingi/yangi holat va sabab auditda.
+Marwa Anjon ehson qoldig‘i 40 156.59, kassa 9 075 497.64 so‘m; karta,
+qarz va xarajatlar o‘zgarmadi. Qayta o‘qishda 15 000 dan katta joriy ehson
+kirimi/chiqimi topilmadi. Ishlatilmayotgan Docker build cache 352.4 MB
+tozalandi; ishlayotgan konteyner/image/volume va zaxiralar saqlandi.
+EXE 0.5.2 online server sahifasini ochadi: yangi limit va tarix amallari uchun
+installer qayta chiqarilmadi; GitHubdagi mavjud release fayllari o‘zgarmadi.
+
+2026-10-01 — SAVDODA JAMI OLINGAN PUL VA POS FILTRLARI
+Savdo tarixi va Dashboarddagi so‘nggi savdolar qatori mahsulot totalining
+o‘rniga «Jami olingan» naqd+karta+shu savdoning to‘langan qarz pulini
+ko‘rsatadi. Ehson shu tushum ichida, ochiq qarz esa olingan pulga kirmaydi.
+Hisob BigInt tiyinlarda qilinadi. Tafsilotdagi mahsulot qiymati va savdo
+metrikalari saqlandi. Bazadagi moliyaviy yozuvlarga o‘zgartirish kiritilmadi.
+POSda «Omborda bor», «Omborda yo‘q», «Hammasi» tanlovi; dastlab omborda bor
+mahsulotlar ko‘rinadi. Qidiruv mavjudlik filtridan qat’i nazar barcha odatiy
+mahsulotlarda nom/SKU bo‘yicha ishlaydi. Qidiruv tozalangach tanlangan filtr
+qaytadi; nol qoldiqli mahsulot savatga qo‘shilmaydi. Savat filtrdan mustaqil.
+Frontend build o‘tdi. Yangilanish web va online EXEning server sahifasida;
+desktop installer va GitHubdagi nashr qilingan release o‘zgartirilmaydi.
+
+2026-10-01 — POSDA KENG QIDIRUV VA XOTIRADAGI SAVDOLAR
+POSning yuqori qismi mahsulot qidiruvi, katalogni yangilash va «Xotiradagi
+savdolar» tugmasiga qisqartirildi. Qidiruv butun yuqori qator kengligini
+ishlatadi; maydon balandligi 60 px, matn o‘lchami 16 px. KASSA/Yangi savdo
+sarlavhasi, izoh va POSdagi «Filial xarajati» tugmasi olib tashlandi.
+Faqat POSda ishlatilgan xarajat modalining state/import/renderi tozalandi.
+Xarajatlar o‘z bo‘limida; naqd to‘lov, xotiraga saqlash/ochish, mahsulot
+filtrlari va qidiruv mantig‘i saqlandi. Frontend build muvaffaqiyatli.
+Interaktiv brauzer sinovi bajarilmadi: Browser ro‘yxatida ulangan brauzer
+yo‘q. Tekshiruv manba va ishlab chiqarish buildi bilan cheklangan.
+Yangilanish web va online EXEning server sahifasiga tegishli.
+
+2026-10-01 — BARCHA BO‘LIMLARNING KIRISH YOZUVLARINI OLIB TASHLASH
+Tarixdagi «SHAFFOF HISOB», «Savdolar va amallar tarixi» va izoh kabi
+kirish bloklari qolgan ichki bo‘limlardan ham olib tashlandi: Dashboard,
+ombor, ta’minotchilar, ehson, qarzlar, xarajatlar, jamoa va sozlamalar.
+Bo‘lim nomi amaldagi menyu va yuqori panelda qoladi. Yangilash, qo‘shish,
+JSON eksport, filtrlar va ro‘yxatlar saqlandi. Settingsda bo‘sh panel yo‘q.
+Heading komponenti PageActions amallar qatoriga almashtirildi; eski
+page-heading/heading-actions va faqat ichki h1 uchun uslublar tozalandi.
+Reportsning yangilash ikonkasiga aniq aria-label qo‘shildi; joriy qo‘llanmalar
+komponent va menyu nomlariga moslandi. Moliyaviy yozuvlar o‘zgartirilmaydi.
+Frontend build va JSX format tekshiruvi o‘tdi. Brauzer mavjud bo‘lmagani
+uchun interaktiv ko‘rinish sinovi bajarilmadi; manba alohida ko‘rib chiqildi.
+
+2026-10-01 — FILIAL HISOBLARI VA XARAJATLAR TARIXI ORALIG‘I
+Xarajatlar sahifasida ikkita panelning orasiga boshqa bo‘limlarda ishlatilgan
+standart section-gap qo‘shildi: 25 px. Mavjud umumiy CSS ishlatiladi.
+Frontend build muvaffaqiyatli. Hisoblar va xarajat yozuvlari o‘zgarmadi.
+
+2026-10-01 — FILIAL SAVDO TARIXI, PUL MAYDONLARI VA 200 KG KIRIM
+Savdolar va tarixda filiallar nomli alohida tanlovlarga ajratildi. Savdo,
+davr summasi va JSON eksport har doim tanlangan filialga tegishli; filial
+almashganda sahifalash, filtr va ochiq modallar qayta boshlanadi. Admin
+faqat o‘z filialini ko‘radi; boshliq arxiv filial tarixini ham ochadi.
+Umumiy SKU/mahsulot/xodim auditlari uchun boshliqda «Barcha filiallar va
+umumiy amallar» tanlovi saqlandi. Bu tanlov faqat audit doirasiga ta’sir qiladi.
+MoneyInput barcha narx/pul maydonlarini yozishda 10 000.50 kabi ko‘rsatadi.
+API/state/FormData 10000.50 satrini oladi. Minglik bo‘shliq, decimal vergul,
+kursor, paste va bo‘shliq yonidagi Delete/Backspace boshqarildi. Nol
+boshlang‘ich kirim narxi maydonni to‘ldirmaydi; 0 placeholder, musbat mavjud
+narx esa saqlanadi. Required/min/max/step hamda ehson 15 000 limiti saqlandi.
+Bir yangi mahsulot kirimi eng ko‘pi 200 kg: frontend va backend tekshiradi.
+Katta yuk alohida 200 kg gacha kirimlarda kiritiladi. Jami qoldiq/savdo
+chegaralanmaydi. Oldin yozilgan katta kirimning aynan UUID retry javobi
+qaytariladi; yangi katta kirim va legacy import rad etiladi, xato import
+ombor/audit/inbox/identity yozuvlarini qisman saqlamaydi.
+Mahalliy backend: 115 holatdan 67 muvaffaqiyatli, 48 PostgreSQL holati CI
+uchun; yangi 8 chegara/retry/rollback testi shu 67 ichida. Pul helperining
+6 testi va frontend production build o‘tdi. Mahalliy brauzer sinovida
+filiallar va sahifalash, filialga mos eksport so‘rovi, admin/arxiv tarixi,
+umumiy audit, nol/musbat narx, typing/paste/delete, kirim max200, POS/qarz/
+xarajat/ehson maydonlari tekshirildi. Kirim/xarajat/qarz POSTlari canonical
+son yubordi. Brauzer konsolida xato yo‘q. Sinovlar sun’iy ma’lumot bilan;
+ishlab turgan biznes yozuvlari tahrirlanmadi.
+
+2026-10-01 — LOGIN TAHRIRI, EXCEL EKSPORT VA SAVDOLAR ANALIZI
+Jamoa va filiallarda boshliq xodimning «Login va parol»ini tahrirlaydi.
+Login oldindan ko‘rsatiladi, yangi parol ixtiyoriy. Band/noto‘g‘ri login
+qisman yangilanishsiz rad etiladi. Login/parol o‘zgarsa target seanslari
+bekor bo‘ladi, o‘z hisobi tahrirlanganda UI qayta kirishni ochadi. O‘z
+loginini joriy parol bilan Sozlamalarda yangilash ham saqlandi. Programmist
+huquqlari va savdo/ombor tarixi login o‘zgarishi bilan boshqa hisobga o‘tmaydi.
+Haqiqiy foydalanuvchi logini/paroli ushbu ishda o‘zgartirilmaydi.
+
+Savdo tarixi aniq filial va sana bo‘yicha haqiqiy .xlsx yuklaydi: hisobot,
+savdo va mahsulot qatorlari, Toshkent sanalari, pul/kg formatlari. Ekran
+paginationi Excelni cheklamaydi. JSON yuklash va auditning umumiy doirasi
+saqlandi. Matn formula sifatida bajarilmaydi, katta sonning aniqligi saqlanadi.
+Savdolar analizi boss/admin uchun: joriy oy/davr/filial, 6 umumiy ko‘rsatkich,
+kun/oy hamda filial grafiklari, pul/qarz/ehson, oy, filial va mahsulot jadvallari.
+Tushum savdoda olingan naqd+karta va davrda yig‘ilgan qarz to‘lovlari; mahsulot
+qiymatiga ehson qo‘shilmaydi. Ochiq qarz davr savdolarining hozirgi qoldig‘i,
+davrdagi qarz to‘lovi esa boshqa oy savdosiga tegishli bo‘lishi mumkin.
+Analiz Excelida umumiy, kun, oy, filial va barcha mahsulotlar hamda grafiklar.
+Filial/davr almashganda eski in-flight Excel javobi yuklanmaydi; sahifa
+yopilgach ham download to‘xtatiladi. Moliyaviy natijalar Decimal/BigInt.
+
+Mahalliy SQLite yangi testlari: login 9, savdo analizi 11 va Excel 5 — o‘tdi.
+Mahalliy brauzerning sun’iy hisoblarida login-only PATCH 200, band login
+409 va Sozlamalardagi o‘z login formasi tekshirildi; konsol xatolari yo‘q.
+Analiz brauzer sinovi: ikki oy, ikki filial, sana/oy tanlovi va filial
+almashganda sanalarning saqlanishi tekshirildi. 750 000 mahsulot savdosi,
+725 000 tushum, 6 savdo va 15 kg sun’iy ma’lumot bilan mos chiqdi. Tarix
+Exceli filial 4 va 1–30 sentabr filtrida 200 javob berdi; pagination yo‘q.
+Admin faqat o‘z filialini ko‘radi, kassir menyusida analiz yo‘q; konsol toza.
+PostgreSQL Excel eksporti REPEATABLE READ snapshotdan olinadi; boshqa PC
+parallel savdoni tahrirlasa sarlavha va mahsulotlar bir holatda qoladi.
+Yangi parallel tahrir testi bilan 6 PostgreSQL Excel holati CIga tayyor.
+Chegaraviy sana xatosi 500 o‘rniga 422. Frontend production build o‘tdi.
+PostgreSQL holatlari va CI/CD tekshiruvlari hali kutilmoqda.
+Qo‘llanma: 06_HISOBOT_TARIX_JSON.txt, UI tartibi: 08_FRONTEND.txt;
+login huquqlari: 02_ROLLAR_VA_KIRISH.txt.
+
+2026-10-02 — MAHSULOTSIZ OLDINGI MIJOZ QARZI
+«Qarzlar → Oldingi qarzni kiritish» admin/boshliq uchun: filial, mavjud
+qarzdor yoki shu oynada yangi shaxs yaratish, summa, ixtiyoriy muddat/izoh.
+Mahsulot/kg talab qilinmaydi; pul maydoni bo‘sh 0 placeholder va minglik
+oraliqlari bilan ishlaydi. Bu amal faqat olinmagan mijoz qarziga ta’sir qiladi;
+savdo, kassa, ombor, ta’minotchi va ehson yozuvini yaratmaydi. To‘liq naqd/
+karta to‘lovi kassaga qo‘shiladi, kassir o‘z filialida ham qabul qiladi.
+Mavjud qarz ro‘yxati va bildirishnomalar ikkala turga umumiy; ID to‘qnashmasligi
+uchun origin/id farqlanadi. Har yangi qarz/to‘lovdan keyin bildirishnoma
+yangilanadi, eski parallel so‘rov javobi keyingi natijani almashtirmaydi.
+UI yangi qarz/to‘lovda barqaror request_id va mavjud recovery oqimini ishlatadi;
+noma’lum yaratish javobi «Natijani tekshirish»da aynan qayta yuboriladi.
+Admin/boshliq sabab va tasdiq bilan oldingi qarz yoki to‘lovni bekor qiladi;
+joriy holat fingerprinti tekshiriladi, asl amal va sabab auditda saqlanadi.
+To‘langan qarzning o‘zini bekor qilishdan oldin to‘lov bekor qilinadi.
+Frontend production build va JSX format tekshiruvi muvaffaqiyatli.
+Mahalliy integratsiya: 91 holatning 47 tasi o'tdi; 44 PostgreSQL holati CI
+bazasiga tegishli. Yakuniy oldingi qarz suite: 15 SQLite holati o'tdi,
+19 PostgreSQL holati CI uchun. Parallel filiallar UUID to'qnashuvi va
+ro'yxatni olish paytidagi to'lov/bekor qilish uchun deterministik testlar bor.
+Sun'iy brauzer bazasida mahsulotsiz 125 000.50 qarz, 100 000.50 naqd +
+25 000 karta to'lovi, to'lovni va qarzni bekor qilish tekshirildi. Asl
+20 000 savdo, 15 000 savdo qarzi va 10 kg ombor qoldig'i saqlandi.
+Analizda mahsulot savdosi 20 000, jami tushum 130 000.50: faqat haqiqiy
+qarz to'lovi qo'shildi. Shu oynada yangi odam qo'shilganda kiritilgan summa
+saqlandi. Audit, bildirishnomalar va qarz turlari tekshirildi; konsol toza.
+Yakuniy PostgreSQL va server deploy natijasining manbasi: GitHub Actions
+«Marva CI/CD», tegishli main commitning muvaffaqiyatli ci/deploy ishlari.
+Qo‘llanma: 15_WEB_QARZLAR.txt.
+
+2026-10-13 — QISMAN QARZ TO‘LOVI, MUDDAT VA TUZATISH TARIXI
+Savdo va oldingi qarzga muddatidan oldin yoki keyin bir necha qisman to‘lov
+qabul qilinadi. Qoldiqdan oshgan yoki nol to‘lov rad etiladi; qoldiq nol
+bo‘lganda qarz yopiladi. Qolgan qarzga yangi sana to‘lov bilan birga yoki
+alohida sabab bilan belgilanadi. Oldingi qarz summasi, qarzdori va izohi
+tarixli tuzatiladi; undirilgan puldan kam summa qo‘yilmaydi.
+DebtInstallment/DebtRevision qo‘shimcha jadvallari ishlatiladi. Avvalgi
+qarz/to‘lov jadvallari, UNIQUE cheklovlari va mavjud qatorlar saqlanadi.
+Bekor qilingan tushumlar tarixda qoladi; kassa va qarzga faqat faol tushum
+kiradi. Asl qarzning yaratilgan vaqti ID qayta ishlatilganda tarixni ajratadi.
+Filial qulfi, joriy holat fingerprinti va barqaror so‘rov IDsi eski oynadan
+xato mijozga pul yozish, parallel ortiqcha undirish va takroriy to‘lovni to‘xtatadi.
+Eski offline navbat markazdagi qisman to‘lovni yana to‘liq undirib yubormaydi.
+Analiz, JSON/Excel, bildirishnoma va savdo tafsilotlari haqiqiy tushum va
+qolgan qarzni ko‘rsatadi. Xato to‘lov sabab bilan alohida bekor qilinadi.
+Lokal backend suite: 246 holat, 130 muvaffaqiyatli va CI PostgreSQLga tegishli
+116 skip. Yangi funksiyaning 23 SQLite holati o‘tdi; PostgreSQL variantlari
+alohida marva_ci bazasida bajariladi. Frontend 9 va desktop 8 test o‘tdi,
+frontend production build muvaffaqiyatli. Uydirma lokal brauzer bazasida
+qisman naqd/karta, yangi muddat, tarix va xato to‘lovni bekor qilish sinandi.
+Serverga chiqish main CI/CD orqali; undan oldin baza zaxirasi va legacy
+jadvallarning qator soni/xesh manifesti olinadi. Deploy mavjud ma’lumotlarni
+qayta yozmaydi; Windows EXE shu server interfeysini ochadi, entry o‘zgarmagan.
+Qo‘llanma: 15_WEB_QARZLAR.txt.
+
+2026-10-30 — SAVDODAN MAHSULOTNI QAYTARISH VA JADVALLAR DIZAYNI
+Savdo qatoriga to‘g‘ridan-to‘g‘ri «Tahrirlash» tugmasi qo‘shildi. Tahrirlash
+oynasida mahsulotni «Qaytarish»/«Tiklash», avvalgi/yangi jami, to‘lovni moslash,
+mobil joylashuv va aylantirishda ko‘rinib turadigan saqlash paneli bor.
+Qaytarilgan qator omborga qaytadi; mini chegirma qolgan mahsulotlarga qayta
+ajratiladi. Eski/yangi holat va sabab auditda qoladi. Mavjud 72 soat, rol,
+filial, qarz, kassa/ta’minotchi qoldig‘i va takroriy so‘rov himoyalari saqlanadi.
+«O‘zgarishlar», xarajatlar, qoldiq tuzatishlari va kirimlarda uzun sabab/izoh
+jadval ostida to‘liq kenglikda ko‘rsatiladi. Sana va vaqt savdo/o‘zgarish
+qatorlarida alohida satrlarga ajratildi.
+Umumiy lokal backend tekshiruvi: 338 holat, 178 muvaffaqiyatli va CI PostgreSQL
+uchun 160 skip. Qaytarishning yangilangan alohida to‘plami: 8 SQLite test o‘tdi,
+8 PostgreSQL varianti CI uchun skip. Frontend 11 test va production build o‘tdi.
+Brauzerda uzun izohli 4 jadval, mahsulotni qaytarish/tiklash, to‘lovni moslash,
+uzilgan javobdan keyin aynan bir so‘rovni takrorlash, desktop/mobil tekshirildi.
+O‘zgarishlar lokal kodda; bu ishda server deployi yoki EXE tarqatish bajarilmadi.
+Qo‘llanma: 22_SAVDO_TAHRIRLASH.txt.
+
+2026-11-01 — TIN CRM 0.5.3 WINDOWS PAKETI
+Joriy manbadan Python helper, Electron 44.3.0 shell va Windows x64 NSIS
+installer qayta yig‘ildi. Paket tavsifidagi noto‘g‘ri kodlash va release matni
+joriy imkoniyatlarga moslandi. Webning barcha joriy imkoniyatlari, jumladan
+savdodan mahsulotni qaytarish/tiklash va yangilangan jadvallar, tincrm.uzdan
+EXEda ham ochiladi. Eski lokal frontend nusxasi paketga qo‘shilmadi.
+AppId, AppData, seans partitioni va eski profillarni zaxiralash saqlandi.
+Desktop 8 test, frontend 11 test va production build muvaffaqiyatli.
+Yig‘ilgan paket alohida MARVA_DATA_DIR bilan ishga tushirildi: haqiqiy server
+login sahifasi, 0.5.3 IPC versiyasi, updater va sandbox tekshirildi. Keyin
+faqat mock API bilan qaytarish/tiklash, to‘lovni moslash va yangi jadval
+tekshirildi; ishchi bazaga sinov savdosi yoki tuzatish yuborilmadi.
+Installer 125203390 bayt. SHA512 manifest va SHA256 alohida fayllarda.
+0.5.3 lokal tayyor paket; bu ishda serverga avtomatik tarqatish bajarilmadi.
+
+2026-11-01 — MARWA TELEGRAM MINI APP
+/?telegram=1 rasmiy Telegram SDK orqali Mini App rejimini ochadi. Boshliq,
+admin va kassir mavjud CRM loginlari va server huquqlari bilan ishlaydi;
+Telegram ID avtomatik CRM hisobi bo‘lib qolmaydi. Mobil safe area, balandlik,
+menyu va Orqaga tugmasi qo‘shildi. Oddiy web/EXEda Telegram SDK yuklanmaydi.
+Boshliqning birinchi ekranida filiallarning bugungi va oylik haqiqiy tushumi
+ko‘rinadi: savdoda olingan pul va qarz tushumlari, foyda/kassa qoldig‘i emas.
+Excel/JSON uchun Mini Appda alohida foydalanuvchi bosishi bilan fayl ulashish
+va yuklab olish oynasi bor; eksportlar seans orqali olinadi.
+Botning menyusi va /start-/help javoblari server webhookiga ulandi. Token
+Gitga kirmaydi: GitHub Secret -> qisqa muddatli OIDC -> xususiy integrations
+Docker volume; webhook mustaqil siri bilan tekshiriladi. Bot biznes
+ma’lumotlarini o‘zi chiqarmaydi va savdoni o‘zi o‘zgartirmaydi.
+Telegram Web iframe uchun faqat secure, mos Origin va client belgisi bilan
+SameSite=None cookie; normal web/native Strict qoladi. Parol/CSRF saqlanadi.
+Lokal tekshiruvlar: frontend 20 test va build; Telegram backend 8 test;
+filial tushumi 4 SQLite test va CI uchun 4 PostgreSQL varianti. Mobil
+brauzerda barcha rollar, menyu/back, SDK xatosi va fayl eksporti sinandi.
+Qo‘llanma: 37_TELEGRAM_MINI_APP.txt. Server nashri main CI/CD orqali.
+
+2026-11-01 — MINI APP IXCHAM HEADER VA PASTKI NAVIGATSIYA
+Telegramdagi CRM yuqori paneli ikki qatordan 36 pxli bitta qatorga tushirildi;
+menyu, bildirishnomalar va filial tanlovi saqlandi. Native Telegram header
+balandligiga tegilmaydi, foni sahifaning och rangiga moslandi. Filial tushumi
+bo‘limidagi FILIAL TUSHUMLARI va ortiqcha tushuntiruvchi jumla olib tashlandi.
+Pastda boshliq/admin uchun Asosiy, POS, Ta’minotchilar, Sozlamalar tablari;
+kassir uchun faqat ruxsat etilgan POS, Qarzlar, Sozlamalar tablari bor.
+Boshqa bo‘limlar yon menyuda qolgan. Oddiy web/EXEga pastki panel qo‘shilmadi.
+Frontend 22 test va build, uchala rol bilan mobil navigatsiya/header 36 px,
+yon menyu va pastki kontentning panel ostida qolmasligi tekshirildi.
+
+2026-11-01 — MINI APP YASHIL HEADER VA BOT LOGOTIPI
+Foydalanuvchi tuzatishi bo‘yicha Telegram native header yana CRMning yashil
+rangiga moslandi. Filial tanlovi qatori 36 dan 72 pxga, boshqaruvlar esa
+56 px balandlikka kattalashtirildi. Tugmalar 44 px kenglikda qoldirilib,
+320 px ekranda ham Barcha filiallar matniga joy saqlandi. Pastki navigatsiya
+saqlandi. Frontend 22 test va production build muvaffaqiyatli.
+@marwacrmbot profiliga CRMdagi desktop/assets/tin-logo.png logotipi
+Telegram Bot API orqali o‘rnatildi va getUserProfilePhotos bilan tasdiqlandi.
+Bot tokeni faqat mahalliy xususiy fayldan o‘qildi, kod/loglarga kiritilmadi.
+
+2026-11-01 — MINI APP IKONLI NAVIGATSIYA VA TO‘LIQ EKRAN
+Pastki navigatsiyadagi ko‘rinadigan yozuvlar olib tashlandi; 24 px ikonlar,
+aria-label va tooltip nomlari saqlandi. Panel 56 px, tugmalar kamida 44 px.
+Yuqori boshqaruv qatori foydalanuvchi talabi bilan 72 dan 65 pxga (10%ga)
+qisqartirildi; boshqaruvlar 50 px. Telegram Bot API 8.0+da ishga tushishda
+bir marta requestFullscreen so‘raladi: Desktop native @marwacrmbot satri
+va uning joyi to‘liq ekranda yashiriladi. Eski/qo‘llamaydigan mijoz oddiy
+oynada ishlashda davom etadi. Fullscreen hodisasida viewport va safe area
+yangilanadi, yon menyuni yopish tugmasi ham native boshqaruvlardan pastda.
+Frontend 23 test, jumladan fullscreen/unsupported/eski mijoz va safe area
+holatlari, hamda production build muvaffaqiyatli o‘tdi.
+320/390 pxda boshliq/admin/kassir navigatsiyasi, fullscreen safe area,
+ikonlar va oxirgi kontent tekshirildi; oddiy web rejimi ham tekshirildi.
+
+2026-11-01 — MINI APP DIZAYNINI WEB/EXEDAN AJRATISH
+Foydalanuvchi aniqlashtirishiga ko‘ra Telegram dizayni faqat Mini Appda.
+Yangi filial tushumlari kartasi faqat Telegram kirishidagi boshliqqa
+ko‘rsatiladi; oddiy web/EXE Dashboard ko‘rinishi Mini Appdan oldingi holatga
+qaytdi. Qolgan Dashboard markup va workspace.css avvalgi bilan bir xil.
+Filial kartasi, pastki navigatsiya va eksport uslublari telegram-mini-app
+bilan chegaralandi; eksport oynasi ham faqat shu rejimda ulanadi.
+Global viewport-fit=cover olib tashlandi, Mini App ishga tushganda vaqtincha
+o‘rnatiladi va dispose holatida tiklanadi. Header/ikonlar/fullscreen Mini
+Appda saqlandi. Oldingi savdo/qaytarish tuzatishlari o‘z holida qoldi.
+Frontend 23 test, jumladan oddiy web viewporti va Mini App lifecycle
+chegaralari, hamda production build muvaffaqiyatli o‘tdi.
+Brauzerda 6 Mini App va 4 oddiy web holati: eski web Dashboard/header/yon
+menyu, viewport, Mini App dizayni va eksport oynasi chegaralari tekshirildi.
+
+2026-11-01 — WEB DASHBOARD TUGMALARINI OLIB TASHLASH
+Foydalanuvchi so‘raganidek oddiy web/EXE Dashboardida Yangilash va Yangi
+savdo tugmalari hamda ularning PageActions qatori render qilinmaydi.
+Mini App bosh sahifasida ikkala tugma saqlangan. Avtomatik yangilanish
+va POSga yon menyu orqali kirish ishlashda davom etadi.
+Production build va 10 brauzer holati o‘tdi: webda tugmalar/qator yo‘q,
+Mini Appda yangilash va POSga o‘tish ishlaydi; ishchi API yozuvlari yo‘q.
+
+2026-11-01 — FILIAL KARTALARI KARUSELI VA EXCEL BEZAGI
+Web/EXE Filiallar holati qismiga qo‘lda suriladigan karusel qo‘shildi.
+Desktopda kartalar avvalgi auto-fit grid kengligidan 30% katta, telefonda
+to‘liq sig‘adi. Strelkalar, klaviatura, touch va resize ishlaydi; avtomatik
+aylanish yo‘q. Pul qiymatlari bir qatorda, uzun yorliqlar o‘raladi. Mini
+Appda ushbu qism oldingi gridda. 26 brauzer holati, jumladan 0/1 filial,
+uzun summalar, eski Mini App dizayni va web tugmalarining yo‘qligi tekshirildi.
+Excel savdo/tahlil hisobotlari yagona TIN/Marwa uslubiga moslandi: sarlavha,
+umumiy ko‘rsatkichlar, ustun/qator o‘lchamlari, ranglar va chop etish tartibi.
+Mavjud qiymatlar, aniqlik, varaq nomlari/katak joylari va himoya saqlangan.
+Frontend 23 test va production build, 26 brauzer holati hamda 6 Excel/qarz
+eksporti testi o‘tdi. Savdo va tahlil fayllarining 9 varag‘i ko‘rinishi ham
+tekshirildi; asl sonlar, formatlar, filtrlar va grafik manbalari solishtirildi.
+
+2026-11-03 — TELEGRAM 08:00 KUNLIK HISOBOT, FAQAT LOKAL TAYYORLOV
+Muhammadjon Ahmedov uchun salomlashuv, kechagi sana va har filialga alohida
+savdo/ombor xabari tayyorlandi. Talab bo‘yicha ombor kecha kun yakunida,
+sotuv narxida olinadi: tranzaksion Stock kg/narx/chegirma tarixi qo‘shildi.
+Eski qamrovsiz kunlarga joriy qoldiqni taxminan qo‘yish taqiqlangan.
+08:00 Asia/Tashkent worker standart o‘chiq; bir martalik havola orqali
+username va webhook tasdig‘idan keyin doimiy Telegram ID bog‘lanadi.
+Yuborish alohida opt-in. Doimiy navbat restart/parallel takrorni oldini oladi;
+noaniq yetkazilish operator tekshiruvigacha qayta yuborilmaydi.
+36 hisobot/tarix/bot testi va 30 mavjud narx/qoldiq/qaytarish/reset SQLite
+testi o‘tdi; 30 disposable PostgreSQL varianti lokalda mavjud emasligi uchun
+o‘tkazilmadi. Mobil/desktop HTML namuna haqiqiy formatterdan, faqat sinov
+ma’lumotlari bilan tekshirildi. Serverga nashr va haqiqiy bot yuborishi yo‘q.
+Yo‘riqnoma: 38_TELEGRAM_KUNLIK_HISOBOT.txt.
+
+2026-11-03 — KUNLIK BOT HISOBOTINI YOQISH VA QABUL QILUVCHILAR
+Foydalanuvchi nashr va yuborishni tasdiqladi. Kursiv izoh olib tashlandi;
+filial xabariga sotilgan kg va kecha kun yakunidagi kg qoldig‘i qo‘shildi.
+Savdo puli va kg alohida guruhlanadi, ko‘p tovarli savdo ikki hisoblanmaydi.
+@MUHAMMAD_AHMED0V va @abduqodir_1 ga mos ravishda Muhammadjon Ahmedov va
+Abduqodir Abdumalikov deb murojaat qilinadi. Qabul qiluvchilar ro‘yxati
+kengaytiriladigan private sozlamaga ko‘chirildi; /start yoki /helpdan keyin
+doimiy numeric ID bog‘lanadi. Mavjud IDlar va operator o‘chirgan holatlar
+qayta deployda saqlanadi; bitta odamdagi xato boshqalarni to‘xtatmaydi.
+Main CI/CD boshlang‘ich ro‘yxatni OIDC orqali yetkazadi va worker ishini
+tekshiradi. Faqat signed main orqali o‘qiladigan delivery status qo‘shildi;
+unda token, numeric ID va moliyaviy matn chiqmaydi. Lokal namunada ikki ism,
+kg/pul va kun chegaralari tekshirildi. PostgreSQLdagi tarix testi ham
+faqat disposable marva_ci sxemasida bajariladigan qilib qo‘shildi.
+
+2026-11-03 — CHATGA QAYTA YOZMASDAN MINI APPDAN HISOBOTGA ULANISH
+Foydalanuvchi chatga yangi /start yoki /help yozishni talab qilmaslikni
+so‘radi. Mini App ochilganda faqat Telegram imzolagan initData orqali
+allowlistdagi odamning o‘z IDsi avtomatik bog‘lanadi. HMAC, sana, takroriy
+parametr/JSON, noto‘g‘ri imzo va ID almashinuvi tekshiriladi. CRM seansi
+yaratilmaydi, moliyaviy matn qaytarilmaydi va chatga xabar yuborilmaydi.
+Web/EXEda yangi so‘rov yo‘q; Mini Appdagi xato/8s timeout interfeysga
+ta’sir qilmaydi. Bog‘langan ID saqlanib, kelgusi kunlar ilova ochiq bo‘lishi
+shart bo‘lmaydi. Bir marta appni odatdagidek ochish yetarli.
+
+2026-11-03 — BOSHQA PULLARNI CHEKLOVSIZ TOPSHIRISH
+Ta’minotchilar bo‘limiga Boshqa pullar turi qo‘shildi. Ta’minotchi haqi
+va dasturdagi kassa bilan cheklanmaydi; tizimga kirimi yozilmagan pulni
+ham majburiy izoh bilan berish mumkin. To‘liq summa naqd/kartadan ayiriladi,
+kassa manfiy chiqishi mumkin; sun’iy kirim va savdo yaratilmaydi.
+Ta’minotchi/qarz/ehson hisoblari mustaqil. Jami va mustaqil tarix, recovery,
+takroriy so‘rov himoyasi, sababli bekor qilish/refund mavjud.
+Barcha boshliqlarga ilova ichida summa, izoh va qoldiq farqi xabari bor;
+bekor qilish ham xabar beradi, o‘qilganlik har boshliq uchun alohida.
+Qonuniy oldingi manfiy kassa savdoning neytral/yaxshilovchi tahririni
+to‘xtatmaydi; yangi yoki yomonlashtiruvchi manfiy qoldiq rad etiladi.
+Markaziy startup mavjud PG kind checkini yozuvlarni saqlab yangilaydi;
+eski offline protokoli va bazalari qayta qurilmaydi. 56 lokal backend,
+28 frontend testi, production build va 16 soxta API brauzer holati o‘tdi.
+PG sxema/upgrade, parallel yozuv va bildirishnoma testlari disposable CIga
+qo‘shildi. Yo‘riqnoma: 39_BOSHQA_PULLAR.txt. Ishchi pul yozuvi yaratilmagan.
+
+2026-11-04 — REVIZIYADAN KEYIN ADMINNING KILOGRAMM QOLDIG‘INI TUZATISHI
+Ombor → Tahlil → Hozirgi ombor holatiga «Kilogramni tuzatish» qo‘shildi.
+Admin o‘z filialida, boshliq tanlangan filialda haqiqiy jami kg va majburiy
+sabab bilan ishlaydi. 0 va 3 kasr xonasigacha miqdor mumkin. Mavjud
+StockAdjustment ishlatiladi; yangi jadval/migratsiya yoki eski ma’lumotlarni
+qayta hisoblash yo‘q. SKU va tuzatishni bekor qilish Programmistda qoladi.
+Filial/mahsulot/qoldiq qulflari, expected_kg, bir xil request_id, parallel
+filialdagi ID to‘qnashuvida rollback va recovery natija tekshiruvi bor.
+Yangi audit nom/SKU, oldingi/yangi kg, farq, sabab va xodimni saqlaydi.
+Haqiqiy tuzatishga bog‘langan hodisa barcha boshliqlarga ilova ichida
+bildirishnoma beradi; o‘qilganlik mustaqil, tarixda kg filtri mavjud.
+Eski savdo/kirim, narx/chegirma, pul/qarz/ta’minotchi yozuvlari va oldingi
+kun yakuni qoldig‘i saqlanishi disposable SQLite va CI PostgreSQLda
+tekshiriladi. 30 frontend testi va 15 to‘liq mock qilingan brauzer holati
+o‘tdi; 390/1280 px web/Mini App, stale qoldiq, noma’lum javob recovery va
+bildirishnomadan tarixga o‘tish sinovdan o‘tdi. Ishchi qoldiq tahrirlanmadi.
+Yo‘riqnomalar: 33_SKU_VA_QOLDIQ_TAHRIRI.txt, 35_MAHSULOT_TAHLILI_VA_NARX_TAHRIRI.txt.
+
+2026-11-04 — BEKOR QILINGAN ESKI QURILMA WEB TAHRIRINI BLOKLAMASLIGI
+has_legacy_writer markaziy tekshiruvi faqat active=true va SharedBranchsiz
+eski qurilmani hisoblaydi. Kg/narx ruxsati, branch_write, amalni bekor qilish
+konteksti va umumiy katalog tekshiruvi shu qoidani ishlatadi. Bekor qilingan
+qurilma, inbox va tarix o‘chirilmaydi; eski tokenlar 401 bilan rad etiladi.
+Faol eski qurilma himoyasi saqlanadi. Xabar filialning ulanish holatini
+tushuntiradi, joriy brauzer yoki EXE versiyasini xato deb ko‘rsatmaydi.
+7 yangi SQLite va 7 disposable CI PostgreSQL holati qo‘shildi: inactive
+admin tahriri va xabari, active himoya, shared filial, unapplied inbox,
+eski token, qayta ro‘yxatga olish, katalog va eskirgan forma tekshirildi.
+Manba yangilanishi qurilmalarni bekor qilmaydi yoki filialni avtomatik
+umumiy rejimga o‘tkazmaydi; ishchi biznes yozuvlari o‘zgartirilmaydi.
+Tahlilda kg va narx bir xil sabab bilan bloklansa, xabar bir marta ko‘rinadi;
+turli sabablar alohida qoladi. Ruxsatlar shu UI o‘zgarishi bilan ochilmaydi.
+6 mocked mobil/desktop holat va frontend build tekshirildi.
+
+2026-11-05 — EXE VA ESKI LOKAL SYNCNI VAQTINCHA TO‘XTATISH
+Foydalanuvchi EXEni o‘chirmasdan, server bilan ishlashi va CRMga ta’sirini
+keyingi aniq ko‘rsatmasigacha to‘xtatishni so‘radi. CRM_DESKTOP_ENABLED va
+CRM_LEGACY_SYNC_ENABLED standartda 0; eski sync uchun ikkalasi ham aynan 1
+kerak. EXE/Electron/desktop markerlari va eski HTTPX klientlari, sync/local
+yo‘llari hamda installer yuklashlari DB/autentifikatsiyadan oldin 503 oladi.
+Markaziy web va Telegram ishlaydi, eski qurilma qatori web tahririni
+bloklamaydi. Device/token/inbox/SharedBranch, lokal DB/navbat va biznes
+yozuvlari o‘zgartirilmaydi yoki import qilinmaydi. Sync worker/capture
+pauzada boshlanmaydi; lokal backend ham yozishga yopiq. Telegram hisoboti
+o‘z tartibida ishlaydi. Desktop UI to‘xtatilgan ekranini ko‘rsatadi, recovery
+yozuvi o‘chmaydi. 11 yangi SQLite va 11 disposable PG holati, 25 lokal
+regressiya, frontend testlari va 15 mocked mobil/desktop holati tekshirildi.
+CI test jarayoni eski protokolni alohida yoqadi; haqiqiy CI ilovasi esa
+ishchi server kabi standart pauzada tekshiriladi. EXE binary/release
+almashtirilmadi. Tartib: 40_EXE_VA_LOKAL_SYNC_TOXTATILGAN.txt.
+Pauza 503 desktop_paused qaytaradi: avval ochiq qolgan eski interfeyslar
+ham noma’lum natijali request_idni saqlaydi. Yangi interfeysda recovery,
+POS va savdo tahriri pauza sabab so‘rov nusxasini o‘chirmaydi.

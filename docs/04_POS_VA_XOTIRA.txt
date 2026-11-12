@@ -1,0 +1,83 @@
+POS VA MIJOZLARNING SAQLANGAN SAVDOLARI
+======================================
+
+FAYLLAR
+Backend routes_sales.py; Checkout, CartItem, SaveCart sxemalari.
+Frontend pos.jsx, money.js, id.js, api.js.
+
+POSNING YUQORI QISMI
+Kengaytirilgan mahsulot qidiruvi va «Xotiradagi savdolar» tugmasi bir qatorda.
+«KASSA», «Yangi savdo» sarlavhasi, izoh va «Filial xarajati» tugmasi yo‘q.
+Xarajatlar o‘z bo‘limidan kiritiladi. Xotiradagi savdoni ochish, davom etish
+va joriy savdoni xotiraga saqlash tartibi saqlangan.
+
+Mavjudlik filtrlari qatoridagi «Rasmlarni yashirish» mahsulotlarni rasmsiz,
+ixcham kartochkalarda ko‘rsatadi. Nom va narx yirikroq, qoldiq va chegirma
+ko‘rinib turadi. «Rasmlarni ko‘rsatish» odatiy ko‘rinishni qaytaradi.
+Tanlov shu brauzer/EXE qurilmasida eslab qolinadi.
+
+ODDIY SAVDO
+1. Aniq filial tanlanadi. Kassirning filiali oldindan belgilangan.
+2. Mahsulot nomi yoki SKU qidiriladi, kartochkadan savatga qo‘shiladi.
+3. Har qatorda kg yoziladi (0.001 qadam). Narx va chegirma serverdan keladi.
+4. Naqd va Karta maydonlariga qabul qilingan summalar yoziladi.
+5. Naqd tugmasi kartada yozilgan puldan keyingi qolgan summani naqdga
+   to‘ldiradi; Karta tugmasi ham shu tarzda ishlaydi. Aralash tugmasi yo‘q.
+6. Jami, qabul qilingan, yetishmagan va ehson summalari ko‘rinadi.
+7. Savdoni yakunlash yagona atomar API tranzaksiyasini bajaradi.
+
+MAHSULOT MAVJUDLIGI FILTRI
+POS avval «Omborda bor» mahsulotlarni ko‘rsatadi. «Omborda yo‘q» nol
+qoldiqli yoki hali kirim bo‘lmagan mahsulotlarni, «Hammasi» ikkala guruhni
+ko‘rsatadi. Bu filtr faqat ko‘rinadigan kartochkalarga tegishli.
+Nom yoki SKU qidiruvi barcha odatiy katalog mahsulotlaridan izlaydi,
+tanlangan mavjudlik filtriga bog‘lanmaydi. Qidiruv tozalanganda tanlangan
+filtr yana ishlaydi; faqat bo‘sh joy ham qidiruv hisoblanmaydi. Tugagan
+mahsulot qidiruvda ko‘rinsa ham savatga qo‘shilmaydi. Savatdagi mahsulotlar
+filtr o‘zgarganda saqlanadi. Arxivlangan mahsulotlar odatiy POS katalogida yo‘q.
+
+SERVER NIMANI ISHONCHLI DEB OLADI?
+Klient faqat mahsulot ID, kg, naqd/karta, filial, expected_total yuboradi.
+price, discount, supplier_id, user_id mijozdan qabul qilinmaydi.
+Server joriy Stockdan narx olib qayta hisoblaydi. expected_total bilan
+mos bo‘lmasa 409: narx/chegirma o‘zgargan. Qoldiq yetmasa ham 409.
+Takror mahsulot IDlari avval yig‘iladi: ikki qator bilan qoldiqni aylanib
+o‘tib bo‘lmaydi. Bitta qatorda xato bo‘lsa ham barcha kg o‘zgarishi rollback.
+
+XOTIRA
+POST /carts mijoz belgisi, items, branch_idni saqlaydi. Ko‘p savat mumkin.
+Xotiraga saqlash stockni kamaytirmaydi va mahsulotni rezerv qilmaydi.
+Mijoz 1 saqlanadi → Mijoz 2 sotiladi → Mijoz 1 ochilib sotiladi.
+Faqat shu kassir va shu filialga tegishli savatlar ko‘rinadi.
+PUT /carts/{id} faqat tegishli kassir uchun, version mos bo‘lishi kerak.
+Savat ikki oynada tahrirlansa eski version 409 oladi. Savdo vaqtida ham
+saved_cart_version tekshiriladi. Muvaffaqiyatli savdoda xotira yozuvi
+shu tranzaksiyada o‘chiriladi. Xatoda xotira yozuvi saqlanadi.
+DELETE /carts/{id}?version=N foydalanuvchi tasdig‘idan keyin ishlatiladi.
+Savatni oddiy tozalash DBdagi saqlangan nusxani o‘chirmaydi.
+
+BRAUZERDAGI QORALAMA
+localStorage kaliti: marva-draft:USER_ID:BRANCH_ID.
+items, customer, cash, card, activeCart va pending saqlanadi.
+Sahifa yangilansa yoki bo‘lim o‘zgarsa qoralama qayta olinadi.
+Boshqa foydalanuvchi/filial qoralamasi aralashmaydi.
+Ochiq savat bo‘lsa brauzerdan chiqishda standart ogohlantirish ishlaydi.
+Brauzer xotirasini tozalash mahalliy qoralamani yo‘qotadi; muhim savdoni
+«Xotiraga saqlash» bilan DBga saqlash kerak.
+Bir hisobni bir xil filialda ikki tabda ishlatmang: mahalliy qoralama uchun
+bitta kalit ishlatiladi. Serverdagi saqlangan savatlarda version himoyasi bor.
+
+INTERNET UZILISHI VA IDEMPOTENTLIK
+Checkoutdan OLDIN request_id va aynan yuboriladigan payload localStoragega
+sinxron yoziladi. server request_id unique. Javob noma’lum bo‘lsa pending
+saqlanadi, savat/to‘lov tahriri to‘xtaydi, «Natijani tekshirish» qoladi.
+Qayta yuborish shu ID bilan oldingi savdoni qaytaradi, yangi savdo yaratmaydi.
+4xx biznes xatosida pending tozalanadi, foydalanuvchi savatni tuzatadi.
+5xx yoki transport xatosida pending qoladi: avvalgi so‘rov commit bo‘lgan
+bo‘lishi mumkin. Bunday payt yangi request_idni qo‘lda yaratmang.
+Pul localStoragega yozilmay qolsa checkout yuborilmaydi.
+
+CHEGARALAR
+Oflayn savdo yo‘q. Xotirada turgan narx kafolatlanmaydi, sotishda yangilanadi.
+Qaytim avtomatik ajratilmaydi: ortiqcha olib qolingan summa ehson.
+Chek chiqarish va skaner integratsiyasi ataylab yo‘q.

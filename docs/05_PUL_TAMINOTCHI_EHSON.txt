@@ -1,0 +1,75 @@
+PUL, TA’MINOTCHI HAQI VA EHSON
+=============================
+
+FAYLLAR
+accounting.py: money, line_total, sum_column, supplier_debt, balances.
+routes_finance.py: dashboard, make_payment va to‘lov endpointlari.
+routes_sales.py: checkout.
+
+ANIQLIK VA YAXLITLASH
+Backend Decimal, PostgreSQL Numeric. Frontend BigInt.
+Bir qator summasi = ROUND_HALF_UP(kg * price * (100-discount) / 100, 0.01).
+Jami = oldindan yaxlitlangan qatorlar yig‘indisi.
+Effektiv narxni avval 2 kasrga yaxlitlab keyin kgga ko‘paytirmang — boshqa
+natija chiqishi mumkin. money.js xuddi backend formulasi bilan hisoblaydi.
+0.001 kg * 5 so‘m = 0.005 → 0.01 so‘m.
+0.333 kg * 13 800 so‘m * 90% = 4 135.86 so‘m.
+
+SAVDO MISOLI
+1 kg, 13 800 so‘m, chegirma yo‘q, naqd 14 000:
+Sale.total=13800.00, cash=14000.00, card=0.00, donation=200.00.
+SaleItem.total=13800.00, supplier_id mahsulotdan olinadi.
+Ombor -1.000 kg, ta’minotchi haqi +13800.00, ehson +200.00.
+
+CHEGIRMA
+10% bo‘lsa 1 kg sotuv 12 420.00, ta’minotchi haqi ham 12 420.00.
+Bu loyihada chegirma yo‘qotishini do‘konning alohida foydasi yoki xarajati
+qoplamaydi. Boshqa biznes qoidasi kerak bo‘lsa alohida moliyaviy hisob kiriting.
+
+TA’MINOTCHI QARZI
+earned = SUM(SaleItem.total WHERE supplier_id=S [AND Sale.branch_id=B]).
+paid = SUM(SupplierPayment.amount WHERE supplier_id=S [AND branch_id=B]).
+debt = earned - paid.
+Sotilmagan omborning jami qiymati debtga qo‘shilmaydi. Bu konsignatsiya
+talqini: ta’minotchiga haq mahsulot sotilganda paydo bo‘ladi.
+
+KASSA HISOBLARI
+cash_balance = SUM(Sale.cash) - SUM(naqd supplier payments) - SUM(naqd donation payments).
+card_balance = SUM(Sale.card) - SUM(karta supplier payments) - SUM(karta donation payments).
+donation_balance = SUM(Sale.donation) - SUM(DonationPayment.amount).
+Ehson alohida ledger bo‘lsa-da jismoniy pul naqd/karta ichida qoladi.
+Shuning uchun balanslar invariant:
+    cash_balance + card_balance = jami supplier_debt + donation_balance.
+Savdo va har to‘lovdan keyin shu tenglik saqlanishi kerak.
+
+TO‘LOV QAYD ETISH
+POST /suppliers/{id}/payments yoki /donations/payments.
+request_id, branch_id, amount, method, recipient, note qabul qiladi.
+method faqat cash yoki card. Summa musbat, 2 kasrgacha.
+Kimga berilgani required; user_id va vaqt server tomonidan yoziladi.
+Ta’minotchiga uning qolgan haqidan ortiq berib bo‘lmaydi.
+Ehsonda donation_balance dan ortiq yozib bo‘lmaydi.
+Savdodagi naqd+karta ortiqchasi va bitta ehson chiqimi 15 000.00 so‘mdan
+oshmaydi. Shu limit savdo tahriri va eski PCdan yuborishda ham tekshiriladi.
+Tuzatish/bekor qilish tartibi: 34_EHSON_LIMITI_VA_AMALNI_BEKOR_QILISH.txt.
+Tanlangan cash/card hisobida ham yetarli pul bo‘lishi shart.
+Branch qatori qulflanadi, shu sabab ikki admin bir qoldiqni parallel
+sarflashga urinib, ikkalasi ham o‘tib ketmaydi.
+request_id va aynan shu payload takrorlansa avvalgi to‘lov qaytariladi.
+Shu ID boshqa summa/qabul qiluvchi bilan kelganda 409 qaytadi.
+Frontend recovery.js yuborishdan oldin to‘lov yoki kirim payloadini
+marva-operation:USER_ID kalitida localStoragega yozadi. Javob noma’lum bo‘lsa
+RecoveryModal boshqa yozuvni boshlashni to‘xtatadi. Sahifa qayta ochilganda
+ham shu foydalanuvchi uchun tiklash oynasi ochiladi. Natijani tekshirish
+eski request_id va payloadni qayta yuboradi. Aniq 4xxda tahrirlashga qaytiladi,
+5xx/transport xatosida nusxa qoladi. Xotira yozilmasa so‘rov yuborilmaydi.
+
+BANK BILAN ALOQA
+Dastur pulni bank orqali o‘tkazmaydi. «Pul berish» bu sodir bo‘lgan amaliy
+to‘lovni qayd etish. Bank, to‘lov provayderi yoki haqiqiy ehson hisob raqami
+integratsiyasi bu versiyaga kirmaydi. Izohga bank o‘tkazma raqami yoziladi.
+
+OMBOR QIYMATI
+Dashboard inventory_value = har stock uchun line_total(kg, price, discount)
+yig‘indisi. Bu hozir sotilgandagi qiymat. Eski partiyalarning kelish qiymati
+emas. Kirimlarda tarixiy kg va price alohida saqlangan.

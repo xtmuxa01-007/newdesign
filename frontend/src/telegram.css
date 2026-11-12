@@ -1,0 +1,258 @@
+.telegram-mini-app {
+  --tin-telegram-height: 100dvh;
+  --tin-telegram-safe-top: 0px;
+  --tin-telegram-safe-right: 0px;
+  --tin-telegram-safe-bottom: 0px;
+  --tin-telegram-safe-left: 0px;
+  --tin-telegram-nav-height: 56px;
+  scroll-padding-top: calc(var(--tin-telegram-safe-top) + 81px);
+  scroll-padding-bottom: calc(
+    var(--tin-telegram-nav-height) + var(--tin-telegram-safe-bottom) + 16px
+  );
+}
+.telegram-mini-app body {
+  min-height: var(--tin-telegram-height);
+  overscroll-behavior-y: contain;
+}
+.telegram-mini-app .app-shell,
+.telegram-mini-app .app-content,
+.telegram-mini-app .login {
+  min-height: var(--tin-telegram-height);
+}
+.telegram-mini-app .export-download-sheet {
+  max-width: 580px;
+}
+.telegram-mini-app .export-file-details {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: var(--soft);
+}
+.telegram-mini-app .export-file-details > svg {
+  flex-shrink: 0;
+  color: var(--green);
+}
+.telegram-mini-app .export-file-details > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.telegram-mini-app .export-file-details small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+}
+.telegram-mini-app .export-download-sheet .form-footer {
+  flex-wrap: wrap;
+}
+.telegram-mini-app .app-shell .app-content {
+  margin-left: 0;
+  width: 100%;
+}
+.telegram-mini-app .app-shell .sidebar {
+  top: 0;
+  width: min(300px, 88vw);
+  height: var(--tin-telegram-height);
+  padding-top: var(--tin-telegram-safe-top);
+  padding-left: var(--tin-telegram-safe-left);
+  padding-bottom: var(--tin-telegram-safe-bottom);
+  z-index: 60;
+  visibility: hidden;
+  transform: translateX(-100%);
+}
+.telegram-mini-app .app-shell .sidebar.open {
+  transform: translateX(0);
+  visibility: visible;
+  box-shadow: 14px 0 40px #0c291d44;
+}
+.telegram-mini-app .sidebar-backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: #102d2470;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  z-index: 50;
+}
+.telegram-mini-app .sidebar-close {
+  display: inline-flex;
+  position: absolute;
+  top: calc(20px + var(--tin-telegram-safe-top));
+  right: calc(12px + var(--tin-telegram-safe-right));
+}
+.telegram-mini-app .app-shell .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: calc(7px + var(--tin-telegram-safe-top)) calc(12px + var(--tin-telegram-safe-right)) 7px
+    calc(12px + var(--tin-telegram-safe-left));
+  min-height: calc(65px + var(--tin-telegram-safe-top));
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.telegram-mini-app .app-shell .breadcrumb {
+  flex: 0 0 44px;
+  gap: 0;
+}
+.telegram-mini-app .breadcrumb strong {
+  display: none;
+}
+.telegram-mini-app .app-shell .topbar-right {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  gap: 6px;
+}
+.telegram-mini-app .app-shell .topbar-right > button,
+.telegram-mini-app .app-shell .topbar .mobile-toggle {
+  position: relative;
+  width: 44px;
+  height: 50px;
+  min-height: 50px;
+  padding: 8px;
+  gap: 0;
+  flex: 0 0 44px;
+}
+.telegram-mini-app .topbar-right > button .count {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  font-size: 11px;
+  line-height: 18px;
+  border-radius: 5px;
+}
+.telegram-mini-app .app-shell .topbar .branch-picker {
+  min-width: 0;
+  max-width: none;
+  flex: 1;
+  min-height: 50px;
+  height: 50px;
+  padding: 10px 8px;
+  gap: 4px;
+}
+.telegram-mini-app .topbar .branch-picker > svg:first-child {
+  display: none;
+}
+.telegram-mini-app .app-shell .topbar .branch-picker select {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+.telegram-mini-app .app-shell .topbar .mobile-toggle {
+  display: inline-flex;
+  width: 44px;
+  flex-shrink: 0;
+}
+.telegram-mini-app .breadcrumb > span,
+.telegram-mini-app .today-label {
+  display: none;
+}
+.telegram-mini-app .app-shell .main {
+  padding-top: 14px;
+  padding-left: calc(16px + var(--tin-telegram-safe-left));
+  padding-right: calc(16px + var(--tin-telegram-safe-right));
+  padding-bottom: calc(24px + var(--tin-telegram-safe-bottom));
+}
+.telegram-mini-app .app-shell .app-footer {
+  padding-bottom: calc(20px + var(--tin-telegram-nav-height) + var(--tin-telegram-safe-bottom));
+}
+.telegram-mini-app .dashboard-revenue-heading {
+  margin-bottom: 14px;
+}
+.telegram-mini-app .dashboard-revenue-heading h2 {
+  margin: 0;
+  line-height: 1.4;
+}
+.telegram-mini-app .mini-app-bottom-nav {
+  position: fixed;
+  z-index: 40;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: stretch;
+  min-height: calc(var(--tin-telegram-nav-height) + var(--tin-telegram-safe-bottom));
+  padding: 5px calc(10px + var(--tin-telegram-safe-right))
+    calc(6px + var(--tin-telegram-safe-bottom)) calc(10px + var(--tin-telegram-safe-left));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 18px #193f360c;
+  gap: 4px;
+}
+.telegram-mini-app .mini-app-bottom-nav button {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+.telegram-mini-app .mini-app-bottom-nav button[aria-current='page'] {
+  background: var(--soft);
+  color: var(--green);
+}
+.telegram-mini-app .mini-app-bottom-nav svg {
+  flex-shrink: 0;
+}
+.telegram-mini-app .toast {
+  bottom: calc(var(--tin-telegram-nav-height) + var(--tin-telegram-safe-bottom) + 12px);
+}
+.telegram-mini-app dialog {
+  max-height: calc(
+    var(--tin-telegram-height) - var(--tin-telegram-safe-top) - var(--tin-telegram-safe-bottom) -
+      24px
+  );
+}
+.telegram-mini-app input,
+.telegram-mini-app select,
+.telegram-mini-app textarea,
+.telegram-mini-app .app-shell .field input,
+.telegram-mini-app .app-shell .field select,
+.telegram-mini-app .app-shell .field textarea,
+.telegram-mini-app .app-shell .search input {
+  font-size: 16px;
+}
+.telegram-mini-app .login {
+  padding-top: var(--tin-telegram-safe-top);
+  padding-left: var(--tin-telegram-safe-left);
+  padding-right: var(--tin-telegram-safe-right);
+  padding-bottom: var(--tin-telegram-safe-bottom);
+}
+@media (max-width: 760px) {
+  .telegram-mini-app .login .login-story {
+    padding: 22px 24px;
+    gap: 0;
+  }
+  .telegram-mini-app .login .login-quote,
+  .telegram-mini-app .login .login-foot {
+    display: none;
+  }
+  .telegram-mini-app .login .login-side {
+    padding: 22px 16px 28px;
+  }
+  .telegram-mini-app .login .login-side form {
+    padding: 24px 20px;
+  }
+  .telegram-mini-app .app-shell .topbar {
+    gap: 8px;
+  }
+  .telegram-mini-app .app-shell .page-actions .primary,
+  .telegram-mini-app .app-shell .page-actions .secondary {
+    min-height: 44px;
+  }
+}

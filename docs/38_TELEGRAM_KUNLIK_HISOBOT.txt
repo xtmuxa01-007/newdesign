@@ -1,0 +1,109 @@
+TELEGRAM KUNLIK SAVDO VA OMBOR HISOBOTI — 2026-11-03
+
+Har kuni 08:00 Asia/Tashkent: kechagi savdo summasi va sotilgan kilogramm,
+kechagi kun yakunidagi ombor qiymati va kilogramm qoldig‘i. Har filial
+bittadan xabarda, savdosiz filial 0, arxivlangan filial belgilangan.
+Salomlashuv qabul qiluvchining o‘z ismida: Muhammadjon Ahmedov yoki
+Abduqodir Abdumalikov. Qabul qiluvchilar soni dasturda ikki bilan cheklanmagan.
+Bu sof foyda yoki kassadagi qoldiq emas. Xabardagi kursiv izoh olib tashlangan.
+
+QABUL QILUVCHILAR
+scripts/telegram_daily_recipients.json boshlang‘ich allowlist:
+@MUHAMMAD_AHMED0V — Muhammadjon Ahmedov
+@abduqodir_1 — Abduqodir Abdumalikov
+
+Main CI/CD shu ro‘yxatni imzolangan GitHub OIDC orqali serverga uzatadi.
+Mavjud qabul qiluvchilar, ularning doimiy IDlari va operator o‘chirgan
+umumiy/shaxsiy enabled flaglari qayta deployda saqlanadi. Yangi odam
+qo‘shiladi, oldingi odamlar avtomatik o‘chirilmaydi. ID kodda yozilmaydi.
+Asosiy avtomatik yo‘l: qabul qiluvchi yangilangan Mini Appni odatdagidek
+ochadi. Telegram.WebApp.initData serverda bot-token HMAC bilan tekshiriladi:
+URL parametrlari takrorlanmaydi, imzo to‘liq mos, auth_date 24 soatdan eski
+yoki 30 soniyadan ortiq kelajakda emas. Faqat imzolangan user.id olinadi,
+receiver/chat/chat_instance boshqa hisob uchun ishlatilmaydi. Allowlist
+yoki oldin bog‘langan doimiy ID mos bo‘lsa ro‘yxatga ulanadi. Chatga xabar
+yozish, Start tugmasini qayta bosish yoki yangi parol kiritish kerak emas.
+Bu amal CRM login/huquq bermaydi va Telegramga xabar yubormaydi.
+Brauzer initDataUnsafe obyektini ishonchli identifikatsiya deb qabul qilmaydi.
+initData URL/log/lokal storagega yozilmaydi; faqat same-origin JSON POST.
+So‘rov 8 soniyada bekor qilinadi, xatosi CRMni to‘xtatmaydi, faollashganda
+qayta urinishi mumkin. Oddiy web/EXE bu so‘rovni yubormaydi.
+
+Muqobil yo‘l: botga shaxsiy hisobdan /start yoki /help yozish ham ishlaydi.
+Webhook siri, private chat, is_bot=false va sender/chat ID tengligi tekshiriladi.
+Allowlistdagi username bir marta musbat numeric IDga bog‘lanadi. Keyin
+username almashtirilsa ham shu IDga yuboriladi; username boshqa odamga
+berilsa, yangi odamga qayta bog‘lanmaydi. Guruh va boshqa odamlar ulanmaydi.
+Eski bot versiyasi /start IDlarini saqlamagan, Bot API esa tasdiqlangan eski
+chat tarixini username bilan qayta bermaydi. Shu sabab birinchi ulanish
+uchun yangilangan Mini Appdan kelgan signed ID kerak. Bir marta bog‘lansa
+kelgusi hisobotlar uchun ilovani ochib turish ham shart emas. Bot yozish
+huquqi avvalgi /startdan qoladi; bot bloklangan bo‘lsa Telegramga yetkazib
+bo‘lmaydi, signed ulanish blokni chetlab o‘tmaydi.
+
+Yangi odamni JSONga qo‘shib main CI/CD orqali nashr qilish yoki serverda:
+docker compose exec api python -m app.telegram_report_recipients add --username username --name "Ism Familiya"
+docker compose exec api python -m app.telegram_report_recipients status
+docker compose exec api python -m app.telegram_report_recipients disable --username username
+docker compose exec api python -m app.telegram_report_recipients enable --username username
+Username ko‘rsatilmasa enable/disable umumiy yuborishni o‘zgartiradi.
+Bu buyruqlar biznes yozuvlarini o‘zgartirmaydi, faqat private integratsiya sozlamasi.
+
+WORKER VA XUSUSIY HOLAT
+Markaziy API worker 30 soniyada jadvalni tekshiradi. Compose standart worker
+flagi 1; lokal .env.example flagi 0. Qabul qiluvchi konfiguratsiyasi bo‘lmasa
+hech narsa yuborilmaydi. CRM_BRANCH_ID bor filial EXE worker yubormaydi.
+Muhitdagi CRM_TELEGRAM_DAILY_REPORT_ENABLED=0 butun workerini o‘chiradi.
+Alohida Codex/Windows jadvali yo‘q; server qayta yoqilsa jadval davom etadi.
+CI sozlash worker ishlayotganini, qamrov va recipient ro‘yxatini tekshiradi.
+Main workflow_dispatch operation=telegram-status faqat signed OIDC bilan
+/api/telegram/daily-report/status ni o‘qiydi, deploy yoki yuborish qilmaydi.
+Natijada bog‘langanlik/yoqilganlik va delivery sanog‘i bor; token, numeric ID
+va moliyaviy xabar matni yo‘q. Xususiy status odatiy login yoki ochiq URL emas.
+
+HISOB VA KUN YAKUNI TARIXI
+Sale.total filial va Toshkent kun chegarasi bo‘yicha bir marta yig‘iladi.
+SaleItem.kg alohida guruhlanadi: ko‘p tovarli savdo pulini ko‘paytirmaydi.
+Qarzga savdo kiradi; eski qarz to‘lovi yangi savdo emas. Tahrir/qisman
+qaytarish joriy tuzatilgan summa/kg bilan olinadi, bekor qilingani yo‘q.
+
+stock_valuation_state qamrov boshlanishini, stock_valuation_versions har bir
+Stock kg/narx/chegirma holatini biznes tranzaksiyasida saqlaydi; rollback
+ikkalasini ham qaytaradi. Toshkentdagi keyingi 00:00 dan OLDINGI oxirgi holat
+olinadi. Arxivlangan mahsulot/filial qoldig‘i ham saqlanadi. Per-line line_total
+pulni bir marta yaxlitlaydi. O‘chirish nol versiya qoldiradi. Ertalabki qoldiq
+kechagi yakun o‘rniga qo‘yilmaydi. Eski qamrovsiz kunlar taxminan tiklanmaydi.
+Birinchi ishonchli yakun qamrov yoqilgan kunning yakuni; birinchi haqiqiy
+hisobot keyingi tongda. Tarix yetishmasa hisobot yuborilmaydi.
+Versiya vaqti Stock yozuvi vaqti, mavjud created_at kabi; DB commit ko‘rinishi
+vaqti emas. Raw/Core/bulk stocks SQL mapper tarixini chetlab o‘tadi, shuning
+uchun biznes yozuvchilari ORM ishlatishi shart. Amaldagi yo‘llar tekshirildi.
+Texnik reset ikkala tarix jadvalini tozalaydi, keyingi startup yangi qamrov
+boshlaydi. Bu yo‘riqnoma resetga ruxsat bermaydi.
+
+YETKAZISH VA MAXFIYLIK
+CRM_INTEGRATIONS_DIR/telegram-daily-report.json qabul qiluvchilar sozlamasi;
+telegram.json dagi mavjud bot tokeni saqlanadi. telegram-daily-delivery.sqlite3
+kun/qabul qiluvchi/xabar bo‘yicha navbat. Bular private 0600, public upload
+emas. Oddiy build tozalashda o‘chirmang. .lock parallel CLI/webhook/deploy
+sozlamalarini ketma-ketlashtiradi, biznes bazasi lokalga ulanmaydi.
+
+Hisobot matni yuborishdan avval har qabul qiluvchi/sana uchun muzlatiladi.
+Restart va parallel worker takrorlamaydi. Toza to‘xtashdan keyin pending
+xabarlar shu matndan davom etadi. Bitta odamdagi xato boshqalarni to‘xtatmaydi.
+Server kechroq qaytsa faqat kechagi kun yuboriladi, eski kunlar oqimi yo‘q.
+Bir private chatdagi xabarlar orasida 1.1 soniya tanaffus bor.
+sendMessage idempotency kaliti bermaydi. Noaniq javob uncertain, jarayon uzilishi
+sending markerini qoldiradi; shu odamning shu kundagi qolgan xabarlari to‘xtaydi.
+Operator Telegramdagi haqiqiy yetkazilishni tekshirmaguncha markerlarni
+qaytarmasin. Logda maxfiy ma’lumot yo‘q; keyingi kun mustaqil ishlaydi.
+
+IZOLYATSIYALANGAN LOKAL NAMUNA
+$env:PYTHONPATH = "$PWD\backend;$PWD\.build-deps"
+python scripts/preview_telegram_daily_report.py --recipient abduqodir
+python scripts/preview_telegram_daily_report.py --recipient muhammad
+
+.runtime/telegram-daily-preview ichidagi HTMLni oching. Raqamlar SINOV uchun;
+xabar matni haqiqiy build_reportdan. Alohida in-memory SQLite, .env/token
+emas; Telegramga yubormaydi. Bugungi o‘zgarishlar kechagi summalar/kgga
+ta’sir qilmasligi tekshiriladi. --date YYYY-MM-DD yakunlangan sana oladi.

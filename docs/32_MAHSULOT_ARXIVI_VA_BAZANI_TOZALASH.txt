@@ -1,0 +1,84 @@
+MAHSULOT ARXIVI VA MARKAZNI NOLDAN BOSHLASH — 2026-09-26
+
+MAHSULOTNI O'CHIRISH / TIKLASH
+Ombor -> mahsulot qatoridagi O'chirish -> SKU kodini yozib Arxivlash.
+Faqat SystemOwner orqali bir marta bog'langan Programmist hisobi bajaradi.
+Boshqa boshliq/admin/kassirga API ham bu amalni taqiqlaydi.
+Katalog umumiy: mahsulot BARCHA filiallarda arxivlanadi. Qoldiq yo'qolmaydi.
+Savdo, qarz, kirim, ta'minotchi hisobi, rasm va SKU saqlanadi.
+Ombor -> Mahsulot holati -> Arxivlangan mahsulotlar -> Tiklash.
+Qoldiq va qiymat umumiy hisobotlarda arxivlangan mahsulotlarni ham hisoblaydi.
+
+Arxivdagi mahsulotga yangi savdo/kirim/chegirma/rasm/savat yozilmaydi.
+Oldin saqlangan savat o'qiladi, undan mahsulotni olib tashlash mumkin.
+Eski savdoni tahrirlash uchun undagi arxivlangan mahsulot avval tiklanadi.
+Yo'qolgan javob uchun ayni request_id bilan savdo/kirimni qayta tekshirish ishlaydi.
+Product qatori o'chirilmaydi; yangi product_archives jadvali belgi saqlaydi.
+Filial -> product ID -> stock tartibidagi qulf parallel yozuvlarni tartiblaydi.
+Eski offline filiallar bo'lsa, avval hammasini 0.5.0 umumiy rejimga o'tkazish kerak.
+Arxivli katalogga eski offline EXEni qayta ro'yxatdan o'tkazish rad etiladi.
+0.5.0 EXE umumiy saytdan ishlaydi: server deployidan keyin uni qayta ochish yetarli.
+
+BAZANI NOLDAN BOSHLASH — ALOHIDA TEXNIK AMAL
+Oddiy GitHub deploy bazani tozalamaydi. Yangi funksiyalar uchun reset kerak emas.
+Foydalanuvchi alohida tanlagan doira: barcha biznes yozuvlari va boshqa hisoblar
+o'chadi; faqat bog'langan Programmist hisobi, uning login/paroli va reset auditi qoladi.
+Eski savdo, qarz, ombor, mahsulot, ta'minotchi, filial, seans, sync qurilmalari tozalanadi.
+Schema, ketma-ket IDlar, sozlamalar, EXE distributivi va rasmlar diskda saqlanadi.
+IDlar qayta 1 dan boshlanmaydi: eski PC savati yangi mahsulotga bog'lanmasligi kerak.
+Eski offline PC bazalarini yangi markazga yubormang; ular alohida eski tarixdir.
+
+scripts/reset_server_database.py faqat server konsolida ishlaydi. HTTP reset API yo'q.
+Avval so'nggi CI/CD muvaffaqiyatli tugasin. Reset paytida deploy/push qilmang;
+savdoni to'xtating, foydalanuvchilar web/EXEni yopsin. API vaqtincha to'xtaydi.
+
+Aniqlangan server: /opt/marva; Docker project: marva-crm.
+Compose: /opt/marva/compose.yaml va /etc/marva/compose.prod.yaml.
+ENV_FILE o'rniga serverdagi haqiqiy env fayli yo'li qo'yiladi; mazmuni chatga yuborilmaydi.
+
+Faqat ko'rish:
+  cd /opt/marva
+  python3 scripts/reset_server_database.py preview --project marva-crm --compose-file /opt/marva/compose.yaml --compose-file /etc/marva/compose.prod.yaml --env-file ENV_FILE --owner abduqodir
+
+Bajarish (avval previewdagi hisob va yozuvlar sonini tekshiring):
+  python3 scripts/reset_server_database.py apply --project marva-crm --compose-file /opt/marva/compose.yaml --compose-file /etc/marva/compose.prod.yaml --env-file ENV_FILE --owner abduqodir
+
+Serverdagi deploy qulfini ham oling: buyruq oldiga
+  flock -w 900 /run/lock/marva-deploy.lock
+qo'shing. Shunda avtomatik deploy bilan reset bir vaqtda ishlamaydi.
+Apply hisob va sonlarni ko'rsatadi; zaxira tekshirilgach aynan RESET ... kodini so'raydi.
+Tasdiqni yozishdan avval zaxira papkasini boshqa PCga nusxalash mumkin.
+Tasdiqsiz hech narsa o'chmaydi. Skript quyidagi tartibda ishlaydi:
+1. API to'xtaydi. Baza dastlabki tekshiruvdan o'zgargan bo'lsa bekor qiladi va APIni qaytaradi.
+2. PostgreSQL custom dump + rasm arxivi + SHA256 manifest backups/reset-... ga yoziladi.
+3. Dump yangi tin_reset_verify_UUID bazasiga pg_restore orqali tiklanadi.
+   Barcha jadval sonlari va saqlanadigan hisob asl nusxa bilan taqqoslanadi.
+4. Faqat zaxira tekshiruvi va interaktiv tasdiqdan keyin barcha bog'liq yozuvlar bitta tranzaksiyada o'chadi.
+   Foreign keylar o'chirilmaydi. Hisob/parol va qolgan yozuvlar tekshiriladi.
+5. Faqat yordamchi tekshiruv bazasi olib tashlanadi; API qayta yoqiladi.
+
+Zaxira/dump/restore xatosida reset bajarilmaydi. Reset tranzaksiyasidagi xatoda rollback.
+Resetdan keyin /api/health va eski parol bilan loginni tekshiring; filiallar, mahsulotlar
+va xodimlarni yangidan yarating. Zaxira papkasini serverdan tashqariga ham ko'chiring.
+Backup maxfiy biznes ma'lumotlari va xeshlangan parollarni saqlaydi; Gitga yuborilmaydi.
+Eski ma'lumot kerak bo'lsa dump va rasmlarni alohida projectga tiklang (07/20-hujjatlar).
+Ishlayotgan yangi bazani tekshirmasdan eski dump bilan almashtirmang.
+
+ESKI OFFLINE PROFILI BOR EXE
+0.5.0 yangi o'rnatilgan PC odatiy login bilan kiradi. Lekin oldin offline
+filialga ulangan PC eski qurilma o'chgani sabab ulanish xatosini ko'rsatishi mumkin.
+Markaz reseti tugagach, shu PCda EXEni to'liq yoping va PowerShellda:
+  powershell -ExecutionPolicy Bypass -File scripts/reconnect-after-reset.ps1
+Avval faqat papka yo'lini ko'rsatadi. To'g'ri profil bo'lsa:
+  powershell -ExecutionPolicy Bypass -File scripts/reconnect-after-reset.ps1 -Apply
+Skript faqat centers/tincrm-uz-v1 ni o'sha joydagi retired-... papkasiga ko'chiradi.
+Lokal baza, yuborilmagan navbat va zaxiralar saqlanadi. So'ng EXE 0.5.0+ yangi
+markazni ochadi. Eski EXE 0.4.x ni ishlatmang; avval 0.5.0 ni o'rnating.
+
+TEKSHIRUVLAR
+Mahalliy: 26 test o'tdi; 9 PostgreSQL testi faqat CI konteynerida bajariladi.
+CI: mahsulot ruxsatlari/tarixi, parallel archive-sale-receipt, reset foreign keylari,
+owner paroli saqlanishi va rollback PostgreSQL marva_ci bazasining alohida sxemalarida.
+scripts/test_reset_workflow.py faqat GitHub marva-ci uchun: haqiqiy pg_dump/pg_restore,
+API stop/start va saqlangan parol bilan qayta loginni tekshiradi. Productionda chaqirmang.
+Productiondagi ma'lumotlar ushbu funksiyani deploy qilish bilan o'chirilmaydi.

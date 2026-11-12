@@ -1,0 +1,908 @@
+/* Emerald Gold artwork adapted from the user-supplied design. */
+@property --rim-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.app-shell .dashboard-overview {
+  --radius: 22px;
+  --card-fade: 700ms;
+  --card-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --muted: #335b48;
+  color: #073e2f;
+  .stat-card {
+    --lift: 0px;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    --shadow: #14934e44;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: clamp(250px, 16.2vw, 350px);
+    padding: clamp(22px, 1.75vw, 38px);
+    border-radius: var(--radius);
+    background: #f1f7e7;
+    transform: translateY(var(--lift)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    box-shadow:
+      0 28px 42px -22px var(--shadow),
+      0 9px 16px -12px #49380766,
+      inset 0 1px 0 #ffffffed;
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow var(--card-fade) var(--card-ease),
+      color var(--card-fade) var(--card-ease),
+      background-color var(--card-fade) var(--card-ease);
+    animation: card-reveal 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .stat-card:nth-child(2) {
+    animation-delay: 0.09s;
+  }
+  .stat-card:nth-child(3) {
+    animation-delay: 0.18s;
+  }
+  .stat-card:nth-child(4) {
+    animation-delay: 0.27s;
+  }
+
+  .stat-card::before,
+  .stat-card::after,
+  .branch-card::before,
+  .branch-card::after,
+  .border-shimmer {
+    content: '';
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    pointer-events: none;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+  .stat-card::before,
+  .branch-card::before {
+    background: linear-gradient(
+      130deg,
+      #00ae65 1%,
+      #52b16a 21%,
+      #f6dc7a 46%,
+      #d8a932 76%,
+      #008e56 100%
+    );
+  }
+  .border-shimmer {
+    padding: 2px;
+    opacity: 0.9;
+    background: conic-gradient(
+      from var(--rim-angle),
+      transparent 0deg 252deg,
+      #ffe27d00 280deg,
+      #fff9cfdd 300deg,
+      #fffef9 310deg,
+      #f8d25caa 318deg,
+      transparent 340deg 360deg
+    );
+    animation: rim-travel 13s linear infinite;
+  }
+  .stat-card:nth-child(2) .border-shimmer {
+    animation-delay: -4s;
+  }
+  .stat-card:nth-child(3) .border-shimmer {
+    animation-delay: -8s;
+  }
+  .stat-card:nth-child(4) .border-shimmer {
+    animation-delay: -11s;
+  }
+
+  .card-surface {
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    border-radius: calc(var(--radius) - 1px);
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 97% 2%, #d4f1c6a6, transparent 55%),
+      radial-gradient(ellipse at 73% 100%, #f6e6b399, transparent 58%),
+      linear-gradient(132deg, #f4f7e9 0%, #e7f4e4 53%, #fff9e7 100%);
+  }
+  .card-surface::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 2px 1px #fff9,
+      inset 0 -1px 0 #fffa;
+  }
+  :is(
+    .emerald-card:hover,
+    .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+  ) {
+    --shadow: #0583468a;
+    color: #f5fff9;
+    background: #005441;
+  }
+  .stat-card::after,
+  .branch-card::after {
+    background: linear-gradient(
+      128deg,
+      #edd267 0%,
+      #ffe8a2 18%,
+      #70bd72 42%,
+      #d7b94f 76%,
+      #fff4aa 91%,
+      #b5d389 100%
+    );
+    opacity: 0;
+    transition: opacity var(--card-fade) var(--card-ease);
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )::after {
+    opacity: 1;
+  }
+  .card-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    background:
+      radial-gradient(ellipse at 90% 0%, #1ab88961, transparent 52%),
+      radial-gradient(ellipse at 6% 90%, #00856a70, transparent 52%),
+      linear-gradient(135deg, #056044 0%, #004b3c 43%, #003e35 78%, #005744 100%);
+    transition: opacity var(--card-fade) var(--card-ease);
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )
+    .card-surface::before {
+    opacity: 1;
+  }
+  .stat-card--cash:not(
+      :is(
+        .emerald-card:hover,
+        .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+      )
+    ) {
+    --shadow: #bea43c5e;
+    background: #fcf6e3;
+  }
+  .stat-card--cash .card-surface {
+    background:
+      radial-gradient(ellipse at 97% 10%, #ffebaa88, transparent 50%),
+      radial-gradient(ellipse at 3% 100%, #f3e6ae60, transparent 55%),
+      linear-gradient(130deg, #fffaf0, #fff8e7 56%, #f5eed2);
+  }
+  .stat-card--stock .card-surface {
+    background:
+      radial-gradient(ellipse at 85% 3%, #d4f4bf91, transparent 51%),
+      radial-gradient(ellipse at 100% 100%, #e7d78280, transparent 58%),
+      linear-gradient(135deg, #eef7e8, #e1f4dd 53%, #fbf7de);
+  }
+  .satin {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: opacity var(--card-fade) var(--card-ease);
+  }
+  .satin--dark {
+    opacity: 0;
+  }
+  .satin--pearl {
+    opacity: 0.72;
+  }
+  .stat-card--cash .satin--pearl {
+    transform: translateY(-3%);
+    opacity: 0.95;
+  }
+  .stat-card--stock .satin--pearl {
+    transform: translateY(-3%) scaleX(1.1);
+    opacity: 0.78;
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )
+    .satin--dark {
+    opacity: 0.95;
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )
+    .satin--pearl {
+    opacity: 0;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: clamp(44px, 3.55vw, 76px);
+  }
+  .card-title {
+    margin: 0;
+    font-size: clamp(15px, 1.29vw, 28px);
+    font-weight: 660;
+    line-height: 1.3;
+    letter-spacing: -0.035em;
+  }
+  .card-icon {
+    width: clamp(45px, 3.65vw, 78px);
+    height: clamp(45px, 3.65vw, 78px);
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border: 1px solid #fff9;
+    border-radius: clamp(14px, 1.15vw, 24px);
+    color: #064b35;
+    background: linear-gradient(145deg, #ffffffe0, #e4f3d982 60%, #b3e1b796);
+    box-shadow:
+      inset 0 1px 1px #fff,
+      0 9px 16px -9px #619b4d66;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition:
+      color var(--card-fade) var(--card-ease),
+      border-color var(--card-fade) var(--card-ease),
+      box-shadow var(--card-fade) var(--card-ease);
+  }
+  .card-icon svg {
+    width: 56%;
+    height: 56%;
+    stroke-width: 1.65;
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )
+    .card-icon {
+    color: #fff;
+    border-color: #c4f5d475;
+    background: linear-gradient(145deg, #d2ffe76b, #1ba8775e 55%, #a3edc930);
+    box-shadow:
+      inset 0 1px 1px #e2ffea99,
+      0 9px 18px -8px #002e2966;
+  }
+  .stat-card--cash:not(
+      :is(
+        .emerald-card:hover,
+        .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+      )
+    )
+    .card-icon {
+    background: linear-gradient(145deg, #fffffff0, #fff6d896 60%, #f2d99180);
+    box-shadow:
+      inset 0 1px 1px #fff,
+      0 9px 16px -9px #be994f99;
+  }
+  .card-amount {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(5px, 0.4vw, 9px);
+    min-width: 0;
+    margin: clamp(24px, 1.8vw, 39px) 0 clamp(26px, 2.15vw, 46px);
+    white-space: nowrap;
+  }
+  .card-value {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-size: clamp(27px, 2.52vw, 54px);
+    line-height: 1.08;
+    font-weight: 740;
+    letter-spacing: -0.055em;
+  }
+  .card-unit {
+    font-size: clamp(13px, 1.12vw, 24px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+  }
+  .card-meta {
+    position: relative;
+    z-index: 1;
+    margin: auto 0 0;
+    min-height: 0;
+    color: var(--muted);
+    font-size: clamp(13px, 1.12vw, 24px);
+    line-height: 1.5;
+    letter-spacing: -0.025em;
+    font-weight: 430;
+    transition: color var(--card-fade) var(--card-ease);
+  }
+  :is(
+      .emerald-card:hover,
+      .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+    )
+    .card-meta {
+    color: #effff2;
+  }
+
+  .glint {
+    --glint-size: 28px;
+    position: absolute;
+    z-index: 5;
+    width: var(--glint-size);
+    height: var(--glint-size);
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px #fff7aa) drop-shadow(0 0 10px #f6d351b3);
+    animation: glint-breathe 5.6s ease-in-out infinite;
+  }
+  .glint::before,
+  .glint::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .glint::before {
+    background: #fffef0;
+    clip-path: polygon(50% 0%, 57% 42%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0% 50%, 43% 43%);
+  }
+  .glint::after {
+    inset: 35%;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 9px 3px #fff4c1;
+  }
+  .glint--top {
+    top: -13px;
+    left: 5%;
+  }
+  .glint--bottom {
+    bottom: -13px;
+    right: 4%;
+    --glint-delay: -2.5s;
+    animation-delay: -2.5s;
+  }
+  .stat-card:not(
+      :is(
+        .emerald-card:hover,
+        .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+      )
+    )
+    .glint,
+  .branch-card:not(
+      :is(
+        .emerald-card:hover,
+        .dashboard-overview:not(:has(.emerald-card:hover)) .stats-grid > .stat-card:first-child
+      )
+    )
+    .glint {
+    opacity: 0.7;
+  }
+
+  .glint {
+    inset: 0 auto auto 5%;
+    margin: -14px 0 0 -14px;
+    animation-name: glint-breathe, glint-card-orbit;
+    animation-duration: 5.6s, 6s;
+    animation-timing-function: ease-in-out, linear;
+    animation-iteration-count: infinite, infinite;
+    animation-delay:
+      calc(var(--glint-delay, 0s) + var(--ocean-star-phase, 0s)),
+      calc(var(--orbit-delay, 0s) + var(--ocean-orbit-phase, 0s));
+    animation-play-state: running, paused;
+  }
+  .glint--bottom {
+    --orbit-delay: -3s;
+  }
+  .emerald-card:is(:hover, :focus-within) .glint {
+    animation-play-state: running, running;
+  }
+}
+
+  @keyframes rim-travel {
+    to {
+      --rim-angle: 360deg;
+    }
+  }
+  @keyframes glint-card-orbit {
+    0% { left: 5%; top: 0%; }
+    24% { left: 100%; top: 0%; }
+    49% { left: 100%; top: 100%; }
+    74% { left: 0%; top: 100%; }
+    99% { left: 0%; top: 0%; }
+    100% { left: 5%; top: 0%; }
+  }
+  @keyframes glint-breathe {
+    0%,
+    100% {
+      transform: scale(0.77);
+      opacity: 0.55;
+    }
+    48% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+    62% {
+      transform: scale(0.9);
+      opacity: 0.8;
+    }
+  }
+  @keyframes ambient-drift {
+    to {
+      transform: translate3d(2%, -2%, 0) scale(1.04);
+      opacity: 0.75;
+    }
+  }
+  @keyframes card-reveal {
+    from {
+      opacity: 0;
+      translate: 0 17px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+.app-shell .dashboard-overview {
+  max-width: 1920px;
+  margin-inline: auto;
+  min-width: 0;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    perspective: 1600px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    min-height: 180px;
+    padding: 18px;
+    border-radius: 22px;
+  }
+  .card-surface {
+    border-radius: 21px;
+  }
+  .satin--pearl {
+    background: url('/emerald/satin-pearl.svg') center / 100% 100%;
+  }
+  .satin--dark {
+    background: url('/emerald/satin-dark.svg') center / 100% 100%;
+  }
+  .card-header {
+    min-height: 45px;
+  }
+  .card-title {
+    font-size: clamp(13px, 1.02vw, 19px);
+    letter-spacing: -0.025em;
+    color: inherit;
+  }
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+  .card-amount {
+    margin: 16px 0 14px;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .card-value {
+    font-size: clamp(23px, 1.9vw, 40px);
+    font-weight: 740;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+  }
+  .card-unit {
+    font-size: 11px;
+  }
+  .card-meta {
+    min-height: 0;
+    font-size: clamp(11px, 0.82vw, 15px);
+    line-height: 1.65;
+    letter-spacing: -0.015em;
+  }
+  .dashboard-middle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 304px;
+    gap: 24px;
+    align-items: stretch;
+    margin-bottom: 20px;
+  }
+  .panel,
+  .account-summary {
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+    border: 1px solid transparent;
+    border-radius: 25px;
+    color: #073e2f;
+    background:
+      linear-gradient(145deg, #fcfcf0ee, #f1f6e7ed 70%, #fff8e4ed) padding-box,
+      linear-gradient(130deg, #8dbc8e, #efda95 47%, #c7b46b 80%, #7ab785) border-box;
+    box-shadow:
+      inset 0 1px 0 #fff,
+      0 15px 32px -25px #3f743f66;
+  }
+  .panel-head {
+    padding: 18px;
+    gap: 15px;
+  }
+  .panel-head h2,
+  .account-summary h2 {
+    font-size: 21px;
+    font-weight: 730;
+    letter-spacing: -0.04em;
+    color: inherit;
+  }
+  .panel-head p {
+    margin-top: 9px;
+    color: #335b48;
+    font-size: 12px;
+  }
+  .panel-head > .badge {
+    padding: 9px 11px;
+    border: 1px solid #a9c49b66;
+    border-radius: 9px;
+    color: #225e42;
+    background: linear-gradient(135deg, #e6f1db, #f7f5d9);
+    font-size: 11px;
+  }
+  .branch-card {
+    --lift: 0px;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    --shadow: #14934e44;
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+    padding: 18px;
+    color: #073e2f;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    background: #f1f7e7;
+    transform: translateY(var(--lift));
+    box-shadow:
+      0 16px 25px -20px var(--shadow),
+      inset 0 1px 0 #fff;
+    transition:
+      transform 0.35s,
+      color 700ms,
+      background-color 700ms;
+  }
+  .branch-card .card-surface {
+    border-radius: 17px;
+    background:
+      radial-gradient(ellipse at 100% 100%, #d5e9c055, transparent 65%),
+      linear-gradient(140deg, #fffdf4, #f5f9ec);
+  }
+  .branch-card-title {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .branch-card-title h3 {
+    color: inherit;
+    font-size: 15px;
+    font-weight: 720;
+  }
+  .branch-card .tile-icon {
+    width: 38px;
+    height: 40px;
+    border: 1px solid #bed2a4aa;
+    border-radius: 12px;
+    color: #3f684d;
+    background: linear-gradient(140deg, #f6fae9, #deebd2);
+  }
+  .branch-card .badge {
+    margin-left: auto;
+    font-size: 10px;
+    border-radius: 8px;
+  }
+  .branch-card dl {
+    position: relative;
+    margin: 0;
+  }
+  .branch-card dl > div {
+    gap: 12px;
+    margin: 0;
+    padding: 9px 0;
+    border-bottom: 1px solid #b9c49730;
+  }
+  .branch-card dl > div:last-child {
+    border: 0;
+    padding-bottom: 0;
+  }
+  .branch-card dt {
+    color: #335b48;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+  .branch-card dd {
+    color: inherit;
+    font-size: 14px;
+    font-weight: 550;
+    letter-spacing: -0.03em;
+    text-align: right;
+  }
+  .branch-card dd .unit {
+    font-size: 10px;
+  }
+  .branch-card:hover {
+    color: #f5fff9;
+  }
+  .branch-card:hover dt {
+    color: #d7eddf;
+  }
+  .branch-card:hover .tile-icon {
+    color: #f1fff4;
+    border-color: #bce7c86b;
+    background: #ffffff1f;
+  }
+  .branch-card:hover .badge {
+    color: #fff4cb;
+    background: #e9cf8126;
+  }
+  .branch-card:hover dl > div {
+    border-color: #dcf3d92b;
+  }
+  .branch-carousel,
+  .branch-cards {
+    margin: 0 10px 18px;
+  }
+  .branch-carousel-track {
+    padding: 12px 17px 24px;
+    scroll-padding-inline: 17px;
+  }
+  .branch-carousel-controls {
+    padding-inline: 17px;
+  }
+  .branch-carousel-button {
+    width: 41px;
+    height: 41px;
+    border-radius: 12px;
+    color: #176044;
+    border-color: #bcc48e;
+    background: linear-gradient(140deg, #fffef5, #edf3df);
+    box-shadow: inset 0 1px 0 #fff;
+  }
+  .account-summary {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background:
+      radial-gradient(ellipse at 100% 0, #f6df96a0, transparent 65%),
+      linear-gradient(140deg, #f9f5dc, #e8e9c9 80%, #f5e4b3) padding-box,
+      linear-gradient(130deg, #b2c082, #e5c867 45%, #afa76b) border-box;
+  }
+  .account-summary .eyebrow {
+    color: #617447;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    margin-bottom: 13px;
+  }
+  .account-summary h2 {
+    line-height: 1.4;
+  }
+  .account-summary > div {
+    padding: 18px 0;
+    border-bottom: 1px solid #b6ad6a45;
+  }
+  .account-summary > div span {
+    font-size: 12px;
+    color: #4d674c;
+  }
+  .account-summary > div strong {
+    margin: 19px 0 11px;
+    font-size: clamp(24px, 1.85vw, 34px);
+    font-weight: 680;
+    letter-spacing: -0.055em;
+    line-height: 1.2;
+  }
+  .account-summary > div .unit {
+    font-size: 10px;
+  }
+  .account-summary > div small {
+    font-size: 11px;
+    color: #637151;
+  }
+  .account-summary .text-btn {
+    margin-top: 26px;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #146348;
+  }
+  .recent-sales-panel {
+    overflow: hidden;
+  }
+  .recent-sales-panel .panel-head .text-btn {
+    padding: 10px 13px;
+    border: 1px solid #b9c48b99;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #fffdf3c9, #eaf1d8b3);
+    font-size: 12px;
+    color: #1c6043;
+  }
+  .recent-sales-panel th {
+    padding-block: 17px;
+    color: #54704d;
+    background: linear-gradient(105deg, #e8eed8, #f3eccf 65%, #eaf0d9);
+    border-block: 1px solid #c1c99c80;
+    font-size: 11px;
+  }
+  .recent-sales-panel td {
+    padding-block: 12px;
+    border-color: #bdc89b5c;
+    font-size: 13px;
+  }
+  .recent-sales-panel tbody tr:hover {
+    background: #e3efd3b3;
+  }
+  .recent-sales-panel td strong {
+    font-size: 14px;
+  }
+  .recent-sales-panel td small {
+    color: #67815c;
+    font-size: 11px;
+  }
+  .recent-sales-panel .badge {
+    color: #356b47;
+    background: #e8f0de;
+    border: 1px solid #c6d8ac88;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .app-shell .dashboard-overview .emerald-card:hover {
+    --lift: -5px;
+  }
+}
+@media (max-width: 1399px) {
+  .app-shell .dashboard-overview .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .app-shell .dashboard-overview .card-title {
+    font-size: 18px;
+  }
+  .app-shell .dashboard-overview .card-value {
+    font-size: 32px;
+  }
+  .app-shell .dashboard-overview .card-meta {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1200px) {
+  .app-shell .dashboard-overview .dashboard-middle {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .dashboard-overview .account-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+  .app-shell .dashboard-overview .account-summary > h2,
+  .app-shell .dashboard-overview .account-summary > .eyebrow {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell .dashboard-overview .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 21px;
+  }
+  .app-shell .dashboard-overview .stat-card {
+    min-height: 180px;
+    padding: 18px;
+  }
+  .app-shell .dashboard-overview .card-value {
+    font-size: clamp(27px, 8vw, 37px);
+  }
+  .app-shell .dashboard-overview .card-meta,
+  .app-shell .dashboard-overview .card-unit {
+    font-size: 13px;
+  }
+  .app-shell .dashboard-overview .panel-head {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+  }
+  .app-shell .dashboard-overview .account-summary {
+    display: flex;
+    padding: 18px;
+  }
+  .app-shell .dashboard-overview .branch-card {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .dashboard-overview *,
+  .app-shell .dashboard-overview *::before,
+  .app-shell .dashboard-overview *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .app-shell .dashboard-overview .emerald-card {
+    transform: none !important;
+  }
+}
+@media print {
+  .app-shell .dashboard-overview .glint,
+  .app-shell .dashboard-overview .border-shimmer {
+    display: none;
+  }
+  .app-shell .dashboard-overview .stat-card,
+  .app-shell .dashboard-overview .branch-card {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}
+
+.app-shell .dashboard-overview .account-summary > .card-surface {
+  padding: 0;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 100% 0, #f6df96a0, transparent 65%),
+    linear-gradient(140deg, #f9f5dc, #e8e9c9 80%, #f5e4b3);
+}
+.app-shell .dashboard-overview .account-summary-symbol {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #c0ba7c;
+  border-radius: 13px;
+  color: #4d6842;
+  background: linear-gradient(145deg, #fffef3c9, #e7e8beaa);
+  box-shadow: inset 0 1px 0 #fff;
+}
+.app-shell .dashboard-overview .account-summary > h2 {
+  padding-right: 36px;
+}
+.app-shell .dashboard-overview .account-summary > div:not(.card-surface) > span > svg {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  flex: 0 0 34px;
+  border: 1px solid #c7c38d;
+  border-radius: 11px;
+  background: #fffdf378;
+}
+.app-shell
+  .dashboard-overview
+  .account-summary:hover
+  :is(
+    .eyebrow,
+    h2,
+    .text-btn,
+    .account-summary-symbol,
+    div > span,
+    div > strong,
+    div > small,
+    .unit
+  ) {
+  color: #effff2;
+}
+.app-shell
+  .dashboard-overview
+  .account-summary:hover
+  :is(.account-summary-symbol, div > span > svg) {
+  color: #f5fff9;
+  border-color: #bce7c86b;
+  background: #ffffff1f;
+}
+.app-shell
+  .dashboard-overview
+  .account-summary
+  :is(.eyebrow, h2, .text-btn, .account-summary-symbol, div > span, div > small, .unit) {
+  transition:
+    color 700ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}

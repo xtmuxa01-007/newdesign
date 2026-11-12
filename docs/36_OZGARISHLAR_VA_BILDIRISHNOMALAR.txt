@@ -1,0 +1,129 @@
+O‘ZGARISHLAR TARIXI VA BOSHLIQ BILDIRISHNOMALARI
+==============================================
+
+O‘ZGARISHLAR BO‘LIMI
+«Savdolar va tarix → O‘zgarishlar»da quyidagi yozuvlar ko‘rsatiladi:
+- mahsulotning filialdagi sotuv narxi qo‘lda o‘zgartirilgani;
+- amalga oshirilgan savdo sabab bilan bekor qilingani.
+- boshqa pullar topshirilgani va topshiriq sabab bilan bekor qilingani.
+- reviziyadan keyin mahsulotning filialdagi kilogramm qoldig‘i tuzatilgani.
+
+Qoldiq tuzatishida mahsulot nomi/SKU, oldingi va yangi kilogramm, farq,
+majburiy sabab, filial va xodim ko‘rsatiladi. Admin o‘z filialida,
+boshliq tanlangan filialda tuzatadi. Xabarlar mavjud StockAdjustment va
+«Ombor qoldig‘i tuzatildi» auditiga bog‘langan; soxta/sinxron import
+auditi o‘zicha xabar hisoblanmaydi. Eski savdo yoki kirim qayta yozilmaydi.
+
+Boshqa pul yozuvida qabul qiluvchi, summa, naqd/karta, majburiy izoh,
+oldingi/keyingi kassa qoldig‘i va hisobda bo‘lmagan qism bor. Bu hodisalar
+ham boshliqlarga mustaqil o‘qilmagan xabar bo‘lib tushadi: 39_BOSHQA_PULLAR.txt.
+
+Bu ro‘yxat odatiy savdo jadvalidan chiqarilgan savdoni ham topishga yordam
+beradi. Filial, boshlanish/tugash sanasi va amal turi bo‘yicha filtrlash
+mumkin. Sanalar Toshkent vaqti bo‘yicha, tugash kuni ham davrga kiradi.
+Admin faqat o‘z filialini, boshliq barcha filiallar yoki tanlangan filialni
+ko‘radi. Tarix arxivlangan filialga tegishli yozuvlarni ham saqlaydi.
+
+Yozuvda o‘zgarish turi, filial, xodim, vaqt va sabab bor. Tafsilot ochilganda
+narxning oldingi/yangi qiymati yoki bekor qilingan savdoning asl ma’lumotlari,
+mahsulot qatorlari va summalari ko‘rsatiladi. Bekor qilingan savdo tirik Sale
+yozuvidan qayta yig‘ilmaydi: OperationCancellation.snapshot ishlatiladi.
+Ombordagi bugungi narx savdodagi tarixiy narxni o‘zgartirmaydi.
+
+Yangi narx auditlari mahsulot nomi/SKU nusxasini ham saqlaydi. Eski auditda
+bunday nusxa bo‘lmasa, mahsulotning joriy katalog nomi/SKU ishlatiladi va
+tafsilot bu holatni tushuntiradi. Oldingi/yangi narxning o‘zi auditdan
+olinadi; tarixiy mahsulot nomi saqlanmagan bo‘lsa u taxmin qilib tiklanmaydi.
+
+SAVDO QATORINI OCHISH
+«Savdolar» jadvalida qatorning tugma bo‘lmagan joyi, sana, summa yoki nom
+ustiga bosish savdo raqami tugmasi ochadigan tafsilotni ochadi. Klaviaturada
+Tab bilan qatorga o‘tib Enter yoki bo‘sh joyni bosing. Fokus va kursor
+ustidagi qator ko‘rinib turadi; jadval tuzilishi saqlanadi.
+«O‘chirish» kabi ichki tugmalar o‘z amalini alohida bajaradi va qator
+tafsilotini birga ochmaydi. Savdoni bekor qilishdagi sabab va tasdiqlash
+talabi saqlanadi; qatorni ochish savdoni bekor qilmaydi.
+
+BOSHLIQ UCHUN DASTUR ICHIDAGI BILDIRISHNOMALAR
+Bildirishnomalar faqat boshliq hisobida mavjud; kassir yoki admin uchun
+umumiy boshliq bildirishnomasi ko‘rsatilmaydi. Ular barcha filiallardagi
+shu turdagi o‘zgarishlarni qamraydi, yuqorida tanlangan bitta filial bilan
+cheklanmaydi. Yangi filial tanlash ham umumiy bildirishnoma doirasini
+o‘zgartirmaydi.
+
+Ro‘yxat va o‘qilmaganlar soni dastur ishlayotganida 15 soniyada hamda
+oynaga qaytilganda yangilanadi. Bu dastur ichidagi yangilanish: email,
+telefon push xabari yoki Windows tizim bildirishnomasi yuborilmaydi.
+Web/EXE yopiq paytda tashqi xabar yetkazish imkoniyati nazarda tutilmagan.
+
+O‘QILGANLIK HAR BIR HISOB UCHUN ALOHIDA
+Bildirishnoma yoki tarix tafsilotini ataylab ochish tegishli o‘zgarishni
+o‘qilgan deb belgilaydi. Ko‘rsatilgan bildirishnomalarni o‘qilgan deb
+belgilash amali ham bor. Bu amal faqat ayni paytda ko‘rsatilgan aniq
+voqealarga tegishli: keyin kelgan boshqa o‘zgarishni yashirin belgilamaydi.
+Ro‘yxatning fon rejimida yangilanishi o‘qilganlik belgisi yaratmaydi.
+
+O‘qilganlik serverda foydalanuvchi hisobi va o‘zgarish identifikatori bilan
+saqlanadi. Sahifani yangilash yoki shu hisobdan boshqa kompyuterda kirish
+belgini yo‘qotmaydi. Bir boshliqning o‘qishi boshqa boshliqning belgisini
+o‘zgartirmaydi. Login nomi almashtirilsa ham hisob identifikatori saqlanadi.
+O‘qilgan voqea bildirishnoma sanog‘idan chiqadi, «O‘zgarishlar» tarixida
+qoladi; asl audit yoki bekor qilingan savdo nusxasi o‘chirilmaydi.
+Oldin saqlangan mos o‘zgarishlar ham ko‘rinadi. Shu hisob ularni hali
+tasdiqlamagan bo‘lsa o‘qilmagan hisoblanadi; yangilanish paytida ular
+avtomatik o‘qilgan qilinmaydi yoki tarixdan yashirilmaydi.
+
+MA’LUMOT VA RUXSAT CHEGARALARI
+Narx o‘zgarishlari mavjud Audit yozuvlaridan, bekor qilingan savdolar esa
+tegishli Audit va OperationCancellation yozuvlaridan olinadi. Eski tarixni
+qayta yozish yoki yangi formatga to‘ldirish (backfill) bajarilmaydi.
+Yangi model, jadval yoki sxema migratsiyasi qo‘shilmaydi.
+
+Tarix va bildirishnoma GET so‘rovlari faqat o‘qiydi. O‘qilgan deb belgilash
+uchun alohida POST ishlatiladi; u faqat yangi o‘qilganlik Audit yozuvini
+yaratadi. Asl narx auditi, bekor qilish sababi, savdo nusxasi, ombor, kassa,
+qarz, kirim yoki chegirma summalari o‘zgarmaydi. Belgini saqlash boshqa
+foydalanuvchi nomidan bajarilmaydi: hisob serverdagi seansdan olinadi.
+
+Bu bo‘lim savdoni yoki narxni tahrirlashga qo‘shimcha ruxsat bermaydi.
+Haqiqiy narx tahriri «Ombor → Tahlil → Narxni o‘zgartirish»da, savdoni
+bekor qilish esa sabab va tasdiq bilan bajariladi. Ularning huquq va
+xavfsizlik tekshiruvlari o‘z yo‘lida qoladi.
+
+API
+GET /api/changes?branch_id=...&start=...&end=...&kind=...&offset=0&limit=50
+Admin/boshliq; branch_id boshliqda bo‘sh bo‘lsa barcha filiallar, admin
+doim o‘z filialiga chegaralanadi. start/end bo‘sh chegaralar ochiq qoladi.
+Standart sahifa 50 yozuv; limit 1–100. items, total, has_more, offset va
+limit qaytadi. id/event_id — asl o‘zgarish Audit.id identifikatori.
+kind filtri bo‘sh bo‘lsa barcha turlar; qiymatlari price_change,
+sale_cancelled, other_payment, other_payment_cancelled yoki stock_adjustment.
+price/sale/payment ichida tegishli tarixiy ma’lumot, yozuvning
+unread belgisi qaytadi. Narxda labels_source=snapshot saqlangan nom/SKU,
+labels_source=current_product esa joriy katalogdan olingan yorliqni bildiradi.
+Qoldiq tuzatishidagi stock ichida before, after, difference kilogrammlari
+va mahsulot ma’lumoti bor. Bekor qilingan tuzatishning asl tarixi saqlanadi.
+
+GET /api/changes/{event_id}
+Huquqli foydalanuvchiga to‘liq tafsilot, jumladan bekor qilingan savdoning
+mahsulot qatorlarini qaytaradi. GETning o‘zi o‘qilganlik belgisini yozmaydi:
+interfeys ataylab ochilgan tafsilot uchun alohida tasdiq so‘rovini yuboradi.
+
+GET /api/notifications/changes?limit=20
+Faqat boshliq uchun, umumiy bazada. Faqat o‘qilmagan items va barcha
+filiallardagi jami unread_count qaytadi. Standart 20, eng ko‘pi 50 yozuv;
+jami sanoq ekranda ko‘rsatilganlar soni bilan cheklanmaydi.
+
+POST /api/notifications/changes/read
+Body: {"event_ids": [aniq_ko‘rsatilgan_voqealar_idlari]}.
+Faqat boshliq; 1–100 ta musbat ID. Javob: ok, acknowledged, unread_count.
+Audit amali «O‘zgarish xabari o‘qildi», detail.event_id — asl o‘zgarish IDsi;
+user_id esa seansdagi hisob. Bir xil hisob/voqea uchun takroriy tasdiq
+qo‘shimcha o‘qilganlik yozuvini yaratmaydi. Boshqa boshliq uchun avvalgi
+tasdiq ishlatilmaydi. Kursor yoki umumiy «shu vaqtgacha hammasini o‘qildi»
+tamg‘asi bilan ko‘rilmagan yangi voqea yashirilmaydi.
+
+BOG‘LIQ YO‘RIQNOMALAR
+06_HISOBOT_TARIX_JSON.txt — savdo va audit, Excel/JSON, umumiy analiz.
+34_EHSON_LIMITI_VA_AMALNI_BEKOR_QILISH.txt — savdoni sabab bilan bekor qilish.
+35_MAHSULOT_TAHLILI_VA_NARX_TAHRIRI.txt — mahsulot tahlili va narx tahriri.

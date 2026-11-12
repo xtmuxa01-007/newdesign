@@ -1,0 +1,100 @@
+JORIY HOLAT: 2026-09-16 da test/demo fayllari va bazalari olib tashlandi.
+Quyida bo'limning ishlab chiqish tarixi va biznes qoidalari saqlangan.
+Amaldagi o'rnatish va bo'sh baza: 21_TOZA_VERSIYA.txt. Eski demo loginlari ishlamaydi.
+
+FILIAL XARAJATLARI — WEB VERSIYA
+Sana: 2026-09-15
+
+1. FOYDALANISH
+Admin va boshliq menyusida «Filiallar va xarajatlar» sahifasi bor.
+Boshliqning «Jamoa va filiallar» sahifasida ham xarajatlarga o'tish tugmasi bor.
+POSdagi «Filial xarajati» tugmasi olib tashlangan. Xarajat kiritish admin
+yoki boshliqning «Filiallar va xarajatlar» sahifasida qolgan.
+Boshliq filialni tanlaydi. Admin va kassirda o'z filiali avtomatik olinadi
+va almashtirilmaydi. Naqd oldindan tanlangan; karta ham tanlash mumkin.
+Ta'minotchi, musbat summa va xarajat sababi majburiy. Saqlanganda xarajat
+kassadan chiqadi va aynan shu filialdagi tanlangan ta'minotchi haqi kamayadi.
+Savatdagi mahsulotlar xarajat sababli tozalanmaydi.
+
+2. HISOB QOIDASI
+Misol: naqd 100000, ta'minotchining qolgan haqi 50000, xarajat 1000 bo'lsa,
+naqd 99000, ta'minotchining qolgan haqi 49000 bo'ladi.
+Karta tanlansa, faqat karta hisobi kamayadi. Ehson qoldig'i o'zgarmaydi.
+Ta'minotchiga berilgan pul va filial xarajatlari alohida ustunlarda turadi.
+Qolgan haq = sotilgan mahsulotlarning chegirmadan keyingi summasi
+             - ta'minotchiga berilgan pul - filial xarajatlari.
+Xarajat tanlangan naqd/karta qoldig'idan ham, ta'minotchining shu filialdagi
+qolgan haqidan ham oshishi mumkin emas. Bu tekshiruv serverda ham bajariladi.
+
+3. BACKEND FAYLLARI VA SAQLASH
+backend/app/models.py: BranchExpense, branch_expenses jadvali.
+Maydonlar: id, request_id, branch_id, supplier_id, user_id, amount,
+method (cash/card), reason, created_at. request_id yagona; summa > 0.
+Jadval mavjud create_all orqali qo'shiladi; eski yozuvlar almashtirilmaydi.
+backend/app/schemas.py: NewExpense kirish modeli; ortiqcha maydonlar rad,
+bo'sh sabab va noto'g'ri pul qiymatlari rad qilinadi.
+backend/app/routes_expenses.py: filial ruxsati, mablag'lar tekshiruvi,
+takror so'rovni aniqlash, xarajat va auditni bitta tranzaksiyada saqlash.
+backend/app/main.py: yangi router ulandi.
+backend/app/accounting.py: balances va supplier_debt xarajatni hisoblaydi.
+Mavjud to'lov tekshiruvlari va dashboard ham shu hisobdan foydalanadi.
+
+4. API
+GET /api/expenses/options?branch_id=1 — uchala rol uchun ruxsat etilgan
+filialning cash/card qoldig'i va suppliers: id/name/debt ro'yxati.
+GET /api/expenses?branch_id=1&offset=0 — admin/boshliq uchun tarix:
+count, amount, items (100 tadan, yangisi oldinda), supplier va actor nomlari.
+Boshliq branch_id bermasa, tarix barcha filiallarni qamraydi.
+POST /api/expenses — request_id, branch_id, supplier_id, amount, method,
+reason. Admin/kassir branch_id bermasa ham o'z filiali olinadi.
+Boshliq xarajat yaratishda aniq filial berishi shart.
+Bir xil request_id va bir xil ma'lumot qayta kelsa avvalgi yozuv qaytariladi;
+boshqa ma'lumot bilan qayta ishlatilsa 409 qaytadi. Pul ikkinchi marta ayrilmaydi.
+branch_write umumiy filial qulfi savdo va boshqa chiqimlar bilan hisobni
+muvofiqlashtiradi. Audit: «Filial xarajati qilindi», xodim va expense tafsiloti.
+Yozuvni tahrirlash/o'chirish endpointi qo'shilmagan.
+
+5. FRONTEND
+frontend/src/ExpenseModal.jsx: umumiy xarajat oynasi; filial bo'yicha
+qoldiqlarni yangilaydi, pul turi default cash, yuborishda maydonlar bloklanadi.
+recoverablePost mavjud mexanizmi request_id va so'rovni qayta tiklash uchun
+saqlaydi. Bu brauzerni to'liq offline dasturga aylantirmaydi.
+frontend/src/pages/Expenses.jsx: filial qoldiqlari va xarajatlar tarixi,
+yangilash, yangi xarajat, tarixni sahifalash.
+frontend/src/main.jsx: menyu va sahifa ulanishi.
+frontend/src/pages/Team.jsx: xarajatlar sahifasiga o'tish.
+POSda xarajat tugmasi va xarajat oynasi ishlatilmaydi.
+frontend/src/pages/Suppliers.jsx: alohida «Filial xarajatlari» ustuni.
+
+6. TEKSHIRUV NATIJALARI
+backend/tests/test_expenses.py: uchala rol, filial chegarasi, default cash,
+naqd/karta yetarliligi, supplier haqi, noto'g'ri qiymatlar, takror so'rov,
+auditning bir marta yozilishi va desktop cheklovi tekshirildi.
+To'liq backend: 104 passed, 2 skipped. Ikki PostgreSQL parallel tekshiruvi
+bu muhitda o'tkazilmadi; PostgreSQL parallel ishlashi tekshirildi deyilmaydi.
+Frontend: 9 test o'tdi, production build muvaffaqiyatli.
+Brauzerda kassir1 orqali Chilonzor filialiga 1000 so'm naqd xarajat kiritildi:
+«Demo sinov: filial uchun tozalash vositasi», Oqtepa Tekstil (demo).
+Naqd 645425.35 -> 644425.35; supplier haqi 437519.85 -> 436519.85.
+Boshliq tarixida #1, Malika To'xtayeva (demo), filial, sabab, summa, vaqt
+ko'rindi. Ta'minotchilar jadvalida xarajat 1000 alohida ko'rindi.
+Demo ma'lumot .local-tools/web-demo/web.db ichida, bu SQLite sinov muhiti.
+Asosiy Docker/PostgreSQL sozlamalari saqlangan.
+
+7. CHEGARALAR
+EXE paketlari va desktop sinxronlash kodiga tegilmadi.
+CRM_BRANCH_ID yoqilgan desktop/filial rejimida yangi xarajat endpointlari
+web_only orqali cheklangan: hali sinxronlanmaydigan moliyaviy yozuv yuborilmaydi.
+Webning offline xususiyati o'zgartirilmadi; brauzerga backend bilan aloqa kerak.
+Internet bo'lmasa ham localhost/LAN backend mavjud bo'lsa web ishlaydi.
+Ushbu o'zgarishlar tarixi docs/12_DOIMIY_ISHLAR_JURNALI.txt ga ham yozilgan.
+
+2026-09-15 QO'SHIMCHA: TA'MINOTCHILAR BO'LIMI
+Suppliers.jsx da Xarajatlar jami kartochkasi va SupplierExpenses.jsx orqali
+Barcha qilingan xarajatlar tarixi qo'shildi. Egalariga berilgan pul alohida
+nomlangan. Xarajat qolgan haqdan ayriladi, paid summasiga qo'shilmaydi.
+Tarix barcha ruxsat etilgan filiallar yoki tanlangan filial bo'yicha 100 tadan
+sahifalanadi. Ko'rinadigan ma'lumot: supplier, filial, summa, usul, sabab,
+xodim va vaqt. GET /expenses mavjud endpointi ishlatiladi, yangi DB o'zgarishi
+kerak emas. Build va mavjud 15 xarajat testi o'tdi.
+

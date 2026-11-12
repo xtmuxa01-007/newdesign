@@ -1,0 +1,29 @@
+.other-payments-head { gap: 18px; }
+.other-payments-heading { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.other-payments-icon { width: 46px; height: 46px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 14px; color: var(--green, #155e50); background: var(--soft-green, #e8eee2); }
+.other-payments-total { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 0 24px 22px; padding: 19px 22px; border: 1px solid var(--line, #dccba8); border-radius: 14px; background: var(--soft-green, #eef2e8); }
+.other-payments-total > div { display: grid; gap: 7px; min-width: 0; }
+.other-payments-total > div > span { color: var(--muted, #607269); font-size: 14px; }
+.other-payments-total strong { color: var(--green, #155e50); font-size: 26px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.other-payments-total > .badge { flex: 0 0 auto; }
+.other-payments-error { margin: 12px 24px; }
+.other-payment-balance { display: flex; align-items: center; gap: 13px; padding: 17px 19px; border: 1px solid var(--line, #dccba8); border-radius: 14px; background: var(--soft-green, #eef2e8); margin: 18px 0 22px; }
+.other-payment-balance-icon { flex: 0 0 auto; color: var(--green, #155e50); }
+.other-payment-balance > div:nth-child(2) { display: grid; gap: 5px; flex: 1; min-width: 0; }
+.other-payment-balance span { color: var(--muted, #607269); font-size: 13px; }
+.other-payment-balance strong { color: var(--green, #155e50); font-size: 22px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.other-payment-balance strong .unit { font-size: 13px; }
+.other-payment-fill { display: flex; justify-content: flex-end; margin: -10px 0 16px; }
+.other-payment-warning, .other-payment-after { margin: 0 0 20px; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.other-payment-warning { background: #fff3d6; border: 1px solid #e4c786; color: #745a20; }
+.other-payment-after { background: var(--soft-green, #eef2e8); border: 1px solid var(--line, #dccba8); color: var(--text, #214639); }
+.other-payments-panel td.number { white-space: nowrap; }
+@media (max-width: 760px) {
+  .other-payments-head { align-items: flex-start; flex-wrap: wrap; }
+  .other-payments-heading { align-items: flex-start; gap: 10px; }
+  .other-payments-icon { width: 40px; height: 40px; border-radius: 12px; }
+  .other-payments-total { margin: 0 16px 18px; padding: 16px; flex-wrap: wrap; gap: 12px; }
+  .other-payments-total strong { font-size: 23px; }
+  .other-payment-balance { padding: 14px; }
+  .other-payment-balance strong { font-size: 20px; }
+}

@@ -1,0 +1,153 @@
+.app-shell.emerald-workspace .app-content {
+  position: relative;
+  isolation: isolate;
+}
+.app-shell.emerald-workspace .workspace-atmosphere {
+  position: fixed;
+  inset: 0 0 0 var(--sidebar-width);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.workspace-aura {
+  position: absolute;
+  inset: -12%;
+  background:
+    radial-gradient(
+      ellipse at 7% 31%,
+      color-mix(in srgb, var(--green) 17%, transparent),
+      transparent 43%
+    ),
+    radial-gradient(
+      ellipse at 91% 17%,
+      color-mix(in srgb, var(--wave-light) 24%, transparent),
+      transparent 46%
+    ),
+    radial-gradient(
+      ellipse at 57% 66%,
+      color-mix(in srgb, var(--wave-edge) 28%, transparent),
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 23% 95%,
+      color-mix(in srgb, var(--wave-glow) 17%, transparent),
+      transparent 44%
+    );
+  animation: workspace-aura-drift 28s ease-in-out infinite alternate;
+}
+.workspace-grain {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--green) 19%, transparent) 0.7px,
+    transparent 0.9px
+  );
+  background-size: 22px 22px;
+  mask-image: linear-gradient(130deg, #0009, #0002 45%, #0009);
+}
+.workspace-contours {
+  position: absolute;
+  inset: -9%;
+  width: 118%;
+  height: 118%;
+  fill: none;
+  animation: workspace-contour-drift 36s ease-in-out infinite alternate;
+}
+.contour-stop-clear {
+  stop-color: var(--green);
+  stop-opacity: 0;
+}
+.contour-stop-color {
+  stop-color: var(--green);
+  stop-opacity: 0.22;
+}
+.contour-stop-light {
+  stop-color: var(--wave-light);
+  stop-opacity: 0.34;
+}
+.contour-stop-gold {
+  stop-color: var(--wave-edge);
+  stop-opacity: 0.7;
+}
+.workspace-contour-lines {
+  stroke: url(#workspace-contour-ink);
+  stroke-width: 1;
+}
+.workspace-light-trails {
+  stroke: var(--wave-edge);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 90 240 8 1200;
+  opacity: 0.55;
+}
+.workspace-light-trails path {
+  animation: workspace-silk-travel 42s linear infinite;
+  animation-delay: var(--trail-delay);
+}
+.workspace-light-mote {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--wave-edge) 65%, white);
+  box-shadow: 0 0 14px 4px color-mix(in srgb, var(--wave-edge) 48%, transparent);
+  animation: workspace-mote-breathe 14s ease-in-out infinite;
+  animation-delay: var(--mote-delay);
+}
+@keyframes workspace-aura-drift {
+  from {
+    transform: translate3d(-1%, 1%, 0) rotate(-2deg) scale(1);
+  }
+  to {
+    transform: translate3d(2%, -2%, 0) rotate(1deg) scale(1.05);
+  }
+}
+@keyframes workspace-contour-drift {
+  from {
+    transform: translate3d(-1%, 0, 0) rotate(-1deg);
+  }
+  to {
+    transform: translate3d(1%, 2%, 0) rotate(1deg);
+  }
+}
+@keyframes workspace-silk-travel {
+  to {
+    stroke-dashoffset: -1538;
+  }
+}
+@keyframes workspace-mote-breathe {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(6px) scale(0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateY(-9px) scale(1.2);
+  }
+}
+@media (max-width: 760px) {
+  .app-shell.emerald-workspace .workspace-atmosphere {
+    left: 0;
+  }
+  .workspace-grain {
+    background-size: 26px 26px;
+  }
+  .workspace-contours {
+    opacity: 0.75;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-atmosphere *,
+  .workspace-atmosphere *::before,
+  .workspace-atmosphere *::after {
+    animation: none;
+  }
+}
+@media print {
+  .workspace-atmosphere {
+    display: none;
+  }
+}

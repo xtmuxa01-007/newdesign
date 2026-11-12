@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" preserveAspectRatio="none"><defs><linearGradient id="ambient-fill" x1="0" y1="1" x2="1" y2="0">
+          <stop stop-color="#fff7cb" stop-opacity="0" />
+          <stop offset=".54" stop-color="#fff4c5" stop-opacity=".1" />
+          <stop offset=".82" stop-color="#fffbe6" stop-opacity=".8" />
+          <stop offset="1" stop-color="#daf1cd" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="ambient-line" x1="0" y1="0" x2="1" y2="0">
+          <stop stop-color="#fff" stop-opacity="0" />
+          <stop offset=".58" stop-color="#fffdeb" stop-opacity=".9" />
+          <stop offset="1" stop-color="#fff" stop-opacity="0" />
+        </linearGradient>
+        
+        
+        
+        
+        
+        
+        
+      </defs>
+        <path d="M-100 570 C520 540 865 420 1740 -130 L1740 130 C1060 485 560 620 -100 600Z" fill="url(#ambient-fill)" />
+        <path d="M-100 570 C520 540 865 420 1740 -130" fill="none" stroke="url(#ambient-line)" stroke-width="2" />
+      </svg>

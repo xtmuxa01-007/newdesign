@@ -1,0 +1,52 @@
+ARXITEKTURA VA MA’LUMOT OQIMI
+=============================
+
+TOPOLOGIYA
+Filial 1 brauzeri ─┐
+Filial 2 brauzeri ─┼─ nginx web:80 → FastAPI api:8000 → PostgreSQL db:5432
+Boshliqlar ────────┘                      └→ product_images Docker volume
+
+Tashqariga faqat web porti chiqadi: standart server:8080.
+Brauzer /api bilan shu origin orqali ishlaydi, CORS kerak emas.
+PostgreSQLning 5432 porti hostga e’lon qilinmagan. API ham tashqariga
+alohida ochilmagan. API docs nginx orqali /api/docs da mavjud.
+
+DOCKER XIZMATLARI
+db: PostgreSQL, postgres_data volume, pg_isready healthcheck.
+api: Python ilova, db sog‘lom bo‘lgach boshlanadi, crm nomli oddiy foydalanuvchi.
+web: Reactning tayyor statik fayllari va nginx reverse proxy.
+
+ISHGA TUSHISH
+main.lifespan Base.metadata.create_all orqali bo‘sh bazada jadvallarni yaratadi.
+Foydalanuvchi yo‘q bo‘lsa .env paroli bilan faqat boshliq yaratiladi.
+Bu boshlang‘ich jarayon hozir bitta API jarayoni uchun tuzilgan.
+Uvicorn bitta worker bilan yuradi. Bir nechta replikaga o‘tishda bootstrapni
+alohida migratsiya/init ishiga ajrating, bir xil vaqtda ikki marta bajarmang.
+
+TRANZAKSIYALAR
+get_db har so‘rov uchun Session ochadi, xatoda rollback qiladi.
+Yozuvchi endpoint muvaffaqiyatda commit qiladi. Audit ham shu tranzaksiyada.
+Savdo: filial qulfi → takror so‘rov tekshiruvi → savat qulfi (bo‘lsa)
+→ product_id bo‘yicha tartiblangan stock qulflari → qoldiq/narx tekshiruvi
+→ Sale/SaleItem/Audit → savatni o‘chirish → commit.
+Kirim va pul chiqimi ham avval filial qatorini SELECT FOR UPDATE qiladi.
+Bu tartib bir filialning parallel moliyaviy operatsiyalarini ketma-ket qiladi;
+turli filiallar bir-birini to‘xtatmaydi.
+
+NIMA UCHUN ALOHIDA LEDGER QOLDIQ JADVALI YO‘Q?
+Naqd/karta va qarzlar o‘zgarmaydigan savdo/to‘lov yozuvlaridan yig‘iladi.
+Natijada ikki xil joyda saqlangan qoldiqlar bir-biridan farqlanib ketmaydi.
+Katta tarixda tezlik uchun agregat yoki materialized view qo‘shish mumkin,
+lekin asl moliyaviy yozuvlar manba bo‘lib qolishi kerak.
+
+MUHIT O‘ZGARUVCHILARI
+DB_HOST/DB_NAME/DB_USER/DB_PASSWORD: compose api ichiga yuboradi.
+DATABASE_URL: birinchi ustuvor ulanish; asosan sinovlar uchun.
+BOOTSTRAP_USERNAME/BOOTSTRAP_PASSWORD: faqat ilk boshliq yaratishga.
+COOKIE_SECURE: HTTPSda true; localhost HTTPda false.
+APP_PORT: tashqi web porti.
+
+VAQT
+DB vaqt ustunlari UTC, timezone-aware. Report sanalari Asia/Tashkentga ko‘ra.
+Frontend ham Toshkent vaqtini ko‘rsatadi, brauzerning vaqt zonasiga bog‘liq emas.
+

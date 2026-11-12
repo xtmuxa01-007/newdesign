@@ -1,0 +1,151 @@
+TIN CRM — QARZDORLAR, SAVDO QARZI VA OLDINGI QARZ
+Amaldagi tartib: 2026-10-22
+
+Oldingi qarzdan yig‘ilgan yoki dasturga kirimi yozilmagan haqiqiy pulni
+ta’minotchi haqqidan mustaqil topshirish: Ta’minotchilar → Boshqa pullar.
+Summa kassa qoldig‘i bilan cheklanmaydi, izoh majburiy va boshliqlarga
+bildirishnoma boradi. To‘liq tartib: 39_BOSHQA_PULLAR.txt.
+
+Web va online EXE https://tincrm.uz dagi umumiy bazadan foydalanadi.
+Qarz va to‘lov uchun server bilan aloqa kerak. Eski lokal bazadan o‘tish
+tartibi: 30_UMUMIY_WEB_VA_EXE.txt. Bu yo‘riqnoma amaldagi markaziy tizimga
+tegishli; alohida demo loginlari yoki demo bazasi ishlatilmaydi.
+
+QARZDOR VA SAVDO QARZI
+1. Admin yoki boshliq «Qarzlar → Qarzdor qo‘shish»da filial, ism, familiya,
+   ikkita telefon raqami va yashash manzilini kiritadi.
+2. «Qarzdorlar ro‘yxati»da ism/telefon orqali qidirish va ma’lumotni tahrirlash
+   mumkin. Qarzdorning filialini keyin almashtirish mumkin emas.
+3. Yangi mahsulot savdosi uchun POSda mahsulot/kg tanlab, «Qarzga berish»ni
+   bosing. Qarzdor va qaytarish sanasi tanlanadi. Savdo qarzining sanasi
+   bugundan oldin bo‘lmaydi. Har bir savdoning muddati alohida.
+4. Hozir olingan pulni naqd/kartaga kiriting; pul olinmasa bo‘sh qoldiring.
+   Jami mahsulot qiymati bilan hozir to‘langan pulning farqi qarzga yoziladi.
+
+AVVAL BERILGAN QARZNI MAHSULOTSIZ KIRITISH
+1. Admin yoki boshliq «Qarzlar → Oldingi qarzni kiritish»ni ochadi.
+2. Filial va mavjud qarzdorni tanlang. Yangi odam uchun shu oynadagi
+   «Yangi qarzdor qo‘shish»ni bosing, shaxs ma’lumotlarini saqlang va
+   qarz summasini kiriting. Alohida mahsulot yoki kg talab qilinmaydi.
+3. Summa musbat bo‘lishi kerak; pul maydoni 10 000.50 ko‘rinishida yoziladi.
+   Qaytarish sanasi va izoh ixtiyoriy. Sana bo‘sh qolsa Toshkentdagi bugungi
+   sana olinadi. Avvalgi qarz uchun o‘tgan muddatni ham yozish mumkin.
+4. «Qarzni saqlash»dan keyin yozuv «Oldingi qarz #...» deb ko‘rinadi.
+   Bitta odam uchun alohida summalar/muddatlar bilan bir nechta qarz mumkin.
+5. Bu yozuv faqat mijozning olinmagan qarzini oshiradi. Savdo yoki mahsulot
+   qatori yaratilmaydi; kassa, ombor kg, ta’minotchi haqi va ehson o‘zgarmaydi.
+   Oldingi qarz mahsulot savdosi statistikasi va kg ko‘rsatkichiga kirmaydi.
+
+RO‘YXAT VA TO‘LOV
+«Qarzlar»da to‘lanmagan, qisman to‘langan, muddati kelgan, to‘langan va barcha qarzlar mavjud.
+Savdo qarzi va oldingi qarz bir ro‘yxatda, kelib chiqishi aniq yozilgan holda
+ko‘rinadi. Hisob va jami summa butun filtr bo‘yicha; jadval 100 ta/sahifa.
+Admin va kassir o‘z filialida, boshliq tanlangan filial yoki barcha filiallarda
+ishlaydi. Kassir qarzdor/oldingi qarz yaratmaydi, ammo to‘lov qabul qiladi.
+
+Ixcham jadvalda qarzdor nomi, qarz turi/raqami va filial bir joyda;
+telefon/manzil, qolgan/jami/to‘langan summa, muddat va holat alohida ko‘rinadi.
+Bir xil telefon ikki marta chiqarilmaydi. Asosiy «To‘lov» tugmasi qatorning
+o‘zida qoladi. «…» (Boshqa amallar) menyusida tarix, muddatni o‘zgartirish,
+oldingi qarz ma’lumotini tahrirlash va bekor qilish mavjud huquqlarga qarab
+ko‘rsatiladi; kassirda tarix va to‘lov imkoniyati saqlanadi.
+Qisqartirib ko‘rsatilgan manzil va oldingi qarz izohini «Tarix» oynasida
+to‘liq o‘qish mumkin.
+Tab bilan tugmaga o‘ting, Enter/bo‘sh joy bilan oching; menyuda yuqori/past
+o‘qlar, Home/End bilan tanlang, Escape bilan yoping va tugmaga qayting.
+Filtr va jami summa yuqorida birga ko‘rsatiladi. Bu dizayn yangilanishi API,
+hisoblash qoidalari, bazadagi qarz/to‘lovlar yoki foydalanuvchi huquqlarini
+o‘zgartirmaydi.
+
+«To‘lov»ni bosib haqiqatan qabul qilingan naqd va kartani kiriting.
+Yig‘indi musbat va qolgan qarzdan oshmagan bo‘lsin. Qarz muddatidan oldin,
+muddati kelganda yoki keyin bir necha marta qisman to‘lanishi mumkin.
+Asl summa, jami to‘langan pul va qolgan qarz alohida ko‘rinadi. Qoldiq nolga
+teng bo‘lgandagina qarz yopiladi. Har bir to‘lovning xodimi, vaqti, naqd/karta
+taqsimoti va bekor qilish holati «Tarix»da saqlanadi.
+
+QOLGAN QARZNING MUDDATI VA MA’LUMOTINI TUZATISH
+Admin/boshliq «Muddatni o‘zgartirish»da qolgan qarz uchun yangi sana va
+sababni kiritadi. To‘lov bo‘lmasa ham muddatni surish mumkin. Qisman to‘lov
+oynasida ham qolgan qarzga yangi sana belgilash mumkin; sana bo‘sh qolsa
+avvalgi muddat saqlanadi. Yangi sana bugundan oldin bo‘lmasin. Eski sana
+va sabab tarixda qoladi, muddatni surish kassa yoki qarz summasini o‘zgartirmaydi.
+
+Oldingi qarzda «Ma’lumotni tahrirlash» orqali summa, shu filialdagi qarzdor,
+sana va izohni sabab bilan tuzatish mumkin. Yangi summa allaqachon qabul
+qilingan puldan kam bo‘lishi mumkin emas. Savdodan chiqqan qarzning summasi
+savdo bilan bog‘langan: uni «Savdolar va tarix»dagi savdo tahriri orqali
+tuzating. Qisman to‘lovlar bor savdoni tuzatishdan oldin tegishli to‘lovlar
+bekor qilinadi. Qarzdorning ism/telefon/manzilini «Qarzdorlar ro‘yxati»da tahrirlang.
+
+Masalan, savdo 13 800, hozir naqd 3 800, qarz 10 000: mahsulot savdosi
+13 800, kassaga 3 800, mijoz qarzi 10 000 yoziladi. Keyin 6 000 naqd +
+4 000 karta qabul qilinsa, kassaning shu hisoblari oshadi va qarz yopiladi.
+Oldingi 10 000 qarzni kiritishda kassa o‘zgarmaydi; 6 000 naqd + 4 000 karta
+bilan yopilgandagina pul kassaga kiradi. Qarz to‘lovi yangi mahsulot savdosi
+emas; ombordan yana kg chiqarmaydi, ta’minotchi haqi yoki ehsonni oshirmaydi.
+Savdolar analizidagi davr tushumiga shu davrda qabul qilingan to‘lov kiradi.
+
+XATO OLDINGI QARZ YOKI TO‘LOVNI BEKOR QILISH
+Admin va boshliq oldingi qarz qatorida sabab va tasdiq bilan amalni bekor
+qila oladi. To‘lanmagan qarzda «Qarzni bekor qilish» mijoz qarzini olib tashlaydi;
+kassa/ombor o‘zgarmaydi. To‘langan qarzda avval «To‘lovni bekor qilish» kerak:
+pul kassadan ayriladi, qarz qayta ochiladi. Keyin zarur bo‘lsa qarzning o‘zi
+bekor qilinadi. Kassa qoldig‘i yoki boshqa bog‘lanish mos kelmasa server
+amalni rad etadi. Boshqa PC yozuvni o‘zgartirgan bo‘lsa ro‘yxatni yangilang.
+Qisman to‘lov xato bo‘lsa «Tarix»dagi aynan shu to‘lovni bekor qiling:
+faqat shu to‘lov summasi kassadan ayriladi va qarz qoldig‘iga qaytadi.
+Qolgan to‘lovlar saqlanadi. So‘ng to‘g‘ri summani yangi to‘lov sifatida kiriting.
+Asl amal, xodim, vaqt va bekor qilish sababi audit tarixida saqlanadi.
+Savdo bilan bog‘liq amallar uchun tarixdagi umumiy bekor qilish tartibi:
+34_EHSON_LIMITI_VA_AMALNI_BEKOR_QILISH.txt.
+
+BILDIRISHNOMALAR VA ALOQA UZILISHI
+Qo‘ng‘iroq belgisi har ikkala turdagi muddati kelgan to‘lanmagan qarzlarni
+ko‘rsatadi. Ma’lumot har 30 soniyada, oynaga qaytilganda va qarz yaratish/
+to‘lash/bekor qilishdan keyin yangilanadi. To‘langach bildirishnoma yo‘qoladi;
+to‘lov bekor qilinsa muddati kelgan qarz yana ko‘rinadi.
+Dastur yopiq paytda tashqi push, SMS yoki Windows bildirishnomasi yuborilmaydi.
+
+Pulga tegishli so‘rov yuborilishidan oldin request_id bilan brauzerda saqlanadi.
+Javob noma’lum bo‘lsa «Natijani tekshirish» aynan shu so‘rovni qayta yuboradi;
+yangi ID bilan qayta qarz yoki to‘lov yaratmang. Server bir xil ID va qiymatlar
+uchun oldingi natijani qaytaradi, o‘zgargan qiymatlarni rad etadi.
+
+DASTURCHI UCHUN
+GET /api/debtors?branch_id=...; POST /api/debtors; PUT /api/debtors/{id}.
+GET /api/debts?branch_id=...&status=open|paid|due|partial|all&offset=0 ikkala turdagi
+qarzlarni qaytaradi: origin='sale' yoki 'opening'; opening uchun sale_id=null.
+GET /api/notifications/debts shu birlashtirilgan ro‘yxatning due filtridir.
+POST /api/debts/{id}/pay — savdo qarzini to‘lash.
+POST /api/opening-debts — request_id, branch_id, debtor_id, amount,
+optional due_date/note; faqat admin/boss.
+POST /api/opening-debts/{id}/pay — request_id, cash, card; har uch rol.
+Ikkala /pay yo‘li ham qisman to‘lovni qabul qiladi; ixtiyoriy next_due_date
+qolgan qarzning yangi muddatidir. Qoldiqdan ortiq to‘lov qabul qilinmaydi.
+POST /api/debts/{id}/revise va /api/opening-debts/{id}/revise — request_id,
+reason, expected_fingerprint, o‘zgartiriladigan due_date; oldingi qarz uchun
+amount, debtor_id, note ham mumkin. Faqat admin/boss.
+POST /api/debt-installments/{id}/cancel — qisman to‘lovni sabab/fingerprint
+bilan bekor qilish; faqat admin/boss.
+POST /api/opening-debts/{id}/cancel va
+POST /api/opening-debts/payments/{id}/cancel — request_id, reason,
+expected_fingerprint; faqat admin/boss. Frontend joriy holatni qayta tekshiradi.
+
+OpeningDebt/OpeningDebtPayment alohida jadvallari mavjud savdo va Debt
+bog‘lanishlarini o‘zgartirmaydi. Deploy yetishmayotgan jadvallarni yaratadi;
+mavjud savdo ma’lumoti saqlanadi. Filial qulfi, unique request_id, pulning
+Decimal aniqligi, scope/rol tekshiruvi va tranzaksiya qisman yozilishni
+oldini oladi. Asl/bekor qilingan yozuv auditda qoladi, ishlaydigan ro‘yxat
+va balanslar faqat amaldagi qarz/to‘lovni hisoblaydi.
+
+DebtInstallment va DebtRevision qo‘shimcha jadvallari yangi to‘lov/muddat
+tarixini saqlaydi. Avvalgi DebtPayment va OpeningDebtPayment yozuvlari va
+ularning bog‘lanishlari saqlanadi; deploy mavjud qarz summasi, sanasi yoki
+to‘lovini qayta yozmaydi. ID qayta ishlatilsa tarix boshqa qarzga ulanmasligi
+uchun yangi yozuvlar asl qarzning yaratilgan vaqtini ham saqlaydi.
+
+Frontend: pages/Debts.jsx, DebtActionsMenu.jsx, DebtNotifications.jsx,
+OperationCancelModal.jsx, recovery.js. Savdo va oldingi qarz IDlari bir-biriga teng bo‘lishi mumkin:
+UI keys va to‘lov endpointlari origin bo‘yicha farqlanadi.
+Tekshiruv natijalari: 12_DOIMIY_ISHLAR_JURNALI.txt.

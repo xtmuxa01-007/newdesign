@@ -1,0 +1,867 @@
+/* TIN ish maydoni. Login uslublari style.css ichida alohida qoladi. */
+.app-shell {
+  --sidebar-width: 276px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.app-shell .sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  height: 100dvh;
+  padding: 0;
+  color: var(--sidebar-text);
+  background: var(--sidebar);
+  border-right: 1px solid color-mix(in srgb, var(--sidebar-text) 15%, transparent);
+  overflow: hidden;
+}
+.sidebar-header {
+  flex: 0 0 auto;
+  position: relative;
+  padding: 26px 24px 20px;
+}
+.workspace-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.workspace-brand img {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: #fffdf7;
+  border-radius: 12px;
+}
+.workspace-brand > span {
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 1px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.workspace-brand small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  margin-top: 7px;
+}
+.workspace-company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+}
+.workspace-company > span {
+  width: 7px;
+  height: 7px;
+  background: var(--nav-active);
+  border-radius: 50%;
+}
+.sidebar-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sidebar-text) 35%, transparent) transparent;
+  scrollbar-gutter: stable;
+  padding: 0 12px 20px 16px;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--sidebar-text) 35%, transparent);
+  border-radius: 6px;
+}
+.app-shell .workspace-label {
+  margin: 8px 12px 14px;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--sidebar-text) 70%, var(--sidebar));
+}
+.app-shell .sidebar nav {
+  gap: 5px;
+}
+.app-shell .sidebar nav button {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 47px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  color: var(--sidebar-text);
+  background: transparent;
+}
+.sidebar nav button svg {
+  flex: 0 0 19px;
+}
+.nav-label {
+  flex: 1;
+  min-width: 0;
+}
+.app-shell .sidebar nav button:hover {
+  color: var(--sidebar-text);
+  background: color-mix(in srgb, var(--sidebar-text) 10%, var(--sidebar));
+}
+.app-shell .sidebar nav button.active {
+  color: var(--nav-active-text);
+  background: var(--nav-active);
+  font-weight: 650;
+}
+.app-shell .nav-mark {
+  flex: 0 0 5px;
+  background: currentColor;
+}
+.app-shell .sidebar-bottom {
+  flex: 0 0 auto;
+  margin-top: 0;
+  padding: 0 20px 18px;
+  border-top: 1px solid color-mix(in srgb, var(--sidebar-text) 16%, transparent);
+}
+.app-shell .branch-note {
+  margin: 0;
+  padding: 15px 0;
+  border: 0;
+  color: var(--sidebar-text);
+  font-size: 12px;
+}
+.app-shell .branch-note small,
+.app-shell .profile small {
+  color: color-mix(in srgb, var(--sidebar-text) 75%, var(--sidebar));
+  font-size: 12px;
+}
+.app-shell .status-dot {
+  background: var(--nav-active);
+}
+.app-shell .profile {
+  gap: 10px;
+}
+.app-shell .avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  font-size: 16px;
+  color: var(--nav-active-text);
+  background: var(--nav-active);
+  border: 0;
+}
+.profile > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.app-shell .profile strong {
+  max-width: 140px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.app-shell .profile .icon-btn,
+.app-shell .sidebar-close {
+  color: var(--sidebar-text);
+}
+.app-shell .profile .icon-btn:hover,
+.app-shell .sidebar-close:hover {
+  background: color-mix(in srgb, var(--sidebar-text) 12%, var(--sidebar));
+}
+.app-shell .app-content {
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  min-width: 0;
+}
+.app-shell .topbar {
+  min-height: 80px;
+  height: auto;
+  padding: 16px 30px;
+  gap: 20px;
+  color: var(--topbar-text);
+  background: var(--topbar);
+  border-bottom: 1px solid color-mix(in srgb, var(--topbar-text) 15%, transparent);
+}
+.app-shell .breadcrumb {
+  gap: 12px;
+  font-size: 14px;
+  min-width: 0;
+}
+.app-shell .breadcrumb strong {
+  color: var(--topbar-text);
+  font-weight: 600;
+}
+.app-shell .breadcrumb > span,
+.app-shell .today-label {
+  color: color-mix(in srgb, var(--topbar-text) 80%, var(--topbar));
+  font-size: 13px;
+}
+.app-shell .topbar-right {
+  gap: 16px;
+  flex-shrink: 0;
+}
+.app-shell .topbar .branch-picker,
+.app-shell .topbar-right > button,
+.app-shell .topbar .mobile-toggle {
+  color: var(--topbar-text);
+  background: color-mix(in srgb, var(--topbar-text) 7%, var(--topbar));
+  border: 1px solid color-mix(in srgb, var(--topbar-text) 24%, var(--topbar));
+  border-radius: 9px;
+  min-height: 42px;
+}
+.app-shell .branch-picker select {
+  color: var(--topbar-text);
+  font-size: 14px;
+  max-width: 230px;
+}
+.app-shell .branch-picker select:disabled {
+  color: var(--topbar-text);
+  opacity: 1;
+}
+.app-shell .branch-picker option {
+  background: var(--surface);
+  color: var(--text);
+}
+.app-shell .topbar-right > button:hover,
+.app-shell .topbar .mobile-toggle:hover {
+  background: color-mix(in srgb, var(--topbar-text) 15%, var(--topbar));
+}
+.app-shell .topbar-right > button:focus-visible,
+.app-shell .topbar .mobile-toggle:focus-visible,
+.app-shell .branch-picker select:focus-visible,
+.app-shell .sidebar :focus-visible {
+  outline: 2px solid var(--nav-active);
+  outline-offset: 3px;
+}
+/* Bildirishnoma oynasi panel ichida ochiladi; uning matni panel rangini olmasin. */
+.app-shell dialog {
+  color: var(--text);
+  background: var(--surface);
+}
+
+/* Asosiy matn 14â€“15px, mayda yordamchi yozuv kamida 12px. */
+.app-shell .main {
+  padding: 32px;
+}
+.app-shell h2,
+.app-shell .account-summary h2 {
+  font-size: 19px;
+  line-height: 1.4;
+}
+.app-shell h3,
+.app-shell .branch-card-title h3 {
+  font-size: 16px;
+}
+.app-shell p,
+.app-shell .panel-head p,
+.app-shell .empty p,
+.app-shell .role-cards p,
+.app-shell .donation-explainer p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.app-shell .eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.6px;
+}
+.app-shell .primary,
+.app-shell .secondary {
+  font-size: 14px;
+  min-height: 42px;
+  border-radius: 9px;
+}
+.app-shell .text-btn,
+.app-shell .account-summary .text-btn {
+  font-size: 14px;
+}
+.app-shell .field > span,
+.app-shell .field input,
+.app-shell .field select,
+.app-shell .field textarea,
+.app-shell .search input,
+.app-shell .filter-row > select,
+.app-shell .tabs button {
+  font-size: 14px;
+}
+.app-shell input,
+.app-shell select {
+  min-height: 40px;
+}
+.app-shell .branch-picker select {
+  min-height: 0;
+}
+.app-shell .field > small,
+.app-shell small,
+.app-shell .muted,
+.app-shell .notice,
+.app-shell .pager > span,
+.app-shell .filtered-total span,
+.app-shell .product-sku,
+.app-shell .stock-caption,
+.app-shell .cart-hint,
+.app-shell .cart-line .red,
+.app-shell .qty-input {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.app-shell .badge,
+.app-shell .count {
+  font-size: 12px;
+}
+.app-shell table,
+.app-shell td,
+.app-shell td strong {
+  font-size: 14px;
+}
+.app-shell th {
+  font-size: 12px;
+  font-weight: 650;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.app-shell td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.app-shell td small {
+  font-size: 12px;
+}
+.app-shell .table-note-row > td {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+  padding: 10px 22px 14px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--soft) 30%, var(--surface, #fff));
+  border-bottom: 1px solid var(--border);
+}
+.table-date-time {
+  display: block;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.app-shell .table-date-time small {
+  margin-top: 4px;
+}
+.app-shell .panel,
+.app-shell .metric,
+.app-shell .account-summary {
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #263c2e05;
+}
+.app-shell .metric {
+  padding: 22px;
+  min-height: 162px;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+@media (hover: hover) {
+  /* Karta foni tanlangan mavzuga mos tus oladi; ajratilgan karta to'qroq bo'ladi. */
+  .app-shell .metric:hover {
+    transform: translateY(-4px);
+    background-color: color-mix(in srgb, var(--nav-active) 40%, var(--surface));
+    border-color: var(--green);
+    box-shadow: 0 10px 26px #193f3621;
+  }
+  .app-shell .metric.accent:hover {
+    background-color: color-mix(in srgb, var(--accent) 80%, #000);
+    border-color: var(--accent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .metric {
+    transition: none;
+  }
+  .app-shell .metric:hover {
+    transform: none;
+  }
+}
+.app-shell .metric-top {
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+.app-shell .metric > strong {
+  font-size: clamp(24px, 2vw, 32px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.app-shell .metric strong small,
+.app-shell .metric-note {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.app-shell .dashboard-middle {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+.app-shell .branch-card {
+  padding: 20px;
+  border-radius: 11px;
+}
+.app-shell .branch-card dl > div {
+  font-size: 13px;
+  align-items: baseline;
+  margin: 14px 0;
+}
+.app-shell .branch-card dd {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.app-shell .account-summary > div span {
+  font-size: 14px;
+}
+.app-shell .account-summary > div small,
+.app-shell .account-summary > div .unit {
+  font-size: 12px;
+}
+.app-shell .account-summary > div strong {
+  font-size: 26px;
+  overflow-wrap: anywhere;
+}
+.app-shell .summary-strip span {
+  font-size: 13px;
+}
+.app-shell .product-card > strong,
+.app-shell .saved-cart strong,
+.app-shell .cart-line-title strong,
+.app-shell .cart-line-bottom b {
+  font-size: 15px;
+}
+.app-shell .product-price {
+  font-size: 19px;
+}
+.app-shell .product-grid.product-grid-compact {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+}
+.app-shell .product-grid-compact .product-card {
+  position: relative;
+  padding: 16px;
+  min-height: 180px;
+  border-radius: 12px;
+}
+.app-shell .product-grid-compact .product-meta {
+  margin-bottom: 10px;
+}
+.app-shell .product-grid-compact .product-card > strong {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  min-height: 0;
+  margin-bottom: 14px;
+  overflow-wrap: anywhere;
+}
+.app-shell .product-grid-compact .product-price {
+  margin-top: auto;
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.app-shell .product-grid-compact .product-price small {
+  display: inline-block;
+  font-size: 12px;
+}
+.app-shell .product-grid-compact .stock-caption {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  padding-right: 36px;
+  border-color: var(--border);
+}
+.app-shell .product-grid-compact .stock-caption .status-dot {
+  width: 6px;
+  height: 6px;
+}
+.app-shell .product-compact-add {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--green);
+}
+.app-shell .product-grid-compact .product-card.inactive {
+  opacity: 0.7;
+}
+.app-shell .catalog-image-toggle[aria-pressed='true'] {
+  background: var(--soft);
+  border-color: var(--green);
+  color: var(--green);
+}
+.app-shell .cart-total > span,
+.app-shell .payment-fields .field > span {
+  font-size: 14px;
+}
+.app-shell .payment-status,
+.app-shell .catalog-summary {
+  font-size: 13px;
+}
+.app-shell .app-footer {
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px 32px;
+  font-size: 12px;
+}
+.app-footer > strong {
+  color: var(--heading);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.app-footer > strong > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: normal;
+  margin-left: 6px;
+}
+.sidebar-close,
+.sidebar-backdrop {
+  display: none;
+}
+
+/* EXE aloqa paneli ham foydalanuvchi tanlagan mavzu rangida ko'rinadi. */
+
+/* Tayyor mavzu tanlanganda mayda elementlar ham uning ranglariga moslashadi. */
+.app-shell .secondary,
+.app-shell .account-summary,
+.app-shell .donation-explainer,
+.app-shell .kg-input,
+.app-shell .payment-fields > label {
+  border-color: var(--border);
+}
+.app-shell .secondary:hover:not(:disabled),
+.app-shell .icon-btn:hover,
+.app-shell .tile-icon,
+.app-shell .product-img.placeholder,
+.app-shell .product-visual,
+.app-shell .count,
+.app-shell .donation-explainer,
+.app-shell .donation-info {
+  background: var(--soft);
+}
+.app-shell .cart-payment {
+  background: var(--surface);
+}
+.app-shell .kg-input {
+  background: var(--field);
+}
+.app-shell td,
+.app-shell .pager,
+.app-shell .cart-line,
+.app-shell .account-summary > div {
+  border-color: var(--border);
+}
+.app-shell .search:focus-within,
+.app-shell .product-card:hover:not(:disabled) {
+  border-color: var(--green);
+}
+.app-shell input:focus,
+.app-shell select:focus,
+.app-shell textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 12%, transparent);
+}
+.app-shell button:focus-visible {
+  outline-color: var(--green);
+}
+.app-shell .sidebar button:focus-visible,
+.app-shell .topbar-right > button:focus-visible,
+.app-shell .mobile-toggle:focus-visible {
+  outline-color: var(--nav-active);
+}
+.app-shell .theme-presets {
+  min-width: 0;
+  padding: 0;
+  margin: 28px 0 0;
+  border: 0;
+}
+.theme-presets legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  padding: 0;
+  color: var(--heading);
+}
+.theme-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+  gap: 12px;
+}
+.theme-preset {
+  position: relative;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  white-space: normal;
+  color: var(--text);
+  background: var(--surface);
+}
+.theme-preset:hover {
+  border-color: var(--green);
+  background: var(--soft);
+}
+.theme-preset.selected {
+  border-color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+.theme-preset-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 24px;
+}
+.theme-preset-caption strong {
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.4;
+}
+.theme-preset-caption small {
+  color: var(--muted);
+}
+.theme-preset-check {
+  position: absolute;
+  bottom: 28px;
+  right: 12px;
+  color: var(--green);
+}
+.theme-preview {
+  display: grid;
+  grid-template-columns: 24% 1fr 1fr;
+  grid-template-rows: 16px 12px 1fr;
+  gap: 7px;
+  height: 76px;
+  background: var(--preview-page);
+  border-radius: 7px;
+  overflow: hidden;
+  padding: 0 8px 8px 0;
+}
+.theme-preview > i:nth-child(1) {
+  background: var(--preview-sidebar);
+  grid-row: 1 / 4;
+  margin-bottom: -8px;
+}
+.theme-preview > i:nth-child(2) {
+  background: var(--preview-topbar);
+  grid-column: 2 / 4;
+  margin-left: -7px;
+  margin-right: -8px;
+}
+.theme-preview > i:nth-child(3) {
+  background: var(--preview-accent);
+  grid-column: 2 / 4;
+  width: 55%;
+  border-radius: 3px;
+}
+.theme-preview > i:nth-child(4),
+.theme-preview > i:nth-child(5) {
+  background: var(--preview-surface);
+  border-radius: 3px;
+}
+.theme-preview > i:nth-child(4) {
+  background: linear-gradient(135deg, var(--preview-sidebar), var(--preview-topbar), var(--preview-wave));
+}
+.theme-reset > svg {
+  color: var(--green);
+}
+.app-shell .theme-presets > .theme-reset {
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  justify-content: flex-start;
+  font-size: 13px;
+}
+.app-shell .theme-current {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.theme-current strong {
+  color: var(--heading);
+  font-weight: 550;
+}
+
+@media (max-width: 1400px) {
+  .app-shell {
+    --sidebar-width: 260px;
+  }
+  .app-shell .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .app-shell .metrics.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .app-shell .dashboard-middle {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .account-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+  .app-shell .account-summary > .eyebrow,
+  .app-shell .account-summary > h2 {
+    grid-column: 1 / -1;
+  }
+  .app-shell .account-summary > .text-btn {
+    justify-self: start;
+  }
+}
+@media (max-width: 1150px) {
+  .app-shell .today-label,
+  .app-shell .breadcrumb > span {
+    display: none;
+  }
+  .app-shell .main {
+    padding: 24px;
+  }
+  .app-shell .topbar {
+    padding: 16px 24px;
+  }
+  .app-shell .topbar-right {
+    gap: 10px;
+  }
+  .app-shell .page-actions {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 950px) {
+  .app-shell {
+    --sidebar-width: 244px;
+  }
+  .sidebar-header {
+    padding-left: 20px;
+    padding-right: 16px;
+  }
+  .app-shell .metrics.three {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .pos-layout {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .app-shell .cart-panel {
+    position: static;
+  }
+  .app-shell .branch-picker select {
+    max-width: 160px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell .catalog-filters {
+    gap: 6px;
+  }
+  .app-shell .catalog-filters > button {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .app-shell .catalog-image-toggle {
+    margin-left: 0;
+  }
+  .app-shell .sidebar {
+    width: min(290px, 88vw);
+    z-index: 50;
+    visibility: hidden;
+  }
+  .app-shell .sidebar.open {
+    box-shadow: 14px 0 40px #0c291d44;
+    visibility: visible;
+  }
+  .app-shell .app-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #102d2470;
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+    z-index: 40;
+  }
+  .sidebar-close {
+    display: inline-flex;
+    position: absolute;
+    top: 20px;
+    right: 12px;
+  }
+  .app-shell .topbar {
+    padding: 12px 16px;
+    min-height: 72px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .app-shell .breadcrumb {
+    gap: 10px;
+  }
+  .app-shell .breadcrumb strong {
+    font-size: 14px;
+  }
+  .app-shell .topbar-right {
+    margin-left: auto;
+  }
+  .app-shell .main {
+    padding: 24px 16px;
+  }
+  .app-shell .metric {
+    padding: 18px 16px;
+  }
+  .app-shell .metric-top {
+    font-size: 13px;
+  }
+  .app-shell .metric > strong {
+    font-size: 25px;
+  }
+  .app-shell .account-summary {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .branch-cards {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .branch-picker select {
+    max-width: 145px;
+  }
+  .app-shell .app-footer {
+    padding: 20px 16px;
+  }
+}
+@media (max-width: 420px) {
+  .app-shell .metrics {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .app-shell .branch-picker {
+    flex: 1;
+    max-width: 245px;
+  }
+}

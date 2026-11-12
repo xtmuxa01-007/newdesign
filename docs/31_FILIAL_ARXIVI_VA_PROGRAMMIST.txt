@@ -1,0 +1,55 @@
+FILIALNI ARXIVLASH VA PROGRAMMIST HISOBI — 2026-09-26
+
+FOYDALANISH
+Jamoa va filiallar -> Filiallar -> O'chirish -> filial nomini aynan yozish
+-> Arxivlash. Arxiv bo'limida Tiklash orqali qayta ochiladi.
+Foydalanuvchi butunlay o'chirish o'rniga tarixni saqlab arxivlashni tanladi.
+Haqiqiy filial avtomatik arxivlanmaydi; tanlash va tasdiqlashni hisob egasi
+interfeysdan bajaradi.
+
+FAQAT ABDUQODIR HISOBI
+Hisob logini: abduqodir. Ko'rinadigan ism va rol: Programmist.
+Amaldagi parol saqlanadi; parol kod, hujjat yoki testga kiritilmaydi.
+Server birinchi ishga tushishida mavjud faol abduqodir/boss hisobining IDsi
+system_owner jadvaliga bir marta yoziladi. Hisobning ichki boss roli
+saqlanadi: mavjud boshqaruv imkoniyatlari ishlashda davom etadi.
+Filial arxivlash/tiklash ruxsati shu IDga bog'langan. Keyingi login o'zgarishi
+vakolatni boshqa hisobga o'tkazmaydi. Boshqa foydalanuvchi abduqodir loginini
+egallay olmaydi, boshqa boshliq Programmist parolini almashtira yoki uning
+hisobini to'xtata olmaydi. Faqat tugmani yashirish bilan cheklanmaydi:
+arxivlash/tiklash API ham ayni ruxsatni tekshiradi.
+
+BAZA VA TARIX
+branches/users/sales/debts/stocks kabi mavjud jadvallarning tuzilishi
+almashtirilmaydi. Qo'shimcha system_owner va branch_archives jadvallari
+create_all bilan yaratiladi. Moliyaviy yozuvlar va filial qatori o'chirilmaydi.
+Arxivlash filialning umumiy tranzaksiya qulfidan o'tadi. Shu filialga yangi
+savdo, kirim, xarajat, to'lov, savat tahriri va xodim qo'shish to'xtaydi.
+Xodimlar seansi yopiladi, arxivdagi filial xodimining kirishi rad etiladi.
+Tiklashda eski xodimlar va tarix qaytadan yaratilmaydi: o'z IDlari bilan qoladi.
+Hisobotdagi Barcha filiallar jamlari arxivlangan filial tarixini ham saqlaydi;
+filial filtrida Arxiv belgisi, dashboard kartasida Arxiv holati ko'rinadi.
+Savdo/ombor va yangi amallar uchun tanlovda faqat faol filiallar chiqadi.
+
+Eski offline qurilmasi mavjud filial avval 0.5.0 umumiy rejimiga o'tishi kerak:
+hali yuborilmagan navbat bor-yo'qligini server taxmin qilib filialni yopmaydi.
+Arxivlash/tiklash auditga yoziladi; ayni holatni takror so'rash audit yoki
+moliyaviy yozuvlarni ko'paytirmaydi. Tasdiqda filial nomi serverda tekshiriladi.
+
+WEB VA EXE
+Bu server va frontend o'zgarishi. 0.5.0 EXE saytni ochgani uchun uni qayta
+ochish kifoya; alohida yangi Windows installer kerak emas. Webni yangilang,
+hisobning yangilangan nomi/huquqlari uchun qayta kirish ham mumkin.
+Eski offline 0.4.x klient avval 0.5.0 ga yangilanishi kerak.
+
+TEKSHIRUV
+6 yangi integratsion test: egasi/oddiy boss/admin/kassir huquqlari, parol
+o'zgarmasligi, login almashtirilsa vakolat ko'chmasligi, tarix va summalar
+saqlanishi, qarz/ombor/savat/xarajat yozuvlari bloklanishi, eski seanslar,
+restore, eski offline profil, CSRF va parallel arxiv/savdo atomarligi.
+Avvalgi 11 backend testi ham o'tdi. Parallel testlar vaqtinchalik SQLite
+BEGIN IMMEDIATE bilan ishlaydi; PostgreSQL parallel sinovi deb talqin qilinmaydi.
+Frontend build va mahalliy Browser sinovida arxivlash/tiklash o'tdi,
+boshqa Boshliq hisobida arxivlash tugmasi va Programmistni tahrirlash yo'q.
+Bu tekshiruvlar xavfni kamaytiradi; har qanday kelajakdagi baza nosozligi
+umuman bo'lmasligiga kafolat emas. Mavjud server backup tartibi saqlanadi.

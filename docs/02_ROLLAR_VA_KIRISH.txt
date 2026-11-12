@@ -1,0 +1,66 @@
+ROLLAR, SEANSLAR VA XODIMLAR
+===========================
+
+FAYLLAR
+Backend: security.py, routes_auth.py, models.py dagi User/AuthSession/LoginAttempt.
+Frontend: main.jsx (kirish, menyu), Team komponenti (jamoa va filiallar).
+
+HUQUQLAR
+Boshliq (boss): barcha filiallar, omborlar, POS, chegirma, ta’minotchilar,
+ehson, to‘lovlar, hisobot, audit, JSON, foydalanuvchi va filial yaratish.
+Admin (admin): faqat o‘z filialining moliyaviy/ombor amallari va POS.
+Kassir (cashier): o‘z filialining mahsulotlari va o‘z saqlangan savatlari;
+POS orqali sotadi. Moliyaviy hisobotlar, chegirma, kirim va foydalanuvchi
+boshqaruviga kira olmaydi.
+
+Boshliqning branch_id maydoni NULL, admin va kassirniki aniq filial ID.
+branch_scope() so‘rovdagi filialni tekshiradi; oddiy xodimga boshqa filial
+so‘ralganda 403. Kassir ko‘ra olmaydigan menyuni yashirishning o‘zi himoya
+emas — endpointning Depends(manager/boss/current_user) tekshiruvi asosiydir.
+
+FOYDALANUVCHI YARATISH
+POST /api/users faqat boss. Login 3–60 lotin belgi, raqam, _, -, nuqta.
+Login kichik harfga o‘tkaziladi va unique. Parol kamida 10, ko‘pi bilan 200.
+Xodimlarni o‘chirish o‘rniga active=false qilinadi; tarixdagi bog‘lanish qoladi.
+PATCH /api/users/{id}: username, active yoki password yangilanadi; faqat boss.
+Jamoa va filiallar → xodim qatori → Login va parol: hozirgi login oldindan
+to‘ldiriladi, yangi parol ixtiyoriy. Bo‘sh qoldirilsa mavjud parol saqlanadi.
+Login 3–60 lotin harf/raqam/_, -, nuqta, kichik harfda unique saqlanadi.
+Band login 409, yaroqsiz login 422; bunday xatoda hisob qisman yangilanmaydi.
+Login haqiqatan o‘zgarganda, parol yangilanganda yoki hisob to‘xtatilganda
+shu xodimning barcha seanslari bekor qilinadi. Faqat harf kattaligi o‘zgarsa
+login bir xil hisoblanadi. Boshliq o‘z hisobini faolsizlantira olmaydi.
+O‘z login/paroli jamoada yangilansa, ilova qayta kirish formasini ochadi.
+Sozlamalar → Login va parol orqali ham o‘z loginini joriy parol bilan
+almashtirish mumkin; yangi parolni bo‘sh qoldirish loginni o‘zi yangilaydi.
+Programmistni boshqa boshliq tahrirlay olmaydi. Programmistning username
+o‘zgarishi hisob IDsi, ruxsatlar va savdo/ombor tarixini o‘zgartirmaydi;
+abduqodir logini boshqa hisobga berilmaydi. Loginning eski/yangi qiymati
+auditda saqlanadi, parol va uning xeshi auditga kiritilmaydi.
+Hozir rol, ism va filialni ko‘chirish endpointi yo‘q; kerak bo‘lsa alohida
+auditlangan o‘zgartirish jarayonini qo‘shing.
+
+PAROL
+PBKDF2-HMAC-SHA256, 600 000 iteratsiya, har parol uchun tasodifiy salt.
+Taqqoslash hmac.compare_digest bilan. Toza parol bazada saqlanmaydi,
+auditga, API javoblariga yoki JSON eksportga kiritilmaydi.
+
+SEANS
+POST /api/auth/login → token_urlsafe(32) tasodifiy token → DBda SHA256 xeshi.
+Brauzerda crm_session cookie, HttpOnly, SameSite=Strict, 12 soat muddat.
+HTTPS sozlanganda Secure=true. JS seans tokenini o‘qimaydi.
+GET /api/auth/me joriy foydalanuvchini qaytaradi.
+POST /api/auth/logout seans yozuvini o‘chiradi va cookieni bekor qiladi.
+
+LOGIN CHEKLOVI
+Bir login uchun 15 daqiqada 10 noto‘g‘ri urinishdan keyin 429 qaytadi.
+Hisoblagich LoginAttempt jadvalida, server qayta boshlansa ham saqlanadi.
+Noma’lum login uchun ham parol tekshirish xeshi hisoblanadi.
+Katta internet auditoriyasida nginx/VPN yoki tashqi gatewayda IP bo‘yicha
+ham limit qo‘shing. Hozir bitta ishchi API jarayoni konfiguratsiyasi berilgan.
+
+CSRF VA BRAUZER
+Yozuvchi so‘rovlar Origin hosti joriy hostga mos bo‘lishi kerak.
+Sec-Fetch-Site: cross-site yozuvlari rad etiladi. SameSite cookie ham ishlaydi.
+APIga tashqi integratsiya kerak bo‘lsa, alohida cheklangan service token
+yarating; cookie himoyasini shunchaki olib tashlamang.

@@ -1,0 +1,19 @@
+CI/CD — AMALDAGI HOLAT, 2026-09-26
+
+Repo: xtmuxa01-007/marva, branch main.
+.github/workflows/ci-cd.yml: Docker build, ajratilgan PostgreSQL testlari,
+dump/tiklash/reset sinovi va HTTP health. Faqat muvaffaqiyatli main run deploy
+bosqichiga o‘tadi. Sinovlar ishchi bazada bajarilmaydi.
+
+Deploy SSH kaliti GitHub Actions MARVA_SSH_KEY secretida; tasdiqlangan host
+kaliti MARVA_KNOWN_HOSTS secretida. Server forced-command wrapperi check yoki
+deploy <commit>ni qabul qiladi; deploy SHA mainning aynan joriy holati bo‘lishi
+kerak. Maxfiy kalit/env hech qachon Gitga qo‘shilmaydi.
+
+Desktop: .github/workflows/desktop-release.yml. Nashr qilingan GitHub stable
+release yoki workflow_dispatch -> installer/manifest mosligini tekshirish ->
+qisqa muddatli GitHub OIDC bilan tincrm.uzga chiqarish. EXE GitHub tokeni olmaydi.
+Windows EXE yig‘ish shu PCda alohida bajariladi; oddiy push EXE yig‘maydi.
+
+Server papkalari, backup va texnik tekshiruvlar: 20-hujjat.
+Joriy EXE va foydalanuvchining yangilash tartibi: 30-hujjat.

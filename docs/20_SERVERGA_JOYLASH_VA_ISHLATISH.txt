@@ -1,0 +1,37 @@
+AMALDAGI SERVER VA YANGILASH — 2026-09-26
+
+Domen: https://tincrm.uz
+VPS: root@161.97.70.124, SSH port 22
+Kod: /opt/marva, Git branch main
+Docker project: marva-crm
+Compose: /opt/marva/compose.yaml + /etc/marva/compose.prod.yaml
+Maxfiy muhit: /opt/marva/.env. /etc/marva/.env talab qilinmaydi.
+
+GitHub: https://github.com/xtmuxa01-007/marva
+main push -> Marva CI/CD -> vaqtinchalik test bazasi -> server deploy.
+Serverdagi /usr/local/sbin/marva-deploy faqat tekshirilgan main commitni
+fast-forward qiladi; API/webni qayta yig‘adi, bazadan dump oladi va healthni
+tekshiradi. Ishlab turgan DB konteyneri va volume identifikatori saqlanadi.
+Deploy zaxiralari: /var/backups/marva. Resetning to‘liq baza/rasm zaxiralari:
+/opt/marva/backups. Bu papkalar kod qoldig‘i emas, tozalashga kirmaydi.
+
+Holatni tekshirish (sirlar chiqarilmaydi):
+cd /opt/marva
+git status --short
+docker ps --filter label=com.docker.compose.project=marva-crm
+curl -fsS https://tincrm.uz/api/health
+
+Eski installerlarni ko‘rish / tozalash (faqat joriy SHA512 tekshirilgach):
+docker exec -i marva-crm-api-1 python - < scripts/clean_server_releases.py
+docker exec -i marva-crm-api-1 python - --apply < scripts/clean_server_releases.py
+Buni deploy/release tugagach bajaring; parallel tarqatish bo‘lmasin. Kod
+qoldiqlarini tozalash uchun bazani reset qilish, docker compose down -v yoki
+volume prune ishlatilmaydi. Yangi versiya GitHub release arxivida ham saqlanadi.
+
+Bu server Caddy/compose.production.yaml ishlatmaydi. Eski takroriy o‘rnatish
+modeli va o‘rnatilmagan backup timer shablonlari olib tashlangan. Serverning
+amaldagi HTTPS va /etc/marva konfiguratsiyasi saqlanadi.
+
+Windows EXE yig‘ish va tarqatish: docs/30_UMUMIY_WEB_VA_EXE.txt.
+Baza reset — mutlaqo alohida, zaxira va tasdiq talab qiladigan texnik amal:
+docs/32_MAHSULOT_ARXIVI_VA_BAZANI_TOZALASH.txt. Oddiy deploy uni chaqirmaydi.

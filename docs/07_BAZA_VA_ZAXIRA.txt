@@ -1,0 +1,73 @@
+POSTGRESQL, JADVALLAR, ZAXIRA VA TIKLASH
+======================================
+
+JADVALLAR XARITASI
+branches         — filiallar.
+users            — rol, filial, faol holat va parol xeshi.
+auth_sessions    — token xeshi va tugash muddati.
+login_attempts   — login taxminlarini cheklash hisoblagichi.
+suppliers        — ta’minotchi nomi, telefon va izoh.
+products         — umumiy katalog, SKU, supplier_id, image yo‘li.
+stocks           — har filial/mahsulot uchun kg, narx va chegirma.
+receipts         — kirim request_id, filial, mahsulot, kg, narx, mas’ul, vaqt.
+sales            — request_id, filial, kassir, jami, cash/card/donation, vaqt.
+sale_items       — mahsulot va ta’minotchi bog‘lanishi, savdo snapshotlari.
+supplier_payments— ta’minotchiga to‘langan haq va qabul qiluvchi.
+donation_payments— ehson hisobidan berilgan pul va qabul qiluvchi.
+saved_carts      — foydalanuvchi/filial xotirasi, JSON items va version.
+audit_logs       — kim, qachon, qanday amal qilganligi.
+
+CHEKLOVLAR
+User.username unique, Branch.name unique, Product.sku unique.
+Stock(branch_id, product_id) unique, kg va price manfiy emas.
+Discount 0–100. Sale.request_id, Receipt.request_id va har payment.request_id
+unique. Role va payment.method uchun DB check constraintlar bor.
+Bog‘langan yozuvlar ForeignKey bilan biriktirilgan, cascade delete berilmagan.
+Moliyaviy o‘chirish/tahrirlash uchun UI/API yo‘q.
+
+ULANISH
+Parol URL matniga qo‘shib yasalmaydi: SQLAlchemy URL.create maxsus belgilarni
+to‘g‘ri kodlaydi. .env qiymatlari compose environment orqali yuboriladi.
+PostgreSQL host porti yopiq. psql/pg_dump Docker db konteyneri ichida mavjud.
+Kerakli so‘rov: docker compose exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+
+SCHEMA O‘ZGARTIRISH
+Hozir v1 uchun create_all bo‘sh bazada boshlang‘ich jadvallarni yaratadi.
+create_all mavjud jadvalga yangi ustun qo‘shmaydi, turini o‘zgartirmaydi.
+Keyingi versiyada modelni o‘zgartirsangiz alohida SQL migratsiya yoki Alembic
+revisions qo‘shing. Ishchi bazani drop_all orqali qayta yaratmang.
+Tartib: backup → sinov bazada migratsiya → testlar → xizmat oynasida
+migratsiya → ilovani yangilash → invariant va auditni tekshirish.
+
+ZAXIRA
+PowerShell scripts/backup.ps1 loyiha ildizida ishlaydi:
+1. db ichida pg_dump --format=custom yaratadi.
+2. docker compose cp bilan database.dumpni oladi (binary matn pipe yo‘q).
+3. api ichidagi app.backup_tools faqat ilova yaratgan rasmlarni images.tar.gz qiladi.
+4. backups/YYYYMMDD-HHMMSS-TASODIFIY_ID ichiga ikki fayl va SHA256 checksums.json yozadi.
+Vaqtinchalik dump/arxiv nomlari har ishga tushishda alohida; parallel backup
+bir-birining faylini bosmaydi. Ko‘chirilganidan keyin konteynerdagi nusxa o‘chadi.
+Rasmlar bir marta qo‘shiladi, shu sabab DB dumpdan keyingi rasm nusxasi
+dumpdagi havolalarni qamrab oladi. Zaxiralash payti image o‘chirish amali yo‘q.
+.env alohida maxfiy saqlansin, kod Git/arxiv orqali alohida saqlansin.
+Bir hostdagi backup disk buzilishidan himoya qilmaydi; boshqa joyga nusxalang.
+
+TIKLASH
+scripts/restore.ps1 -BackupFolder backups/VAQT.
+Mavjud hisoblar almashtiriladi; script foydalanuvchidan TIKLASH tasdig‘ini oladi.
+checksums.json mavjud bo‘lsa ikkala SHA256 tekshiriladi. Rasm arxivi bazaga
+tegishdan oldin to‘liq o‘qiladi: symlink, yo‘lni chetlab chiqish, begona nom,
+takror nom, katta fayl yoki buzilgan arxiv rad etiladi.
+web/api to‘xtaydi, dump dbga ko‘chadi, pg_restore --clean --if-exists
+--no-owner --single-transaction bajariladi. Xatoda tiklash tranzaksiyasi
+rollback bo‘ladi va ilova to‘xtagan holda qoladi.
+So‘ng rasmlar app.backup_tools orqali vaqtinchalik joyga yozilib,
+product_images volumega ko‘chiriladi va web/api ishga tushadi.
+Restore eski, ortiqcha rasm fayllarini o‘chirmaydi; bu pul hisobiga ta’sir qilmaydi.
+Ishchi bazadan oldin sinov muhitida restore jarayonini sinang.
+
+SAQLANISH
+postgres_data — DB. product_images — mahsulot rasmlari.
+docker compose down hajmlarni saqlaydi.
+docker compose down -v ularni o‘chiradi, oddiy to‘xtatish uchun ishlatmang.
+JSON eksport backup o‘rnini bosmaydi.

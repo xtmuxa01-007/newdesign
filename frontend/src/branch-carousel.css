@@ -1,0 +1,77 @@
+.branch-carousel {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 22px 22px;
+}
+.branch-carousel-track {
+  display: flex;
+  gap: 15px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding-bottom: 5px;
+  border-radius: 11px;
+}
+.branch-carousel-track > .branch-card {
+  flex: 0 0 var(--branch-card-width, min(100%, 299px));
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.branch-carousel .branch-card-title .tile-icon,
+.branch-carousel .branch-card-title .badge {
+  flex-shrink: 0;
+}
+.branch-carousel .branch-card-title h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.branch-carousel .branch-card dt {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.app-shell .branch-carousel .branch-card dd {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  font-variant-numeric: tabular-nums;
+}
+.branch-carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.app-shell .branch-carousel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--green);
+  background: var(--surface);
+}
+.app-shell .branch-carousel-button:hover:not(:disabled) {
+  background: var(--soft);
+}
+.app-shell .branch-carousel-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.branch-carousel-track:focus-visible,
+.branch-carousel-button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .branch-carousel {
+    padding: 0 16px 16px;
+  }
+}

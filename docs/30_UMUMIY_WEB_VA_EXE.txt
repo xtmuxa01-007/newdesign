@@ -1,0 +1,75 @@
+TIN CRM 0.5.3 — WEB VA BARCHA KOMPYUTERLAR
+2026-11-01
+
+JORIY HOLAT — 2026-11-05
+Foydalanuvchi EXE va eski lokal sinxronlashni vaqtincha to‘xtatdi.
+Hozir web yoki Telegram Mini Appdan foydalaniladi. Quyidagi EXE yangilash
+va eski navbatni markazga o‘tkazish amallari qayta yoqish aniq tasdiqlanmaguncha
+bajarilmaydi. Fayl, AppData, lokal baza va navbatlar saqlanadi.
+To‘liq tartib: 40_EXE_VA_LOKAL_SYNC_TOXTATILGAN.txt.
+
+Web va EXE https://tincrm.uz markaziy PostgreSQL bazasiga ulanadi. Bir filialda
+bir nechta PC ishlashi mumkin. Har xodim o‘z login/paroli bilan kiradi; rol va
+filial huquqi serverda tekshiriladi. Savdo va tahrirlash uchun internet kerak.
+EXE alohida offline savdo bazasini ishga tushirmaydi.
+
+0.5.3 PAKETI
+Joriy manbadan yangi Windows installer tayyorlandi. Mahsulotni qaytarish va
+tiklash, savdoni bevosita tahrirlash, o‘zgarishlar/xarajatlar/ombor jadvallarining
+yangi dizayni, qarz va hisobot imkoniyatlari markaziy webdan ochiladi.
+Web funksiyalari EXE ichida alohida eski nusxada saqlanmaydi. AppData, dastur
+identifikatori, login seansi va eski profilni zaxiralash/o‘tkazish saqlangan.
+Lokal tayyor paket serverga tarqatilgan degani emas: amaldagi tarqatilayotgan
+versiyani quyidagi latest.yml manifestidan tekshiring.
+
+YANGILASH
+Yangilanishni tekshirish tugmasi login, sozlamalar va ulanish oynalarida bor.
+Paket serverdan o‘zi yuklanadi. Tayyor bo‘lgach Qayta ishga tushirib o‘rnatish
+bosiladi; avval lokal profil zaxiralanadi. Yangilanish 20 soniyadan keyin va
+har 4 soatda fonda ham tekshiriladi. GitHub hisobi kerak emas.
+0.4.6 va undan eski EXEga yangi installer bir marta qo‘lda o‘rnatiladi.
+O‘rnatish manzili va AppData/Marva CRM identifikatori o‘zgarmaydi.
+
+ESKI PCNI O‘TKAZISH
+Eski EXEni yoping va yangi versiyani o‘rnating. Dastur oldingi tincrm.uz
+profillarini izchil SQLite backup/SHA256 bilan saqlaydi, yuborilmagan amallarni
+serverga yuborib, jurnallar mos bo‘lgach umumiy rejimga o‘tadi. Xatoda retry
+oynasida qoladi; lokal bazani savdo uchun ishga tushirmaydi.
+Server reset qilingan yoki qurilma bekor qilingan bo‘lsa, 0.5.1+ ulanish
+oynasidagi Eski bazani saqlab markazga kirish tugmasi ishlatiladi. Barcha eski
+profillar tekshirilgan zaxirada va retired papkada saqlanadi. Eski navbat yangi
+bazaga yuborilmaydi. Keyin markaziy hisob bilan kiriladi. Zaxira xatosida
+bu amal bajarilmaydi. Eski AppData bazasi va qoralamalarni qo‘lda o‘chirmang.
+
+ESKI QURILMA BELGISI VA WEB TAHRIRI
+Faqat hali faol va umumiy rejimga o‘tmagan eski qurilma markaziy yozishni
+bloklaydi. Qurilma oldin bekor qilingan (active=false) bo‘lsa, uning tarixiy
+qatori webdagi savdo, kilogramm/narx tahriri yoki katalogni bloklamaydi.
+Eski token yaroqsizligicha qoladi; eski navbat avtomatik yuborilmaydi.
+Faol eski qurilma uchun saqlangan amallarni tekshirib, umumiy rejimga o‘tish
+talabi saqlanadi. Bu xabar joriy brauzerning eskiligini bildirmaydi.
+Yangilanish qurilmani avtomatik bekor qilmaydi, SharedBranch yaratmaydi va
+lokal/markaziy savdo, qoldiq yoki navbatlarni o‘zicha birlashtirmaydi.
+
+0.5.2
+Eski offline main/setup, lokal savdo runtime va ortiqcha web nusxasi paketdan
+olib tashlangan. Ulanish, yangilash, backup va eski PCdan o‘tish saqlangan.
+Programmistning SKU/qoldiq tahriri va arxiv funksiyalari web/EXEda ishlaydi.
+
+YIG‘ISH VA TARQATISH
+1. Desktop kodi o‘zgarsa desktop/package.json versiyasini oshiring.
+2. README bo‘yicha testlar, frontend build, Python helper va Windows NSISni
+   yig‘ing. build_update_manifest.py va build_server_package.pyni bajaring.
+3. Kodni main ga push qiling; Marva CI/CD deployi muvaffaqiyatli bo‘lsin.
+4. python scripts/publish_desktop_release.py upload
+5. python scripts/publish_desktop_release.py publish
+   Skript joriy commit CI/CDsi va barcha asset xeshlarini tekshiradi.
+6. TIN desktop distribution tugagach server latest.yml versiyasi va installer
+   SHA512/SHA256ini tekshiring. Keyin eski paket/buildlarni 21-hujjat bo‘yicha
+   tozalang. Nashr qilingan versiya fayli hech qachon almashtirilmaydi.
+
+Manifest: https://tincrm.uz/api/desktop/updates/latest.yml
+Lokal installer: desktop/release/TIN-CRM-Setup-0.5.3.exe.
+Joriy server installerining manzili latest.yml ichidagi path maydonida beriladi.
+Manbalar: desktop/release/server-0.5.3.zip. Server odatda Git/CI/CD orqali yangilanadi.
+Bu ZIP qo‘shimcha manba nusxasi, .env/baza/maxfiy kalitlarni o‘z ichiga olmaydi.

@@ -1,0 +1,328 @@
+.app-shell .change-notification-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface);
+  white-space: normal;
+  text-align: left;
+}
+.app-shell .change-notification-item:hover:not(:disabled) {
+  background: var(--soft);
+  border-color: var(--green);
+}
+.change-notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 9px;
+  color: var(--green);
+  background: var(--soft);
+}
+.change-notification-icon.cancelled {
+  color: var(--danger);
+}
+.change-notification-copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.change-notification-copy strong {
+  font-size: 14px;
+  color: var(--heading);
+}
+.change-notification-copy > span,
+.change-notification-copy > small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.app-shell.emerald-workspace .notifications-modal[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(760px, calc(100vw - 28px));
+  max-width: 760px;
+  max-height: min(88dvh, 900px);
+  padding: 22px;
+  overflow: hidden;
+}
+.app-shell.emerald-workspace .notifications-modal .modal-head {
+  flex-shrink: 0;
+  gap: 16px;
+  margin: 0 0 14px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid #b8c79780;
+}
+.notifications-toolbar {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+.notifications-overview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #bec99599;
+  border-radius: 16px;
+  background: linear-gradient(130deg, #eef5df, #faf1cf);
+}
+.notifications-overview > div {
+  flex: 1;
+  min-width: 0;
+}
+.notifications-overview strong {
+  color: #16543d;
+  font-size: 19px;
+  font-weight: 750;
+}
+.app-shell .notifications-overview p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.notifications-summary-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1px solid #bac991;
+  border-radius: 13px;
+  color: #155d43;
+  background: #ffffffa6;
+}
+.notifications-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0 10px;
+}
+.notifications-filters > button {
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid #bccb9d;
+  border-radius: 11px;
+  color: #466347;
+  background: #fafbee;
+  font-size: 12px;
+}
+.notifications-filters > button[aria-pressed='true'] {
+  border-color: #17593f;
+  color: #fff;
+  background: linear-gradient(135deg, #247452, #064d3b);
+}
+.notifications-filters > button > span {
+  min-width: 20px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  background: #dce8cb;
+  color: #254e38;
+  font-size: 11px;
+  font-weight: 700;
+}
+.notifications-filters > button[aria-pressed='true'] > span {
+  background: #ffffff26;
+  color: #fff;
+}
+.notifications-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.app-shell .notifications-navigation .text-btn {
+  font-size: 12px;
+}
+.app-shell .notifications-limit {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #657450;
+}
+.notifications-toolbar > .wide {
+  margin-top: 10px;
+}
+.notifications-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 5px 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #b7c791 transparent;
+}
+.notifications-list {
+  display: grid;
+  gap: 10px;
+}
+.app-shell.emerald-workspace .notifications-modal .notification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #c0cd9d;
+  border-radius: 17px;
+  white-space: normal;
+  text-align: left;
+  color: #194b35;
+  background: linear-gradient(135deg, #fffdf3, #eef5e1);
+  box-shadow: inset 0 1px 0 #fff;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    box-shadow 0.2s;
+}
+.app-shell.emerald-workspace .notifications-modal .notification-card:hover {
+  border-color: #6b9b61;
+  background: linear-gradient(135deg, #f4f7e4, #e3efd2);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 5px 14px -10px #275a3277;
+}
+.notification-card-icon,
+.notifications-modal .change-notification-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid #d9bb7c;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #fff6d9, #f2dfb0);
+  color: #8c5b2d;
+}
+.notification-card-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 7px;
+}
+.notification-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.notification-card-heading > strong {
+  font-size: 15px;
+  font-weight: 720;
+  overflow-wrap: anywhere;
+}
+.notification-kind {
+  padding: 3px 7px;
+  border: 1px solid #bdcea177;
+  border-radius: 6px;
+  color: #5c7552;
+  background: #e9efdc;
+  font-size: 10px;
+}
+.notification-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  color: #607454;
+  font-size: 11px;
+}
+.notification-card-meta svg {
+  flex-shrink: 0;
+}
+.notification-card-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 1px;
+}
+.notification-card-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.app-shell .notification-card-amount small {
+  font-size: 10px;
+  color: #6a7a56;
+}
+.notification-card-amount > strong {
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  color: #14543c;
+}
+.app-shell .notification-card-amount .unit {
+  font-size: 11px;
+  font-weight: 450;
+}
+.notification-due-label {
+  padding: 4px 7px;
+  border-radius: 7px;
+  color: #9c4229;
+  background: #f7e4cd;
+  font-size: 10px;
+}
+.notification-card-arrow {
+  align-self: center;
+  flex-shrink: 0;
+  color: #5c8754;
+}
+@media (max-width: 520px) {
+  .app-shell.emerald-workspace .notifications-modal[open] {
+    padding: 16px;
+    max-height: 92dvh;
+  }
+  .app-shell.emerald-workspace .notifications-modal .modal-head h2 {
+    font-size: 20px;
+  }
+  .notifications-overview {
+    padding: 10px;
+    gap: 9px;
+  }
+  .notifications-summary-icon {
+    display: none;
+  }
+  .notifications-filters {
+    gap: 5px;
+  }
+  .notifications-filters > button {
+    padding: 8px 9px;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .app-shell.emerald-workspace .notifications-modal .notification-card {
+    padding: 12px;
+    gap: 9px;
+  }
+  .notification-card-icon,
+  .notifications-modal .change-notification-icon {
+    width: 32px;
+    height: 34px;
+    flex-basis: 32px;
+    border-radius: 10px;
+  }
+  .notification-card-heading > strong {
+    font-size: 14px;
+  }
+  .notification-card-amount > strong {
+    font-size: 18px;
+  }
+  .notification-card-arrow {
+    width: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell.emerald-workspace .notifications-modal .notification-card {
+    transition: none;
+  }
+}

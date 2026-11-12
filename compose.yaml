@@ -1,0 +1,64 @@
+name: marva-crm
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-marva_crm}
+      POSTGRES_USER: ${POSTGRES_USER:-marva}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_NAME: ${POSTGRES_DB:-marva_crm}
+      DB_USER: ${POSTGRES_USER:-marva}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      BOOTSTRAP_USERNAME: ${BOOTSTRAP_USERNAME:-boshliq}
+      BOOTSTRAP_PASSWORD: ${BOOTSTRAP_PASSWORD:?Set BOOTSTRAP_PASSWORD in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      CRM_INTEGRATIONS_DIR: /app/integrations
+      CRM_TELEGRAM_DAILY_REPORT_ENABLED: ${CRM_TELEGRAM_DAILY_REPORT_ENABLED:-1}
+      CRM_DESKTOP_ENABLED: ${CRM_DESKTOP_ENABLED:-0}
+      CRM_LEGACY_SYNC_ENABLED: ${CRM_LEGACY_SYNC_ENABLED:-0}
+    volumes:
+      - product_images:/app/uploads
+      - integrations_data:/app/integrations
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:${APP_PORT:-8784}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  product_images:
+  integrations_data:

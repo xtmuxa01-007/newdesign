@@ -1,0 +1,138 @@
+MAHSULOT TAHLILI VA JORIY SOTUV NARXINI TAHRIRLASH
+================================================
+
+2026-11-05: EXE va eski lokal sinxronlash vaqtincha to‘xtatilgan.
+Web/Telegramda admin kg/narx tahriri eski qurilma belgisi bilan bloklanmaydi.
+Quyidagi faol offline qurilma himoyasi faqat sync alohida qayta yoqilganda
+amal qiladi. Hozirgi tartib: 40_EXE_VA_LOKAL_SYNC_TOXTATILGAN.txt.
+
+QAYERDAN OCHILADI
+«Ombor» jadvalidagi mahsulot qatorida «Tahlil»ni bosing. Oyna tanlangan
+filial va mahsulotga tegishli. «Tahlil» hamda «Narx va tarix» bo‘limlari bor.
+Web va umumiy bazaga ulangan Windows EXE bir xil imkoniyatdan foydalanadi.
+Oynani ochish, sana tanlash va yangilash faqat ma’lumotni o‘qiydi.
+
+HOZIRGI OMBOR HOLATI
+Qoldiq kilogrammi, belgilangan narx, amaldagi chegirma, chegirmadan keyingi
+1 kg sotuv narxi va qoldiqning joriy sotuv qiymati ko‘rsatiladi. Bu qiymatlar
+hozirgi holatga tegishli: sana filtrini oldingi oyga o‘zgartirish ularni o‘sha
+oy oxiridagi qoldiq yoki narxga aylantirmaydi. Qoldiq yozuvi hali yo‘q
+mahsulot nol bilan ko‘rsatiladi; narx tahriri uchun avval kirim kerak.
+
+REVIZIYADAN KEYIN KILOGRAMMNI TUZATISH
+«Hozirgi ombor holati»da narx tugmasi yonida «Kilogramni tuzatish» bor.
+Admin o‘z filialida, boshliq tanlangan faol filialda ishlatadi. Oynaga
+ombordagi haqiqiy JAMI kilogramm va majburiy sabab yoziladi. 0 mumkin,
+manfiy miqdor va 3 kasr xonasidan ortiq aniqlik qabul qilinmaydi.
+Oldingi/yangi qoldiq hamda farq tasdiqlashdan oldin ko‘rsatiladi.
+
+Saqlash faqat shu filialdagi joriy Stock.kg ni o‘zgartiradi va yangi
+StockAdjustment/audit yozuvini qo‘shadi. Eski savdo, kirim, narx, chegirma,
+kassa, ta’minotchi va qarz hisoblari qayta yozilmaydi. Tuzatish yangi kirim
+yoki savdo hisoblanmaydi. Oldingi kunlarning kun yakuni ombor tarixi qoladi.
+Boshliqlar ilova ichida mahsulot, filial, xodim, oldingi/yangi kg, farq va
+sababli xabar oladi. Tarix «O‘zgarishlar»da va «Qoldiq tuzatishlari»da bor.
+
+Oyna ochilgandan keyin savdo/kirim qoldiqni o‘zgartirgan bo‘lsa server 409
+qaytaradi: joriy holatni yangilab qayta tekshiring. Natijasi noma’lum so‘rov
+ayni request_id bilan tekshiriladi va ikkinchi tuzatish yaratilmaydi.
+Arxivlangan filial/mahsulot, qoldiq yozuvi yo‘qligi yoki eski offline
+filialda tahrir bloklanadi. SKU va bekor qilishning Programmist huquqi qoladi.
+Eski qurilma to‘sig‘i faqat faol, hali umumiy rejimga o‘tmagan qurilmaga
+tegishli. Bekor qilingan qurilmaning tarixiy qatori kg/narx tahririni
+bloklamaydi; eski token yaroqsiz, navbat esa saqlanadi va avtomatik yuborilmaydi.
+API: POST /api/stocks/{stock_id}/adjustments
+Body: request_id, expected_kg, kg, reason.
+permissions.can_adjust_stock va adjustment_disabled_reason tahrirni belgilaydi.
+
+DAVR BO‘YICHA TAHLIL
+Boshlang‘ich davr — Toshkent vaqti bilan joriy oyning birinchi kunidan
+bugungacha. Boshlanish va tugash sanalari ham davrga kiradi; keyingi kun
+00:00 dan boshlangan yozuvlar kirmaydi. Barcha sanalar Asia/Tashkent bo‘yicha.
+
+Ko‘rsatkichlar:
+- sotilgan kilogramm va shu mahsulot qatnashgan alohida savdolar soni;
+- mahsulot savdosi: qator chegirmasi va mini chegirmadan keyingi summa;
+- kirim qilingan kilogramm va kirimlar soni;
+- o‘rtacha sotuv narxi: mahsulot savdosi / sotilgan kilogramm;
+- hisobga olingan mini chegirma va kunlik savdo grafigi.
+
+SaleItem.total mini chegirma ulushi ayirilgan qiymatdir. Tahlil mini
+chegirmani ikkinchi marta ayirmaydi. Mahsulot savdosi kassa qoldig‘i, kelib
+tushgan naqd/karta yoki foyda emas. Ehson va keyingi qarz to‘lovlari unga
+qo‘shilmaydi; qarzga sotilgan mahsulotning o‘z qiymati savdo hisobiga kiradi.
+Receipt.price kirim paytida belgilangan sotuv narxi: u alohida tannarx yoki
+foyda hisoblash uchun asos sifatida talqin qilinmaydi.
+
+Tahlil joriy haqiqiy savdo qatorlarini ishlatadi. Savdo tuzatilgan bo‘lsa,
+yangilangan qiymat savdoning asl sanasida ko‘rsatiladi. Bekor qilingan
+savdo va kirimlar faol ko‘rsatkichlarga kirmaydi; ularning audit va arxiv
+nusxalari saqlanadi. Mahsulot arxivlangan bo‘lsa ham uning tarixi o‘qiladi.
+
+«So‘nggi savdolar» tanlangan davrdagi oxirgi 20 mahsulot qatorini, «So‘nggi
+kirimlar» shu davrdagi oxirgi 20 kirimni ko‘rsatadi. Qatorlardagi narx o‘sha
+yozuvda saqlangan tarixiy narxdir. Jami ko‘rsatkichlar 20 yozuv bilan
+cheklanmaydi. Odatdagi davrda grafik savdo bo‘lmagan kunlarni ham ko‘rsatadi;
+juda uzoq davrda faqat yozuvli kunlar olinadi va bu oynada izohlanadi.
+
+NARXNI O‘ZGARTIRISH
+Admin faqat o‘z filialida, boshliq tanlangan faol filialda narx belgilaydi.
+Kassirga tahrir huquqi berilmaydi. Arxivlangan filial yoki mahsulot, qoldiq
+yozuvi yo‘qligi va eski offline rejimda narxni tahrirlash bloklanadi; sabab
+oynada ko‘rsatiladi. Eski offline qurilmali filial avval umumiy bazaga o‘tadi.
+
+1. Mahsulot tahlilida «Narxni o‘zgartirish»ni bosing.
+2. 1 kg uchun yangi musbat narxni kiriting; pul ikki kasr xonasigacha.
+3. O‘zgartirish sababini yozing: 3–500 belgi.
+4. «Narxni saqlash»ni bosing.
+
+Saqlash faqat shu filialdagi Stock.price va yangi audit yozuviga ta’sir
+qiladi. Kilogramm qoldig‘i, chegirma, mahsulot katalogi, oldingi savdo/kirim
+narxlari, qarzlar va mini chegirmalar qayta yozilmaydi. Yangi narx filialdagi
+qolgan mahsulot va keyingi savdolar uchun amal qiladi. Boshqa filialning
+narxi o‘zgarmaydi. O‘zgarmagan narxni qayta saqlashga ruxsat berilmaydi.
+
+Oyna ochilgandan keyin boshqa xodim yoki yangi kirim narxni o‘zgartirsa,
+server 409 qaytaradi; tahlilni yangilab joriy narxdan qayta boshlash kerak.
+Eski narx bilan ochiq qolgan POS savdosi ham o‘zgargan jami qiymatni serverda
+tekshiradi. Natijasi noma’lum so‘rov «Natijani tekshirish» orqali ayni
+request_id bilan qaytariladi; muvaffaqiyatli narx tahriri takror yozilmaydi.
+
+NARX TARIXI VA KIRIM
+«Narx va tarix»da tanlangan mahsulot/filial uchun qo‘lda qilingan oxirgi
+20 narx o‘zgarishi barcha sanalar bo‘yicha ko‘rsatiladi. Savdo davri filtri
+bu jadvalni cheklamaydi. Oldingi narx, yangi narx, sabab, xodim va vaqt
+auditda «Mahsulot narxi o‘zgartirildi» amali bilan saqlanadi.
+
+Yangi kirim narxi joriy Stock.price ni yana belgilaydi, qolgan kgga ham
+qo‘llanadi. Kirimni bekor qilish tegishli faol kirim yoki boshlang‘ich
+holatdan keyingi qo‘lda narx tahririni saqlaydi. Masalan, kirim narxi
+12 000, keyin qo‘lda 15 000 belgilansa, shu kirim bekor qilinganda keyingi
+15 000 narx yo‘qolmaydi. Undan keyin yangi faol kirim narxi belgilangan
+bo‘lsa, shu yangi kirim ustun turadi. Eski Receipt.price o‘zgarmaydi.
+
+API VA MA’LUMOTLARNI SAQLASH
+GET /api/products/{product_id}/analytics?branch_id=...&start=...&end=...
+Admin/boshliq va filial doirasi tekshiriladi. Javob: filter, product,
+current_stock, permissions, summary, daily, series, recent_sales,
+recent_receipts, price_history. PostgreSQLda bitta read-only snapshot
+ko‘rsatkichlar va tarixning bir-biriga mos holatini o‘qiydi.
+
+POST /api/stocks/{stock_id}/price
+Body: request_id, expected_price, price, reason.
+Filial → mahsulot → qoldiq qulfi olinadi; joriy narx va takroriy so‘rov
+tekshiriladi. Audit before/after narxlar, sabab va xodimni saqlaydi.
+
+Bu imkoniyat uchun yangi jadval, sxema migratsiyasi yoki eski yozuvlarni
+to‘ldirish (backfill) kerak emas. Yangilanishni deploy qilishning o‘zi
+mavjud ma’lumotlarni o‘chirmaydi va avtomatik narx tahriri bajarmaydi.
+Ishchi bazada narx faqat huquqli foydalanuvchi yangi qiymat va sababni
+«Narxni saqlash» orqali yuborganda o‘zgaradi. Tahlilni ochish yozuv yaratmaydi.
+
+MANBA VA SINOVLAR
+backend/app/product_analytics.py, backend/app/stock_prices.py,
+backend/app/routes_stock.py, backend/app/routes_operations.py, schemas.py;
+frontend/src/ProductAnalysisModal.jsx va product-analysis.js.
+backend/tests/test_product_analytics.py, backend/tests/test_stock_price.py,
+frontend/tests/product-analysis.test.mjs.
+Sinovlar vaqtinchalik bazalarda bajariladi; ishchi savdo bazasiga yozilmaydi.
